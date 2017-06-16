@@ -1,0 +1,2 @@
+type tree = {key: int, children: treelist}
+type treelist = {head: tree, tail: treelist}
