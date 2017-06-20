@@ -6,13 +6,13 @@
 #ifndef _TREE_H_
 #define _TREE_H_
 
-#include "linked_list.h"
+#include "list.h"
 #include "temp.h"
 
-typedef struct _tree_stm   tree_stm;
-typedef struct _tree_exp   tree_exp;
-typedef        linked_list tree_exp_list;
-typedef        linked_list tree_stm_list;
+typedef struct _tree_stm tree_stm;
+typedef struct _tree_exp tree_exp;
+typedef        list      tree_exp_list;
+typedef        list      tree_stm_list;
 
 /* Binary operators */
 typedef enum

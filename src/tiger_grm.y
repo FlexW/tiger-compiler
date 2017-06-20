@@ -7,7 +7,7 @@
 #include "include/errormsg.h"
 #include "include/symbol.h"
 #include "include/absyn.h"
-#include "include/linked_list.h"
+#include "include/list.h"
 
 int yylex (void); /* function prototype */
 
@@ -148,30 +148,17 @@ expsemicolonlist:
 
 |   exp
     {
-      linked_list *list = linked_list_new ();
-      linked_list_add (list, $1);
-      $$ = list;
+      $$ = list_new_list ($1, NULL);
     }
 
 |   exp SEMICOLON expsemicolonlist
     {
-        if ($3 == NULL)
-            {
-                linked_list *list = linked_list_new ();
-                linked_list_add (list, $1);
-                $$ = $3;
-            }
-        else
-            {
-                linked_list_insert ($3, 0, $1);
-                $$ = $3;
-            }
+      $$ = list_new_list ($1, $3);
     }
 
 |   error SEMICOLON expsemicolonlist
     {
-      linked_list_insert ($3, 0, NULL);
-      $$ = $3;
+      $$ = list_new_list (NULL, $3);
     }
 ;
 
@@ -182,21 +169,17 @@ funcallargslist:
 
 |   exp
     {
-      linked_list *list = linked_list_new ();
-      linked_list_add (list, $1);
-      $$ = list;
+      $$ = list_new_list ($1, NULL);
     }
 
 |   exp COMMA funcallargslist
     {
-      linked_list_insert ($3, 0, $1);
-      $$ = $3;
+      $$ = list_new_list ($1, $3);
     }
 
 |   error COMMA funcallargslist
     {
-      linked_list_insert ($3, 0, NULL);
-      $$ = $3;
+      $$ = list_new_list (NULL, $3);
     }
 ;
 
@@ -297,10 +280,20 @@ infix:
     {$$ = absyn_new_op_exp (errm_tok_pos, ABSYN_DIVIDE_OP, $1, $3);}
 
 |   exp AND exp
-    {$$ = absyn_new_if_exp (errm_tok_pos, $1, $3, absyn_new_int_exp (errm_tok_pos, 0));}
+    {
+      $$ = absyn_new_if_exp (errm_tok_pos,
+                             $1,
+                             $3,
+                             absyn_new_int_exp (errm_tok_pos, 0));
+    }
 
 |   exp OR exp
-    {$$ = absyn_new_if_exp (errm_tok_pos, $1, absyn_new_int_exp (errm_tok_pos, 1), $3);}
+    {
+      $$ = absyn_new_if_exp (errm_tok_pos,
+                             $1,
+                             absyn_new_int_exp (errm_tok_pos, 1),
+                             $3);
+    }
 
 |   exp EQ exp
     {$$ = absyn_new_op_exp (errm_tok_pos, ABSYN_EQ_OP, $1, $3);}
@@ -366,25 +359,23 @@ reccreate:
 
 efieldlist:
     %empty
-    {$$ = NULL;}
+    {
+      $$ = NULL;
+    }
 
 |   efield
     {
-      linked_list *list = linked_list_new ();
-      linked_list_add (list, $1);
-      $$ = list;
+      $$ = list_new_list ($1, NULL);
     }
 
 |   efield COMMA efieldlist
     {
-      linked_list_insert ($3, 0, $1);
-      $$ = $3;
+      $$ = list_new_list ($1, $3);
     }
 
 |   error COMMA efieldlist
     {
-      linked_list_insert ($3, 0, NULL);
-      $$ = $3;
+      $$ = list_new_list (NULL, $3);
     }
 ;
 
@@ -471,21 +462,17 @@ let:
 declist:
     dec
     {
-      linked_list *list = linked_list_new ();
-      linked_list_add (list, $1);
-      $$ = list;
+      $$ = list_new_list ($1, NULL);
     }
 
 |   dec declist
     {
-      linked_list_insert ($2, 0, $1);
-      $$ = $2;
+      $$ = list_new_list ($1, $2);
     }
 
 |   error declist
     {
-      linked_list_insert ($2, 0, NULL);
-      $$ = $2;
+       $$ = list_new_list (NULL, $2);
     }
 ;
 
@@ -505,30 +492,24 @@ dec:
 fundeclist:
     fundec
     {
-      linked_list *list = linked_list_new ();
-      linked_list_add (list, $1);
-      $$ = list;
+       $$ = list_new_list ($1, NULL);
     }
 
 |   fundec fundeclist
     {
-      linked_list_insert ($2, 0, $1);
-      $$ = $2;
+       $$ = list_new_list ($1, $2);
     }
 ;
 
 typedeclist:
     typedec
     {
-      linked_list *list = linked_list_new ();
-      linked_list_add (list, $1);
-      $$ = list;
+       $$ = list_new_list ($1, NULL);
     }
 
 |   typedec typedeclist
     {
-      linked_list_insert ($2, 0, $1);
-      $$ = $2;
+      $$ = list_new_list ($1, $2);
     }
 ;
 
@@ -570,21 +551,17 @@ fielddeclist:
 
 |   fielddec
     {
-      linked_list *list = linked_list_new ();
-      linked_list_add (list, $1);
-      $$ = list;
+      $$ = list_new_list ($1, NULL);
     }
 
 |   fielddec COMMA fielddeclist
     {
-      linked_list_insert ($3, 0, $1);
-      $$ = $3;
+      $$ = list_new_list ($1, $3);
     }
 
 |   error COMMA fielddeclist
     {
-      linked_list_insert ($3, 0, NULL);
-      $$ = $3;
+      $$ = list_new_list (NULL, $3);
     }
 ;
 

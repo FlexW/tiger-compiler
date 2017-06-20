@@ -14,7 +14,7 @@ typedef struct _condit_exp condit_exp;
 typedef struct _patch_list patch_list;
 
 /* Private global list to save all function and string fragments */
-frm_frag_list *frag_list = NULL, *sfrag_list = NULL;
+frm_frag_list *frag_list, *sfrag_list = NULL;
 
 /**
  * Saves nested level of variable and access frame.
@@ -120,11 +120,11 @@ tra_new_level (tra_level      *parent_ptr,
                temp_label     *name_ptr,
                util_bool_list *formals_ptr)
 {
-  tra_level *new_level   = new (sizeof (*new_level));
-  bool      *static_link = new (sizeof (*static_link));
-  *static_link = true;
+  tra_level *new_level = new (sizeof (*new_level));
+  bool *static_link    = new (sizeof (*static_link));
+  *static_link         = true;
 
-  formals_ptr = list_new_list (static_link, formals_ptr); /* Add static link */
+  list_new_list (static_link, formals_ptr); /* Add static link */
 
   new_level->frame   = frm_new_frame (name_ptr, formals_ptr);
   new_level->parent  = parent_ptr;
@@ -422,14 +422,14 @@ tra_if_exp (tra_exp* test_ptr,
             tra_exp* then_ptr,
             tra_exp* else_ptr)
 {
-  condit_exp *test       = conv_conditional_exp (test_ptr);
+  condit_exp *test     = conv_conditional_exp (test_ptr);
   /* Allocate a register for the result */
-  tree_exp   *reg_result = tree_new_temp (temp_new_temp ());
+  tree_exp *reg_result = tree_new_temp (temp_new_temp ());
   /* Label to jump to when done with if statement */
-  temp_label *done       = temp_new_label ();
+  temp_label *done     = temp_new_label ();
   /* Allocate labels for true and else, fill expressions with these labels */
-  temp_label *truee      = temp_new_label ();
-  temp_label *falsee     = temp_new_label ();
+  temp_label* truee    = temp_new_label ();
+  temp_label* falsee   = temp_new_label ();
 
   do_patch (test->trues, truee);
   do_patch (test->falses, falsee);
@@ -515,9 +515,10 @@ tra_record_exp (tra_exp_list *tra_list)
   tree_exp_list *args   = list_new_list (size, NULL);
   tree_exp      *malloc = frm_external_call ("malloc", args);
 
-  tree_stm *seq_start = NULL;
-  tree_stm *seq       = NULL;
-  tree_stm *init1     = NULL;
+  tree_stm *seq_start;
+  tree_stm *seq   = NULL;
+  tree_stm *init1 = NULL;
+
   for (int i = 0; tra_list != NULL; tra_list = tra_list->tail, i++)
     {
       tra_exp  *tra   = tra_list->head;
@@ -628,7 +629,8 @@ tra_assign_exp (tra_exp *container_ptr,
 tra_exp *
 tra_seq_exp (tra_exp_list *tra_list)
 {
-  tree_stm *tree_seq = NULL, *stree_seq = NULL;
+  tree_stm *tree_seq_start = NULL;
+  tree_stm *tree_seq       = NULL;
 
   if (list_length (tra_list) == 1)
     return tra_list->head;
@@ -640,7 +642,8 @@ tra_seq_exp (tra_exp_list *tra_list)
 
       if (tree_seq == NULL)
         {
-          stree_seq = tree_seq = tree_new_seq (stm, NULL);
+          tree_seq = tree_new_seq (stm, NULL);
+          tree_seq_start = tree_seq;
         }
       else if (tree_seq->u.seq.right == NULL)
         {
@@ -653,7 +656,7 @@ tra_seq_exp (tra_exp_list *tra_list)
         }
     }
   assert (tree_seq->u.seq.right); /* Error if NULL */
-  return trans_no_res_exp (stree_seq);
+  return trans_no_res_exp (tree_seq_start);
 }
 
 /**
@@ -672,8 +675,8 @@ tra_call_exp (temp_label   *fun_ptr,
               tra_level    *fun_dec_level_ptr,
               tra_level    *fun_call_level_ptr)
 {
-  tree_exp_list *tree_list = NULL, *stree_list = NULL;
-  tree_exp      *fun                           = tree_new_name (fun_ptr);
+  tree_exp_list *tree_list, *stree_list = NULL;
+  tree_exp      *fun                    = tree_new_name (fun_ptr);
 
   for (; tra_list != NULL; tra_list = tra_list->tail)
     {
@@ -855,9 +858,9 @@ conv_exp (tra_exp * exp_ptr)
         list->u.eseq.exp = tree_new_eseq (l_true, tree_new_temp (reg));
 
         return list;
-      }
-    case TRA_NO_RES:
-      return tree_new_eseq (exp_ptr->u.no_res, tree_new_const (0));
+  }
+  case TRA_NO_RES:
+    return tree_new_eseq (exp_ptr->u.no_res, tree_new_const (0));
   }
   assert (0); /* can’t get here */
 }
@@ -1068,22 +1071,21 @@ new_patch_list (temp_label *head_ptr,
 static tra_access_list *
 new_formals (tra_level *level)
 {
-  tra_access_list *tra_access_list = NULL, *stra_access_list = NULL;
+  tra_access_list *tra_access_list = linked_list_new ();
   frm_access_list *frm_access_list = frm_formals (level->frame);
 
-  for (; frm_access_list != NULL; frm_access_list = frm_access_list->tail)
-    {
-      frm_access *frm_access = frm_access_list->head;
-      tra_access *tra_access = new (sizeof (*tra_access));
-      tra_access->access = frm_access;
-      tra_access->level  = level;
+  if (frm_access_list == NULL)
+    assert (0); /* TODO: fix this */
 
-      if (tra_access_list == NULL)
-        stra_access_list = tra_access_list = list_new_list (tra_access,
-                                                            NULL);
-      else
-        tra_access_list = tra_access_list->tail = list_new_list (tra_access,
-                                                                 NULL);
+  frm_access *frm_access;
+  LINKED_LIST_FOR_EACH (frm_access, frm_access_list)
+    {
+      tra_access *access = new (sizeof (*access));
+      access->access     = frm_access;
+      access->level      = level;
+
+      linked_list_add (tra_access_list, access);
     }
-  return stra_access_list;
+
+  return tra_access_list;
 }

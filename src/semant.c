@@ -89,6 +89,18 @@ static void            process_type_body     (sym_table  *tenv_ptr,
 static void            check_infinite_types  (sym_table  *tenv_ptr,
                                               absyn_dec  *dec_ptr);
 
+static tra_exp_list *  check_call_args       (tra_level  *level,
+                                              sym_table  *venv,
+                                              sym_table  *tenv,
+                                              absyn_exp  *exp,
+                                              temp_label *break_done);
+
+static tra_exp_list * check_record_init      (tra_level  *level,
+                                              sym_table  *venv,
+                                              sym_table  *tenv,
+                                              absyn_exp  *exp,
+                                              temp_label *break_done);
+
 static expty*  trans_var (tra_level *level_ptr,
                           sym_table *venv_ptr,
                           sym_table *tenv_ptr,
@@ -341,9 +353,7 @@ check_simple_var (tra_level *level_ptr,
                   absyn_var *var_ptr,
                   temp_label *break_done)
 {
-  debug_print ("var_ptr->u.simple: %s\n", sym_name (var_ptr->u.simple));
   env_enventry *enventry = sym_lookup (venv_ptr, var_ptr->u.simple);
-
   /* See if variable is declared */
   if (enventry && enventry->kind == ENV_VAR_ENTRY)
     {
@@ -351,7 +361,6 @@ check_simple_var (tra_level *level_ptr,
       tra_exp *exp = tra_simple_var (enventry->u.var.access, level_ptr);
       return new_expty (exp, typ_actual_ty(enventry->u.var.ty));
     }
-
   errm_printf (var_ptr->pos,
                "Undefined variable %s",
                sym_name(var_ptr->u.simple));
@@ -380,10 +389,10 @@ check_field_var (tra_level *level_ptr,
   /* Go trough each record entry and look for the matching one */
   int offset = 1; /* Offset is needed to calculate exact memory position of
                      record field */
-
-  typ_field *field;
-  LINKED_LIST_FOR_EACH (field, expty->ty->u.record)
+  typ_field_list *list = expty->ty->u.record;
+  for (; list != NULL; list = list->tail)
     {
+      typ_field *field = list->head;
       if (!strcmp(sym_name (field->name),
                   sym_name(var_ptr->u.field.sym)))
         {
@@ -619,7 +628,6 @@ check_call_exp (tra_level *level_ptr,
                 absyn_exp *exp_ptr,
                 temp_label *break_done)
 {
-  //expty        *call_arg;
   env_enventry *fundec = sym_lookup (venv_ptr, exp_ptr->u.call.func);
 
   /* See if function is declared */
@@ -631,51 +639,14 @@ check_call_exp (tra_level *level_ptr,
       return TRANS_ERROR
     }
 
-  absyn_exp_list *fun_call_arg_list = exp_ptr->u.call.args;
-  typ_ty_list    *fun_dec_arg_list  = fundec->u.fun.formals;
-  tra_exp_list   *tra_list          = linked_list_new ();
-  /*
-    Go trough each argument
-    See if calling argument and declared argument are the same
-  */
-  absyn_exp *call;
-  typ_ty    *dec;
-  for (int i = 0;
-       (call = linked_list_get (fun_call_arg_list, i)) != NULL;
-       i++)
-    {
-      dec = linked_list_get (fun_dec_arg_list, i);
+  tra_exp_list *tra_list = check_call_args (level_ptr,
+                                            venv_ptr,
+                                            tenv_ptr,
+                                            exp_ptr,
+                                            break_done);
 
-      if (call == NULL)
-        {
-          errm_printf (exp_ptr->pos,
-                       "To less arguments in function %s",
-                       sym_name (exp_ptr->u.call.func));
-          return TRANS_ERROR
-        }
-      if (dec == NULL)
-        {
-          errm_printf (exp_ptr->pos,
-                       "To much arguments in function %s",
-                       sym_name (exp_ptr->u.call.func));
-          return TRANS_ERROR
-        }
-
-      expty* tra_arg = trans_exp (level_ptr,
-                                  venv_ptr,
-                                  tenv_ptr,
-                                  call,
-                                  break_done);
-      linked_list_add (tra_list, tra_arg->exp);
-
-      if (!typ_cmpty (tra_arg->ty, dec))
-        {
-          errm_printf (call->pos,
-                       "Argument in function %s are not of the same type",
-                       sym_name (exp_ptr->u.call.func));
-          return TRANS_ERROR
-        }
-    }
+  if (tra_list == NULL)
+    return TRANS_ERROR;
 
   tra_exp *tra_exp = tra_call_exp (fundec->u.fun.label,
                                    tra_list,
@@ -684,11 +655,72 @@ check_call_exp (tra_level *level_ptr,
   return new_expty (tra_exp, typ_actual_ty (fundec->u.fun.result));
 }
 
+/*
+  Go trough each argument
+  See if calling argument and declared argument are the same
+*/
+static tra_exp_list *
+check_call_args (tra_level  *level,
+                 sym_table  *venv,
+                 sym_table  *tenv,
+                 absyn_exp  *exp,
+                 temp_label *break_done)
+{
+  env_enventry   *fundec              = sym_lookup (venv, exp->u.call.func);
+  absyn_exp_list *fun_call_arg_list   = exp->u.call.args;
+  typ_ty_list    *fun_dec_arg_list    = fundec->u.fun.formals;
+  tra_exp_list   *list = NULL, *slist = NULL;
+
+  for (;
+       fun_call_arg_list != NULL || fun_dec_arg_list != NULL;
+       fun_call_arg_list = fun_call_arg_list->tail,
+       fun_dec_arg_list  = fun_dec_arg_list->tail)
+    {
+      if (fun_call_arg_list == NULL)
+        {
+          errm_printf (exp->pos,
+                       "To less arguments in function %s",
+                       sym_name (exp->u.call.func));
+          return NULL;
+        }
+      absyn_exp *call = fun_call_arg_list->head;
+
+      if (fun_dec_arg_list == NULL)
+        {
+          errm_printf (exp->pos,
+                       "To much arguments in function %s",
+                       sym_name (exp->u.call.func));
+          return NULL;
+        }
+      typ_ty *dec  = fun_dec_arg_list->head;
+
+      expty* tra_arg = trans_exp (level,
+                                  venv,
+                                  tenv,
+                                  call,
+                                  break_done);
+      if (list == NULL)
+        slist = list = list_new_list (tra_arg->exp, NULL);
+      else
+        list = list->tail = list_new_list (tra_arg->exp, NULL);
+
+      if (!typ_cmpty (tra_arg->ty, dec))
+        {
+          errm_printf (call->pos,
+                       "Argument in function %s are not of the same type",
+                       sym_name (exp->u.call.func));
+          return NULL;
+        }
+    }
+
+  return slist;
+}
+
 static expty *
-check_record_exp (tra_level *level_ptr,
-                  sym_table *venv_ptr,
-                  sym_table *tenv_ptr,
-                  absyn_exp *exp_ptr,
+check_record_exp (tra_level  *level_ptr,
+                  sym_table  *venv_ptr,
+                  sym_table  *tenv_ptr,
+                  absyn_exp  *exp_ptr,
                   temp_label *break_done)
 {
   /* See if type is declared */
@@ -702,60 +734,77 @@ check_record_exp (tra_level *level_ptr,
       return TRANS_ERROR
     }
 
-  typ_field_list    *field_list  = typ->u.record;
-  absyn_efield_list *efield_list = exp_ptr->u.record.fields;
-  tra_exp_list      *tra_list    = linked_list_new ();
+  tra_exp_list *tra_list = check_record_init (level_ptr,
+                                              venv_ptr,
+                                              tenv_ptr,
+                                              exp_ptr,
+                                              break_done);
+  if (tra_list == NULL)
+    return TRANS_ERROR;
 
-  /* See if initializer types are the same like declared types */
-  absyn_efield *efield;
-  typ_field    *field;
+  return new_expty (tra_record_exp (tra_list), typ_actual_ty (typ));
+}
 
-  debug_print ("efield_list length: %i, field_list length: %i\n",
-               linked_list_length (efield_list),
-               linked_list_length (field_list));
-  for (int i = 0;
-       (efield = linked_list_get (efield_list, i)) != NULL
-         && (field = linked_list_get (field_list, i)) != NULL;
-       i++)
+/* See if initializer types are the same like declared types */
+static tra_exp_list *
+check_record_init (tra_level  *level,
+                   sym_table  *venv,
+                   sym_table  *tenv,
+                   absyn_exp  *exp,
+                   temp_label *break_done)
+{
+  typ_ty            *typ                 = typ_lookup (exp->pos,
+                                                       exp->u.record.typ,
+                                                       tenv);
+  typ_field_list    *field_list          = typ->u.record;
+  absyn_efield_list *efield_list         = exp->u.record.fields;
+  tra_exp_list      *list = NULL, *slist = NULL;
+
+  for (;
+       field_list != NULL || efield_list != NULL;
+       field_list = field_list->tail,
+       efield_list = efield_list->tail)
     {
+      absyn_efield *efield = efield_list->head;
+      typ_field    *field  = field_list->head;
+
       if (field == NULL)
         {
-          errm_printf (exp_ptr->pos,
+          errm_printf (exp->pos,
                        "To much parameters in record %s",
-                       sym_name (exp_ptr->u.record.typ));
-          return TRANS_ERROR
+                       sym_name (exp->u.record.typ));
+          return NULL;
         }
-      /* See if initializer name matches */
-      debug_print ("field->name: %s, efield->name: %s\n",
-                   sym_name (field->name),
-                   sym_name (efield->name));
 
       if (strcmp (sym_name (field->name), sym_name (efield->name)))
         {
-          errm_printf (exp_ptr->pos,
+          errm_printf (exp->pos,
                        "Wrong parameter used in record %s",
-                       sym_name (exp_ptr->u.record.typ));
-          return TRANS_ERROR
+                       sym_name (exp->u.record.typ));
+          return NULL;
         }
 
-      /* See if type matches */
-      expty *init = trans_exp (level_ptr,
-                               venv_ptr,
-                               tenv_ptr,
+      expty *init = trans_exp (level,
+                               venv,
+                               tenv,
                                efield->exp,
                                break_done);
-      linked_list_add (tra_list, init->exp);
 
+      if (list == NULL)
+        slist = list = list_new_list (init->exp, NULL);
+      else
+        list = list->tail = list_new_list (init->exp, NULL);
+
+      /* See if type matches */
       if (!typ_cmpty(init->ty, field->ty))
         {
           errm_printf (efield->exp->pos,
                        "Wrong type used in record %s",
-                       sym_name (exp_ptr->u.record.typ));
-          return TRANS_ERROR
+                       sym_name (exp->u.record.typ));
+          return NULL;
         }
     }
-
-  return new_expty (tra_record_exp (tra_list), typ_actual_ty (typ));
+  return slist;
 }
 
 static expty *
@@ -765,20 +814,21 @@ check_seq_exp (tra_level *level_ptr,
                absyn_exp *exp_ptr,
                temp_label *break_done)
 {
-  tra_exp_list   *tra_list     = linked_list_new ();
-  absyn_exp_list *exp_list     = exp_ptr->u.seq;
+  tra_exp_list   *list = NULL, *slist = NULL;
+  absyn_exp_list *exp_list            = exp_ptr->u.seq;
 
   if (exp_list == NULL) /* empty sequence is valid */
     return new_expty (tra_int_exp (0), typ_new_void ());
 
   /* Translate every expression, return type of the last */
-  absyn_exp *exp;
-  expty     *tra_exp;
-  LINKED_LIST_FOR_EACH (exp, exp_list)
+  expty *expty;
+  for (; exp_list != NULL; exp_list = exp_list->tail)
     {
+      absyn_exp *exp = exp_list->head;
+
       if (exp->kind == ABSYN_BREAK_EXP)
         {
-          tra_exp = trans_exp (level_ptr,
+          expty = trans_exp (level_ptr,
                                venv_ptr,
                                tenv_ptr,
                                exp,
@@ -788,7 +838,7 @@ check_seq_exp (tra_level *level_ptr,
         {
           /* Nested breaks are not allowed */
           set_loop_status (&loop_status, false);
-          tra_exp = trans_exp (level_ptr,
+          expty = trans_exp (level_ptr,
                                venv_ptr,
                                tenv_ptr,
                                exp,
@@ -796,10 +846,12 @@ check_seq_exp (tra_level *level_ptr,
           unset_loop_status (&loop_status);
         }
 
-      linked_list_add (tra_list, tra_exp->exp);
+      if (list == NULL)
+        slist = list = list_new_list (expty->exp, NULL);
+      else
+        list = list->tail = list_new_list (expty->exp, NULL);
     }
-
-  return new_expty (tra_seq_exp (tra_list), tra_exp->ty);
+  return new_expty (tra_seq_exp (slist), expty->ty);
 }
 
 static expty *
@@ -1069,23 +1121,24 @@ check_let_exp (tra_level *level_ptr,
                absyn_exp *exp_ptr,
                temp_label *break_done)
 {
-  tra_exp_list   *tra_list = linked_list_new ();
+  tra_exp_list   *list = NULL, *slist = NULL;
   absyn_dec_list *dec_list = exp_ptr->u.let.decs;
 
   sym_begin_scope (venv_ptr); /* Start new declaration scope */
   sym_begin_scope (tenv_ptr);
 
-  absyn_dec *dec;
-  LINKED_LIST_FOR_EACH (dec, dec_list)
-  //for (int i = linked_list_length (dec_list) - 1; i >= 0; i--)
+  for (; dec_list != NULL; dec_list = dec_list->tail)
     {
-      dec = linked_list_get (dec_list, i);
-      tra_exp* tra_exp = trans_dec (level_ptr,
-                                    venv_ptr,
-                                    tenv_ptr,
-                                    dec,
-                                    break_done);
-      linked_list_add (tra_list, tra_exp);
+      absyn_dec *dec     = dec_list->head;
+      tra_exp   *tra_exp = trans_dec (level_ptr,
+                                      venv_ptr,
+                                      tenv_ptr,
+                                      dec,
+                                      break_done);
+      if (list == NULL)
+        slist = list = list_new_list (tra_exp, NULL);
+      else
+        list = list->tail = list_new_list (tra_exp, NULL);
     }
   /* Go trough body */
   expty *body = trans_exp (level_ptr,
@@ -1097,14 +1150,14 @@ check_let_exp (tra_level *level_ptr,
   sym_end_scope(tenv_ptr); /* End declaration scope */
   sym_end_scope(venv_ptr);
 
-  return new_expty (tra_let_exp (tra_list, body->exp), body->ty);
+  return new_expty (tra_let_exp (slist, body->exp), body->ty);
 }
 
 static expty*
-check_op_exp (tra_level *level_ptr,
-              sym_table *venv_ptr,
-              sym_table *tenv_ptr,
-              absyn_exp *exp_ptr,
+check_op_exp (tra_level  *level_ptr,
+              sym_table  *venv_ptr,
+              sym_table  *tenv_ptr,
+              absyn_exp  *exp_ptr,
               temp_label *break_done)
 {
   ABSYN_OP op    = exp_ptr->u.op.op;
@@ -1246,16 +1299,14 @@ process_func_header (tra_level  *level_ptr,
                      sym_table  *tenv_ptr,
                      absyn_dec  *dec_ptr)
 {
-  absyn_fundec_list *fundeclist = dec_ptr->u.function;
-  absyn_fundec      *fundec;
-  LINKED_LIST_FOR_EACH (fundec, fundeclist)
+  absyn_fundec_list *fundec_list = dec_ptr->u.function;
+  for (; fundec_list != NULL; fundec_list = fundec_list->tail)
     {
-      /* Check for redeclaration */
-      absyn_fundec *fundec2;
-      for (int j = i + 1;
-           (fundec2 = linked_list_get (fundeclist, j)) != NULL;
-           j++)
+      absyn_fundec      *fundec       = fundec_list->head;
+      absyn_fundec_list *fundec_list2 = fundec_list->tail;
+      for (; fundec_list2 != NULL; fundec_list2 = fundec_list2->tail)
         {
+          absyn_fundec *fundec2 = fundec_list2->head;
           if (fundec->name == fundec2->name)
               errm_printf (fundec->pos,
                            "Illegal redeclaration of function %s",
@@ -1289,41 +1340,40 @@ process_func_body (sym_table  *venv_ptr,
                    absyn_dec  *dec_ptr,
                    temp_label *break_done)
 {
-  absyn_fundec_list  *fundeclist = dec_ptr->u.function;
-  absyn_fundec       *fundec;
-  LINKED_LIST_FOR_EACH (fundec, fundeclist)
+  absyn_fundec_list  *fundec_list = dec_ptr->u.function;
+  for (; fundec_list != NULL; fundec_list = fundec_list->tail)
     {
-      absyn_field_list *fieldlist = fundec->params;
-      typ_ty_list      *tylist    = mk_formal_ty_list (tenv_ptr,
-                                                       fieldlist);
+      absyn_fundec     *fundec     = fundec_list->head;
+      absyn_field_list *field_list = fundec->params;
+      typ_ty_list      *ty_list    = mk_formal_ty_list (tenv_ptr,
+                                                        field_list);
       /* Look up result of function */
       env_enventry     *func_head = sym_lookup (venv_ptr, fundec->name);
       typ_ty           *typ       = func_head->u.fun.result;
 
       tra_access_list *access_list = tra_formals (func_head->u.fun.level);
-
+      access_list = access_list->tail; /* Since first param is static link */
       /* Start new scope, then declare function parameters */
       sym_begin_scope (venv_ptr);
-        absyn_field *field;
-        tra_access  *access;
-        typ_ty      *ty;
-        for (int i = 0;
-             (field = linked_list_get (fieldlist, i)) != NULL
-               /* since first parameter is static link  + 1*/
-               && (access = linked_list_get (access_list, i + 1)) != NULL
-               && (ty = linked_list_get (tylist, i)) != NULL;
-             i++)
-          {
-            debug_print ("Declare variable: %s\n", sym_name (field->name));
-            env_enventry *enventry = env_new_var_entry (access, ty);
-            sym_bind_symbol (venv_ptr, field->name, enventry);
-          }
+      for (;
+           field_list != NULL && access_list != NULL && ty_list != NULL;
+           field_list = field_list->tail,
+             access_list = access_list->tail,
+             ty_list = ty_list->tail)
+        {
+          absyn_field *field  = field_list->head;
+          tra_access  *access = access_list->head;
+          typ_ty      *ty     = ty_list->head;
 
-        expty *body = trans_exp (func_head->u.fun.level,
-                                 venv_ptr,
-                                 tenv_ptr,
-                                 fundec->body,
-                                 break_done);
+          env_enventry *enventry = env_new_var_entry (access, ty);
+          sym_bind_symbol (venv_ptr, field->name, enventry);
+        }
+
+      expty *body = trans_exp (func_head->u.fun.level,
+                               venv_ptr,
+                               tenv_ptr,
+                               fundec->body,
+                               break_done);
       /* Process body and see if body and result equal */
       if (!typ_cmpty (body->ty, typ))
         {
@@ -1355,17 +1405,15 @@ static void
 process_type_header (sym_table  *tenv_ptr,
                      absyn_dec  *dec_ptr)
 {
-  absyn_name_ty_list *nametylist = dec_ptr->u.type;
-  absyn_name_ty      *namety;
-  LINKED_LIST_FOR_EACH (namety, nametylist)
+  absyn_name_ty_list *namety_list = dec_ptr->u.type;
+  for (; namety_list != NULL; namety_list = namety_list->tail)
     {
-      debug_print ("namety: %s\n", sym_name (namety->name));
-      /* Check for redeclaration */
-      absyn_name_ty *namety2;
-      for (int j = i + 1;
-           (namety2 = linked_list_get (nametylist, j)) != NULL;
-           j++)
+      /* Check for illegal redeclarations */
+      absyn_name_ty      *namety       = namety_list->head;
+      absyn_name_ty_list *namety_list2 = namety_list->tail;
+      for (; namety_list2 != NULL; namety_list2 = namety_list2->tail)
         {
+          absyn_name_ty *namety2 = namety_list2->head;
           if (namety->name == namety2->name)
             errm_printf (namety2->ty->pos,
                          "Illegal type redeclaration");
@@ -1381,13 +1429,12 @@ process_type_body (sym_table  *tenv_ptr,
                    absyn_dec  *dec_ptr)
 {
   /* Concatenate all the bodies to the headers */
-  absyn_name_ty_list *nametylist = dec_ptr->u.type;
-  absyn_name_ty      *namety;
-  LINKED_LIST_FOR_EACH (namety, nametylist)
+  absyn_name_ty_list *namety_list = dec_ptr->u.type;
+  for (; namety_list != NULL; namety_list = namety_list->tail)
     {
+      absyn_name_ty *namety = namety_list->head;
       /* See if type declared */
       typ_ty *typ = trans_ty (tenv_ptr, namety->ty);
-
       /* Look it up and then add `body` */
       typ_ty *head = sym_lookup (tenv_ptr, namety->name);
       head->u.name.ty = typ;
@@ -1399,10 +1446,10 @@ check_infinite_types (sym_table  *tenv_ptr,
                       absyn_dec  *dec_ptr)
 {
   /* Check for infinitive recursive type declaration */
-  absyn_name_ty_list *nametylist = dec_ptr->u.type;
-  absyn_name_ty      *namety;
-  LINKED_LIST_FOR_EACH (namety, nametylist)
+  absyn_name_ty_list *namety_list = dec_ptr->u.type;
+  for (; namety_list != NULL; namety_list = namety_list->tail)
     {
+      absyn_name_ty *namety = namety_list->head;
       typ_ty *dec_typ = sym_lookup (tenv_ptr, namety->name);
       if (typ_actual_ty (dec_typ) == dec_typ)
         errm_printf (dec_ptr->pos,
@@ -1518,27 +1565,30 @@ check_name_ty (sym_table *tenv_ptr,
   Add it to new typ_field_list .
 */
 static typ_field_list *
-mk_formal_field_list (sym_table        *tenv_ptr,
-                      absyn_field_list *list_ptr)
+mk_formal_field_list (sym_table        *tenv,
+                      absyn_field_list *list)
 {
-  typ_field_list   *tyfieldlist = linked_list_new ();
-  absyn_field      *absyn_field;
-  LINKED_LIST_FOR_EACH (absyn_field, list_ptr)
+  typ_field_list *tyfield_list = NULL, *styfield_list = NULL;
+  for (; list != NULL; list = list->tail)
     {
-      typ_ty *typ = sym_lookup (tenv_ptr, absyn_field->typ);
+      absyn_field *field = list->head;
+      typ_ty      *typ   = sym_lookup (tenv, field->typ);
+
       if (typ == NULL)
         {
-          errm_printf (absyn_field->pos,
+          errm_printf (field->pos,
                        "Type %s not declared",
-                       sym_name (absyn_field->typ));
+                       sym_name (field->typ));
           typ = typ_new_int ();
         }
 
-      typ_field *field = typ_new_field (absyn_field->name, typ);
-      linked_list_add (tyfieldlist, field);
+      typ_field *tyfield = typ_new_field (field->name, typ);
+      if (tyfield_list == NULL)
+        styfield_list = tyfield_list = list_new_list (tyfield, NULL);
+      else
+        tyfield_list = tyfield_list->tail = list_new_list (tyfield, NULL);
     }
-
-  return tyfieldlist;
+  return styfield_list;
 }
 
 /*
@@ -1546,33 +1596,37 @@ mk_formal_field_list (sym_table        *tenv_ptr,
   Add it to new typ_ty_list .
 */
 static typ_ty_list *
-mk_formal_ty_list (sym_table        *tenv_ptr,
-                   absyn_field_list *list_ptr)
+mk_formal_ty_list (sym_table        *tenv,
+                   absyn_field_list *list)
 {
-  typ_ty_list      *tylist = linked_list_new ();
-  absyn_field      *field;
-  LINKED_LIST_FOR_EACH (field, list_ptr)
+  typ_ty_list *ty_list = NULL, *sty_list = NULL;
+  for (; list != NULL; list = list->tail)
     {
-      typ_ty *typ = sym_lookup (tenv_ptr, field->typ);
-      linked_list_add (tylist, typ);
-      debug_print ("field->typ: %s\n", sym_name (field->typ));
-    }
+      absyn_field *field = list->head;
+      typ_ty      *typ   = sym_lookup (tenv, field->typ);
 
-  return tylist;
+      if (ty_list == NULL)
+        sty_list = ty_list = list_new_list (typ, NULL);
+      else
+        ty_list = ty_list->tail = list_new_list (typ, NULL);
+    }
+  return sty_list;
 }
 
 /* Creates a bool list from the escape fields of formals */
 static util_bool_list *
-mk_formal_escape_list (absyn_field_list *params_ptr)
+mk_formal_escape_list (absyn_field_list *params)
 {
-  util_bool_list *boollist = linked_list_new ();
-  absyn_field    *field;
-  LINKED_LIST_FOR_EACH (field, params_ptr)
+  util_bool_list *bool_list = NULL, *sbool_list = NULL;
+  for (; params != NULL; params = params->tail)
     {
-      linked_list_add (boollist, &field->escape);
+      absyn_field *field = params->head;
+      if (bool_list == NULL)
+        sbool_list = bool_list = list_new_list (&field->escape, NULL);
+      else
+        bool_list = bool_list->tail = list_new_list (&field->escape, NULL);
     }
-
-  return boollist;
+  return sbool_list;
 }
 
 /*

@@ -3,6 +3,7 @@
  * Generic linked list.
  */
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -227,6 +228,60 @@ linked_list_free (linked_list *list)
     }
 
   free (list);
+  return cnt;
+}
+
+/**
+ * Concatenate list src to list dst.
+ *
+ * @param List where elements should be added.
+ * @param List that should be added.
+ *
+ * @returns Number of elements added.
+ */
+int
+linked_list_cat_list (linked_list *dst,
+                      linked_list *src)
+{
+  int cnt = 0;
+
+  void *element;
+  LINKED_LIST_FOR_EACH (element, src)
+    {
+      linked_list_add (dst, element);
+      cnt++;
+    }
+
+  return cnt;
+}
+
+/**
+ * Concatenate list src from src_index to list dst.
+ *
+ * @param List where elements should be added.
+ * @param List that should be added.
+ * @param Index at wich element the list should be added.
+ *
+ * @returns Number of elements added.
+ */
+int
+linked_list_catn_list (linked_list *dst,
+                       linked_list *src,
+                       int          src_index)
+{
+  int cnt = 0;
+
+  if (src == NULL)
+    assert(0);
+
+  int len = linked_list_length (src);
+  for (int i = src_index; i < len; i++)
+    {
+      void *element = linked_list_get (src, i);
+      linked_list_add (dst, element);
+      cnt++;
+    }
+
   return cnt;
 }
 

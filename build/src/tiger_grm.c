@@ -72,7 +72,7 @@
 #include "include/errormsg.h"
 #include "include/symbol.h"
 #include "include/absyn.h"
-#include "include/linked_list.h"
+#include "include/list.h"
 
 int yylex (void); /* function prototype */
 
@@ -589,17 +589,17 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   141,   141,   146,   149,   156,   171,   180,   183,   190,
-     196,   205,   208,   211,   214,   217,   220,   223,   226,   229,
-     232,   235,   238,   241,   244,   247,   250,   253,   259,   262,
-     268,   278,   281,   287,   290,   293,   296,   299,   302,   305,
-     308,   311,   314,   317,   320,   326,   329,   332,   335,   346,
-     351,   355,   359,   362,   368,   371,   378,   384,   393,   398,
-     403,   406,   409,   412,   418,   421,   427,   430,   436,   439,
-     442,   445,   451,   454,   457,   460,   463,   466,   472,   479,
-     485,   494,   497,   500,   506,   513,   521,   528,   537,   542,
-     545,   548,   554,   559,   562,   568,   571,   578,   584,   593,
-     598,   601,   607,   610,   613,   616,   622
+       0,   141,   141,   146,   149,   154,   159,   167,   170,   175,
+     180,   188,   191,   194,   197,   200,   203,   206,   209,   212,
+     215,   218,   221,   224,   227,   230,   233,   236,   242,   245,
+     251,   261,   264,   270,   273,   276,   279,   282,   290,   298,
+     301,   304,   307,   310,   313,   319,   322,   325,   328,   339,
+     344,   348,   352,   355,   361,   366,   371,   376,   384,   389,
+     394,   397,   400,   403,   409,   412,   418,   421,   427,   430,
+     433,   436,   442,   445,   448,   451,   454,   457,   463,   468,
+     473,   481,   484,   487,   493,   498,   505,   510,   518,   523,
+     526,   529,   535,   540,   543,   549,   552,   557,   562,   570,
+     575,   578,   584,   587,   590,   593,   599
 };
 #endif
 
@@ -1630,706 +1630,683 @@ yyreduce:
   case 4:
 #line 150 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      linked_list *list = linked_list_new ();
-      linked_list_add (list, (yyvsp[0].exp));
-      (yyval.explist) = list;
+      (yyval.explist) = list_new_list ((yyvsp[0].exp), NULL);
     }
-#line 1638 "tiger_grm.c" /* yacc.c:1646  */
+#line 1636 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 157 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 155 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-        if ((yyvsp[0].explist) == NULL)
-            {
-                linked_list *list = linked_list_new ();
-                linked_list_add (list, (yyvsp[-2].exp));
-                (yyval.explist) = (yyvsp[0].explist);
-            }
-        else
-            {
-                linked_list_insert ((yyvsp[0].explist), 0, (yyvsp[-2].exp));
-                (yyval.explist) = (yyvsp[0].explist);
-            }
+      (yyval.explist) = list_new_list ((yyvsp[-2].exp), (yyvsp[0].explist));
     }
-#line 1656 "tiger_grm.c" /* yacc.c:1646  */
+#line 1644 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 172 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 160 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      linked_list_insert ((yyvsp[0].explist), 0, NULL);
-      (yyval.explist) = (yyvsp[0].explist);
+      (yyval.explist) = list_new_list (NULL, (yyvsp[0].explist));
     }
-#line 1665 "tiger_grm.c" /* yacc.c:1646  */
+#line 1652 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 181 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 168 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.explist) = NULL;}
-#line 1671 "tiger_grm.c" /* yacc.c:1646  */
+#line 1658 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 184 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 171 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      linked_list *list = linked_list_new ();
-      linked_list_add (list, (yyvsp[0].exp));
-      (yyval.explist) = list;
+      (yyval.explist) = list_new_list ((yyvsp[0].exp), NULL);
     }
-#line 1681 "tiger_grm.c" /* yacc.c:1646  */
+#line 1666 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 191 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 176 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      linked_list_insert ((yyvsp[0].explist), 0, (yyvsp[-2].exp));
-      (yyval.explist) = (yyvsp[0].explist);
+      (yyval.explist) = list_new_list ((yyvsp[-2].exp), (yyvsp[0].explist));
     }
-#line 1690 "tiger_grm.c" /* yacc.c:1646  */
+#line 1674 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 197 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 181 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      linked_list_insert ((yyvsp[0].explist), 0, NULL);
-      (yyval.explist) = (yyvsp[0].explist);
+      (yyval.explist) = list_new_list (NULL, (yyvsp[0].explist));
     }
-#line 1699 "tiger_grm.c" /* yacc.c:1646  */
+#line 1682 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 206 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 189 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_var_exp (errm_tok_pos, (yyvsp[0].var));}
-#line 1705 "tiger_grm.c" /* yacc.c:1646  */
+#line 1688 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 209 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 192 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_nil_exp (errm_tok_pos);}
-#line 1711 "tiger_grm.c" /* yacc.c:1646  */
+#line 1694 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 212 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 195 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_int_exp (errm_tok_pos, (yyvsp[0].ival));}
-#line 1717 "tiger_grm.c" /* yacc.c:1646  */
+#line 1700 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 215 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 198 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_str_exp (errm_tok_pos, (yyvsp[0].sval));}
-#line 1723 "tiger_grm.c" /* yacc.c:1646  */
+#line 1706 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 218 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 201 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1729 "tiger_grm.c" /* yacc.c:1646  */
+#line 1712 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 221 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 204 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1735 "tiger_grm.c" /* yacc.c:1646  */
+#line 1718 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 224 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 207 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1741 "tiger_grm.c" /* yacc.c:1646  */
+#line 1724 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 227 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 210 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1747 "tiger_grm.c" /* yacc.c:1646  */
+#line 1730 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 230 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 213 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1753 "tiger_grm.c" /* yacc.c:1646  */
+#line 1736 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 233 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 216 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1759 "tiger_grm.c" /* yacc.c:1646  */
+#line 1742 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 236 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 219 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1765 "tiger_grm.c" /* yacc.c:1646  */
+#line 1748 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 239 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 222 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1771 "tiger_grm.c" /* yacc.c:1646  */
+#line 1754 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 242 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 225 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1777 "tiger_grm.c" /* yacc.c:1646  */
+#line 1760 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 245 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 228 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1783 "tiger_grm.c" /* yacc.c:1646  */
+#line 1766 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 248 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 231 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1789 "tiger_grm.c" /* yacc.c:1646  */
+#line 1772 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 251 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 234 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_break_exp (errm_tok_pos);}
-#line 1795 "tiger_grm.c" /* yacc.c:1646  */
+#line 1778 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 254 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 237 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1801 "tiger_grm.c" /* yacc.c:1646  */
+#line 1784 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 260 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 243 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_seq_exp (errm_tok_pos, (yyvsp[-1].explist));}
-#line 1807 "tiger_grm.c" /* yacc.c:1646  */
+#line 1790 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 263 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 246 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_seq_exp (errm_tok_pos, NULL);}
-#line 1813 "tiger_grm.c" /* yacc.c:1646  */
+#line 1796 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 269 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 252 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
       (yyval.exp) = absyn_new_op_exp (errm_tok_pos,
                              ABSYN_MINUS_OP,
                              absyn_new_int_exp (errm_tok_pos, 0),
                              (yyvsp[0].exp));
     }
-#line 1824 "tiger_grm.c" /* yacc.c:1646  */
+#line 1807 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 279 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 262 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_call_exp (errm_tok_pos, (yyvsp[-3].symbol), (yyvsp[-1].explist));}
-#line 1830 "tiger_grm.c" /* yacc.c:1646  */
+#line 1813 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 282 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 265 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_call_exp (errm_tok_pos, (yyvsp[-3].symbol), NULL);}
-#line 1836 "tiger_grm.c" /* yacc.c:1646  */
+#line 1819 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 288 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 271 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_op_exp (errm_tok_pos, ABSYN_PLUS_OP, (yyvsp[-2].exp), (yyvsp[0].exp));}
-#line 1842 "tiger_grm.c" /* yacc.c:1646  */
+#line 1825 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 291 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 274 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_op_exp (errm_tok_pos, ABSYN_MINUS_OP, (yyvsp[-2].exp), (yyvsp[0].exp));}
-#line 1848 "tiger_grm.c" /* yacc.c:1646  */
+#line 1831 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 294 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 277 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_op_exp (errm_tok_pos, ABSYN_TIMES_OP, (yyvsp[-2].exp), (yyvsp[0].exp));}
-#line 1854 "tiger_grm.c" /* yacc.c:1646  */
+#line 1837 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 297 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 280 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_op_exp (errm_tok_pos, ABSYN_DIVIDE_OP, (yyvsp[-2].exp), (yyvsp[0].exp));}
-#line 1860 "tiger_grm.c" /* yacc.c:1646  */
+#line 1843 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 300 "../../src/tiger_grm.y" /* yacc.c:1646  */
-    {(yyval.exp) = absyn_new_if_exp (errm_tok_pos, (yyvsp[-2].exp), (yyvsp[0].exp), absyn_new_int_exp (errm_tok_pos, 0));}
-#line 1866 "tiger_grm.c" /* yacc.c:1646  */
+#line 283 "../../src/tiger_grm.y" /* yacc.c:1646  */
+    {
+      (yyval.exp) = absyn_new_if_exp (errm_tok_pos,
+                             (yyvsp[-2].exp),
+                             (yyvsp[0].exp),
+                             absyn_new_int_exp (errm_tok_pos, 0));
+    }
+#line 1854 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 303 "../../src/tiger_grm.y" /* yacc.c:1646  */
-    {(yyval.exp) = absyn_new_if_exp (errm_tok_pos, (yyvsp[-2].exp), absyn_new_int_exp (errm_tok_pos, 1), (yyvsp[0].exp));}
-#line 1872 "tiger_grm.c" /* yacc.c:1646  */
+#line 291 "../../src/tiger_grm.y" /* yacc.c:1646  */
+    {
+      (yyval.exp) = absyn_new_if_exp (errm_tok_pos,
+                             (yyvsp[-2].exp),
+                             absyn_new_int_exp (errm_tok_pos, 1),
+                             (yyvsp[0].exp));
+    }
+#line 1865 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 306 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 299 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_op_exp (errm_tok_pos, ABSYN_EQ_OP, (yyvsp[-2].exp), (yyvsp[0].exp));}
-#line 1878 "tiger_grm.c" /* yacc.c:1646  */
+#line 1871 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 309 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 302 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_op_exp (errm_tok_pos, ABSYN_NEQ_OP, (yyvsp[-2].exp), (yyvsp[0].exp));}
-#line 1884 "tiger_grm.c" /* yacc.c:1646  */
+#line 1877 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 312 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 305 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_op_exp (errm_tok_pos, ABSYN_GE_OP, (yyvsp[-2].exp), (yyvsp[0].exp));}
-#line 1890 "tiger_grm.c" /* yacc.c:1646  */
+#line 1883 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 315 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 308 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_op_exp (errm_tok_pos, ABSYN_GT_OP, (yyvsp[-2].exp), (yyvsp[0].exp));}
-#line 1896 "tiger_grm.c" /* yacc.c:1646  */
+#line 1889 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 318 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 311 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_op_exp (errm_tok_pos, ABSYN_LE_OP, (yyvsp[-2].exp), (yyvsp[0].exp));}
-#line 1902 "tiger_grm.c" /* yacc.c:1646  */
+#line 1895 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 321 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 314 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_op_exp (errm_tok_pos, ABSYN_LT_OP, (yyvsp[-2].exp), (yyvsp[0].exp));}
-#line 1908 "tiger_grm.c" /* yacc.c:1646  */
+#line 1901 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 327 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 320 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.var) = absyn_new_simple_var (errm_tok_pos, (yyvsp[0].symbol));}
-#line 1914 "tiger_grm.c" /* yacc.c:1646  */
+#line 1907 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 330 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 323 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.var) = absyn_new_subscript_var (errm_tok_pos, (yyvsp[-1].var), (yyvsp[0].exp));}
-#line 1920 "tiger_grm.c" /* yacc.c:1646  */
+#line 1913 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 333 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 326 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.var) = absyn_new_field_var (errm_tok_pos, (yyvsp[-2].var), (yyvsp[0].symbol));}
-#line 1926 "tiger_grm.c" /* yacc.c:1646  */
+#line 1919 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 336 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 329 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
       (yyval.var) = absyn_new_subscript_var (errm_tok_pos,
                                      absyn_new_simple_var (errm_tok_pos,
                                                            (yyvsp[0].typeid_sub)->sym),
                                      (yyvsp[0].typeid_sub)->exp);
     }
-#line 1937 "tiger_grm.c" /* yacc.c:1646  */
+#line 1930 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 347 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 340 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_array_exp (errm_tok_pos, (yyvsp[-2].typeid_sub)->sym, (yyvsp[-2].typeid_sub)->exp, (yyvsp[0].exp));}
-#line 1943 "tiger_grm.c" /* yacc.c:1646  */
+#line 1936 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 352 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 345 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.typeid_sub) = new_typeid_subscript ((yyvsp[-1].symbol), (yyvsp[0].exp));}
-#line 1949 "tiger_grm.c" /* yacc.c:1646  */
+#line 1942 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 356 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 349 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[-1].exp);}
-#line 1955 "tiger_grm.c" /* yacc.c:1646  */
+#line 1948 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 360 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 353 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_record_exp (errm_tok_pos, (yyvsp[-3].symbol), (yyvsp[-1].efieldlist));}
-#line 1961 "tiger_grm.c" /* yacc.c:1646  */
+#line 1954 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 363 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 356 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_record_exp (errm_tok_pos, (yyvsp[-3].symbol), NULL);}
-#line 1967 "tiger_grm.c" /* yacc.c:1646  */
+#line 1960 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 369 "../../src/tiger_grm.y" /* yacc.c:1646  */
-    {(yyval.efieldlist) = NULL;}
-#line 1973 "tiger_grm.c" /* yacc.c:1646  */
+#line 362 "../../src/tiger_grm.y" /* yacc.c:1646  */
+    {
+      (yyval.efieldlist) = NULL;
+    }
+#line 1968 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 372 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 367 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      linked_list *list = linked_list_new ();
-      linked_list_add (list, (yyvsp[0].efield));
-      (yyval.efieldlist) = list;
+      (yyval.efieldlist) = list_new_list ((yyvsp[0].efield), NULL);
     }
-#line 1983 "tiger_grm.c" /* yacc.c:1646  */
+#line 1976 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 379 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 372 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      linked_list_insert ((yyvsp[0].efieldlist), 0, (yyvsp[-2].efield));
-      (yyval.efieldlist) = (yyvsp[0].efieldlist);
+      (yyval.efieldlist) = list_new_list ((yyvsp[-2].efield), (yyvsp[0].efieldlist));
+    }
+#line 1984 "tiger_grm.c" /* yacc.c:1646  */
+    break;
+
+  case 57:
+#line 377 "../../src/tiger_grm.y" /* yacc.c:1646  */
+    {
+      (yyval.efieldlist) = list_new_list (NULL, (yyvsp[0].efieldlist));
     }
 #line 1992 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
-  case 57:
-#line 385 "../../src/tiger_grm.y" /* yacc.c:1646  */
-    {
-      linked_list_insert ((yyvsp[0].efieldlist), 0, NULL);
-      (yyval.efieldlist) = (yyvsp[0].efieldlist);
-    }
-#line 2001 "tiger_grm.c" /* yacc.c:1646  */
-    break;
-
   case 58:
-#line 394 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 385 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.efield) = absyn_new_efield ((yyvsp[-2].symbol), (yyvsp[0].exp));}
-#line 2007 "tiger_grm.c" /* yacc.c:1646  */
+#line 1998 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 399 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 390 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_assign_exp (errm_tok_pos, (yyvsp[-2].var), (yyvsp[0].exp));}
-#line 2013 "tiger_grm.c" /* yacc.c:1646  */
+#line 2004 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 404 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 395 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_if_exp (errm_tok_pos, (yyvsp[-4].exp), (yyvsp[-2].exp), (yyvsp[0].exp));}
-#line 2019 "tiger_grm.c" /* yacc.c:1646  */
+#line 2010 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 407 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 398 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_if_exp (errm_tok_pos, (yyvsp[-4].exp), NULL, (yyvsp[0].exp));}
-#line 2025 "tiger_grm.c" /* yacc.c:1646  */
+#line 2016 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 410 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 401 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_if_exp (errm_tok_pos, NULL, (yyvsp[-2].exp), (yyvsp[0].exp));}
-#line 2031 "tiger_grm.c" /* yacc.c:1646  */
+#line 2022 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 413 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 404 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_if_exp (errm_tok_pos, NULL, NULL, (yyvsp[0].exp));}
-#line 2037 "tiger_grm.c" /* yacc.c:1646  */
+#line 2028 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 419 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 410 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_if_exp (errm_tok_pos, (yyvsp[-2].exp), (yyvsp[0].exp), NULL);}
-#line 2043 "tiger_grm.c" /* yacc.c:1646  */
+#line 2034 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 422 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 413 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_if_exp (errm_tok_pos, NULL, (yyvsp[0].exp), NULL);}
-#line 2049 "tiger_grm.c" /* yacc.c:1646  */
+#line 2040 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 428 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 419 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_while_exp (errm_tok_pos, (yyvsp[-2].exp), (yyvsp[0].exp));}
-#line 2055 "tiger_grm.c" /* yacc.c:1646  */
+#line 2046 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 431 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 422 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_while_exp (errm_tok_pos, NULL, (yyvsp[0].exp));}
-#line 2061 "tiger_grm.c" /* yacc.c:1646  */
+#line 2052 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 437 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 428 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_for_exp (errm_tok_pos, (yyvsp[-6].symbol), (yyvsp[-4].exp), (yyvsp[-2].exp), (yyvsp[0].exp));}
-#line 2067 "tiger_grm.c" /* yacc.c:1646  */
+#line 2058 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 440 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 431 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_for_exp (errm_tok_pos, (yyvsp[-6].symbol), NULL, (yyvsp[-2].exp), (yyvsp[0].exp));}
-#line 2073 "tiger_grm.c" /* yacc.c:1646  */
+#line 2064 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 443 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 434 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_for_exp (errm_tok_pos, (yyvsp[-6].symbol), (yyvsp[-4].exp), NULL, (yyvsp[0].exp));}
-#line 2079 "tiger_grm.c" /* yacc.c:1646  */
+#line 2070 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 446 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 437 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_for_exp (errm_tok_pos, (yyvsp[-6].symbol), NULL, NULL, (yyvsp[0].exp));}
-#line 2085 "tiger_grm.c" /* yacc.c:1646  */
+#line 2076 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 452 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 443 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_let_exp (errm_tok_pos, (yyvsp[-3].declist), (yyvsp[-1].exp));}
-#line 2091 "tiger_grm.c" /* yacc.c:1646  */
+#line 2082 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 455 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 446 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_let_exp (errm_tok_pos, NULL, (yyvsp[-1].exp));}
-#line 2097 "tiger_grm.c" /* yacc.c:1646  */
+#line 2088 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 74:
-#line 458 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 449 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_let_exp (errm_tok_pos, (yyvsp[-3].declist), NULL);}
-#line 2103 "tiger_grm.c" /* yacc.c:1646  */
+#line 2094 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 461 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 452 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_let_exp (errm_tok_pos, NULL, NULL);}
-#line 2109 "tiger_grm.c" /* yacc.c:1646  */
+#line 2100 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 464 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 455 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_let_exp (errm_tok_pos, (yyvsp[-2].declist), NULL);}
-#line 2115 "tiger_grm.c" /* yacc.c:1646  */
+#line 2106 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 77:
-#line 467 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 458 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.exp) = absyn_new_let_exp (errm_tok_pos, NULL, NULL);}
-#line 2121 "tiger_grm.c" /* yacc.c:1646  */
+#line 2112 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 78:
-#line 473 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 464 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      linked_list *list = linked_list_new ();
-      linked_list_add (list, (yyvsp[0].dec));
-      (yyval.declist) = list;
+      (yyval.declist) = list_new_list ((yyvsp[0].dec), NULL);
     }
-#line 2131 "tiger_grm.c" /* yacc.c:1646  */
+#line 2120 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 79:
-#line 480 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 469 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      linked_list_insert ((yyvsp[0].declist), 0, (yyvsp[-1].dec));
-      (yyval.declist) = (yyvsp[0].declist);
+      (yyval.declist) = list_new_list ((yyvsp[-1].dec), (yyvsp[0].declist));
     }
-#line 2140 "tiger_grm.c" /* yacc.c:1646  */
+#line 2128 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 80:
-#line 486 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 474 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      linked_list_insert ((yyvsp[0].declist), 0, NULL);
-      (yyval.declist) = (yyvsp[0].declist);
+       (yyval.declist) = list_new_list (NULL, (yyvsp[0].declist));
     }
-#line 2149 "tiger_grm.c" /* yacc.c:1646  */
+#line 2136 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 81:
-#line 495 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 482 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.dec) = absyn_new_type_dec (errm_tok_pos, (yyvsp[0].nametylist));}
-#line 2155 "tiger_grm.c" /* yacc.c:1646  */
+#line 2142 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 82:
-#line 498 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 485 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.dec) = (yyvsp[0].dec);}
-#line 2161 "tiger_grm.c" /* yacc.c:1646  */
+#line 2148 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 83:
-#line 501 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 488 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.dec) = absyn_new_function_dec (errm_tok_pos, (yyvsp[0].fundeclist));}
-#line 2167 "tiger_grm.c" /* yacc.c:1646  */
+#line 2154 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 84:
-#line 507 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 494 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      linked_list *list = linked_list_new ();
-      linked_list_add (list, (yyvsp[0].fundec));
-      (yyval.fundeclist) = list;
+       (yyval.fundeclist) = list_new_list ((yyvsp[0].fundec), NULL);
     }
-#line 2177 "tiger_grm.c" /* yacc.c:1646  */
+#line 2162 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 85:
-#line 514 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 499 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      linked_list_insert ((yyvsp[0].fundeclist), 0, (yyvsp[-1].fundec));
-      (yyval.fundeclist) = (yyvsp[0].fundeclist);
+       (yyval.fundeclist) = list_new_list ((yyvsp[-1].fundec), (yyvsp[0].fundeclist));
+    }
+#line 2170 "tiger_grm.c" /* yacc.c:1646  */
+    break;
+
+  case 86:
+#line 506 "../../src/tiger_grm.y" /* yacc.c:1646  */
+    {
+       (yyval.nametylist) = list_new_list ((yyvsp[0].namety), NULL);
+    }
+#line 2178 "tiger_grm.c" /* yacc.c:1646  */
+    break;
+
+  case 87:
+#line 511 "../../src/tiger_grm.y" /* yacc.c:1646  */
+    {
+      (yyval.nametylist) = list_new_list ((yyvsp[-1].namety), (yyvsp[0].nametylist));
     }
 #line 2186 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
-  case 86:
-#line 522 "../../src/tiger_grm.y" /* yacc.c:1646  */
-    {
-      linked_list *list = linked_list_new ();
-      linked_list_add (list, (yyvsp[0].namety));
-      (yyval.nametylist) = list;
-    }
-#line 2196 "tiger_grm.c" /* yacc.c:1646  */
-    break;
-
-  case 87:
-#line 529 "../../src/tiger_grm.y" /* yacc.c:1646  */
-    {
-      linked_list_insert ((yyvsp[0].nametylist), 0, (yyvsp[-1].namety));
-      (yyval.nametylist) = (yyvsp[0].nametylist);
-    }
-#line 2205 "tiger_grm.c" /* yacc.c:1646  */
-    break;
-
   case 88:
-#line 538 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 519 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.namety) = absyn_new_namety ((yyvsp[-2].symbol), (yyvsp[0].ty));}
-#line 2211 "tiger_grm.c" /* yacc.c:1646  */
+#line 2192 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 89:
-#line 543 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 524 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.ty) = absyn_new_name_ty (errm_tok_pos, (yyvsp[0].symbol));}
-#line 2217 "tiger_grm.c" /* yacc.c:1646  */
+#line 2198 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 90:
-#line 546 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 527 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.ty) = (yyvsp[0].ty);}
-#line 2223 "tiger_grm.c" /* yacc.c:1646  */
+#line 2204 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 91:
-#line 549 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 530 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.ty) = (yyvsp[0].ty);}
-#line 2229 "tiger_grm.c" /* yacc.c:1646  */
+#line 2210 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 92:
-#line 555 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 536 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.ty) = absyn_new_array_ty (errm_tok_pos, (yyvsp[0].symbol));}
-#line 2235 "tiger_grm.c" /* yacc.c:1646  */
+#line 2216 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 93:
-#line 560 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 541 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.ty) = absyn_new_record_ty (errm_tok_pos, (yyvsp[-1].fieldlist));}
-#line 2241 "tiger_grm.c" /* yacc.c:1646  */
+#line 2222 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 94:
-#line 563 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 544 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.ty) = absyn_new_record_ty (errm_tok_pos, NULL);}
-#line 2247 "tiger_grm.c" /* yacc.c:1646  */
+#line 2228 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 95:
-#line 569 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 550 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.fieldlist) = NULL;}
-#line 2253 "tiger_grm.c" /* yacc.c:1646  */
+#line 2234 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 96:
-#line 572 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 553 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      linked_list *list = linked_list_new ();
-      linked_list_add (list, (yyvsp[0].field));
-      (yyval.fieldlist) = list;
+      (yyval.fieldlist) = list_new_list ((yyvsp[0].field), NULL);
     }
-#line 2263 "tiger_grm.c" /* yacc.c:1646  */
+#line 2242 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 97:
-#line 579 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 558 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      linked_list_insert ((yyvsp[0].fieldlist), 0, (yyvsp[-2].field));
-      (yyval.fieldlist) = (yyvsp[0].fieldlist);
+      (yyval.fieldlist) = list_new_list ((yyvsp[-2].field), (yyvsp[0].fieldlist));
     }
-#line 2272 "tiger_grm.c" /* yacc.c:1646  */
+#line 2250 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 98:
-#line 585 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 563 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      linked_list_insert ((yyvsp[0].fieldlist), 0, NULL);
-      (yyval.fieldlist) = (yyvsp[0].fieldlist);
+      (yyval.fieldlist) = list_new_list (NULL, (yyvsp[0].fieldlist));
     }
-#line 2281 "tiger_grm.c" /* yacc.c:1646  */
+#line 2258 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 99:
-#line 594 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 571 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.field) = absyn_new_field (errm_tok_pos, (yyvsp[-2].symbol), (yyvsp[0].symbol));}
-#line 2287 "tiger_grm.c" /* yacc.c:1646  */
+#line 2264 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 100:
-#line 599 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 576 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.dec) = absyn_new_var_dec (errm_tok_pos, (yyvsp[-4].symbol), (yyvsp[-2].symbol), (yyvsp[0].exp));}
-#line 2293 "tiger_grm.c" /* yacc.c:1646  */
+#line 2270 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 101:
-#line 602 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 579 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.dec) = absyn_new_var_dec (errm_tok_pos, (yyvsp[-2].symbol), NULL, (yyvsp[0].exp));}
-#line 2299 "tiger_grm.c" /* yacc.c:1646  */
+#line 2276 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 102:
-#line 608 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 585 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.fundec) = absyn_new_fundec (errm_tok_pos, (yyvsp[-7].symbol), (yyvsp[-5].fieldlist), (yyvsp[-2].symbol), (yyvsp[0].exp));}
-#line 2305 "tiger_grm.c" /* yacc.c:1646  */
+#line 2282 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 103:
-#line 611 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 588 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.fundec) = absyn_new_fundec (errm_tok_pos, (yyvsp[-5].symbol), (yyvsp[-3].fieldlist), NULL, (yyvsp[0].exp));}
-#line 2311 "tiger_grm.c" /* yacc.c:1646  */
+#line 2288 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 104:
-#line 614 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 591 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.fundec) = absyn_new_fundec (errm_tok_pos, (yyvsp[-7].symbol), NULL, (yyvsp[-2].symbol), (yyvsp[0].exp));}
-#line 2317 "tiger_grm.c" /* yacc.c:1646  */
+#line 2294 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 105:
-#line 617 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 594 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.fundec) = absyn_new_fundec (errm_tok_pos, (yyvsp[-5].symbol), NULL, NULL, (yyvsp[0].exp));}
-#line 2323 "tiger_grm.c" /* yacc.c:1646  */
+#line 2300 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
   case 106:
-#line 623 "../../src/tiger_grm.y" /* yacc.c:1646  */
+#line 600 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {(yyval.symbol) = sym_new_symbol((yyvsp[0].sval));}
-#line 2329 "tiger_grm.c" /* yacc.c:1646  */
+#line 2306 "tiger_grm.c" /* yacc.c:1646  */
     break;
 
 
-#line 2333 "tiger_grm.c" /* yacc.c:1646  */
+#line 2310 "tiger_grm.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires

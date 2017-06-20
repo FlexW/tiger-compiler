@@ -10,7 +10,7 @@
 
 #include <stdbool.h>
 
-#include "linked_list.h"
+#include "list.h"
 #include "symbol.h"
 
 typedef struct _absyn_var absyn_var;
@@ -18,16 +18,16 @@ typedef struct _absyn_exp absyn_exp;
 typedef struct _absyn_dec absyn_dec;
 typedef struct _absyn_ty  absyn_ty;
 
-typedef        linked_list    absyn_dec_list;
-typedef        linked_list    absyn_exp_list;
+typedef        list           absyn_dec_list;
+typedef        list           absyn_exp_list;
 typedef struct _absyn_field   absyn_field;
-typedef        linked_list    absyn_field_list;
+typedef        list           absyn_field_list;
 typedef struct _absyn_fundec  absyn_fundec;
-typedef        linked_list    absyn_fundec_list;
+typedef        list           absyn_fundec_list;
 typedef struct _absyn_name_ty absyn_name_ty;
-typedef        linked_list    absyn_name_ty_list;
+typedef        list           absyn_name_ty_list;
 typedef struct _absyn_efield  absyn_efield;
-typedef        linked_list    absyn_efield_list;
+typedef        list           absyn_efield_list;
 
 
 /**

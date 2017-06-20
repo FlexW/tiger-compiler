@@ -25,7 +25,7 @@ libtiger_la_SOURCES = \
 	types.c \
 	x64frame.c \
 	tree.c \
-	linked_list.c
+	list.c
 
 EXTRA_DIST = \
 	include/errormsg.h \
@@ -42,7 +42,7 @@ EXTRA_DIST = \
 	include/types.h \
 	include/frame.h \
 	include/tree.h \
-	include/linked_list.h
+	include/list.h
 
 bin_PROGRAMS = \
 	tc

@@ -1,9 +1,9 @@
 escape.lo: ../../src/escape.c /usr/include/stdc-predef.h \
- /usr/include/stdlib.h /usr/include/features.h \
+ /usr/include/assert.h /usr/include/features.h \
  /usr/include/x86_64-linux-gnu/sys/cdefs.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
- /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
+ /usr/include/x86_64-linux-gnu/gnu/stubs-64.h /usr/include/stdlib.h \
  /usr/lib/gcc/x86_64-linux-gnu/6/include/stddef.h \
  /usr/include/x86_64-linux-gnu/bits/waitflags.h \
  /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
@@ -23,13 +23,13 @@ escape.lo: ../../src/escape.c /usr/include/stdc-predef.h \
  ../../src/include/errormsg.h \
  /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h \
  ../../src/include/symbol.h ../../src/include/table.h \
- ../../src/include/util.h ../../src/include/linked_list.h \
+ ../../src/include/util.h ../../src/include/list.h \
  ../../src/include/escape.h ../../src/include/absyn.h \
  ../../src/include/symbol.h
 
 /usr/include/stdc-predef.h:
 
-/usr/include/stdlib.h:
+/usr/include/assert.h:
 
 /usr/include/features.h:
 
@@ -40,6 +40,8 @@ escape.lo: ../../src/escape.c /usr/include/stdc-predef.h \
 /usr/include/x86_64-linux-gnu/gnu/stubs.h:
 
 /usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
+
+/usr/include/stdlib.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/6/include/stddef.h:
 
@@ -89,7 +91,7 @@ escape.lo: ../../src/escape.c /usr/include/stdc-predef.h \
 
 ../../src/include/util.h:
 
-../../src/include/linked_list.h:
+../../src/include/list.h:
 
 ../../src/include/escape.h:
 

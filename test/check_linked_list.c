@@ -186,7 +186,7 @@ START_TEST (test_linked_list_insert_out_range)
   int len = linked_list_length (list);
 
   ck_assert_str_eq (str, element2);
-  ck_assert_int_eq (len, 3);
+  ck_assert_int_eq (len, 5);
 
   linked_list_free (list);
 }
@@ -240,6 +240,75 @@ START_TEST (test_linked_list_for_each)
 }
 END_TEST
 
+START_TEST (test_linked_list_cat_list)
+{
+  linked_list *list1 = linked_list_new ();
+  linked_list *list2 = linked_list_new ();
+
+  char element0[] = "element0";
+  char element1[] = "element1";
+  char element2[] = "element2";
+  char element3[] = "element3";
+  char element4[] = "element4";
+  char element5[] = "element5";
+
+  linked_list_add (list1, element0);
+  linked_list_add (list1, element1);
+  linked_list_add (list1, element2);
+
+  linked_list_add (list2, element3);
+  linked_list_add (list2, element4);
+  linked_list_add (list2, element5);
+
+  int i = linked_list_cat_list (list1, list2);
+
+  ck_assert_int_eq (i, 3);
+  ck_assert_str_eq (linked_list_get (list1, 0), element0);
+  ck_assert_str_eq (linked_list_get (list1, 1), element1);
+  ck_assert_str_eq (linked_list_get (list1, 2), element2);
+  ck_assert_str_eq (linked_list_get (list1, 3), element3);
+  ck_assert_str_eq (linked_list_get (list1, 4), element4);
+  ck_assert_str_eq (linked_list_get (list1, 5), element5);
+
+  linked_list_free (list1);
+  linked_list_free (list2);
+}
+END_TEST
+
+START_TEST (test_linked_list_catn_list)
+{
+  linked_list *list1 = linked_list_new ();
+  linked_list *list2 = linked_list_new ();
+
+  char element0[] = "element0";
+  char element1[] = "element1";
+  char element2[] = "element2";
+  char element3[] = "element3";
+  char element4[] = "element4";
+  char element5[] = "element5";
+
+  linked_list_add (list1, element0);
+  linked_list_add (list1, element1);
+  linked_list_add (list1, element2);
+
+  linked_list_add (list2, element3);
+  linked_list_add (list2, element4);
+  linked_list_add (list2, element5);
+
+  int i = linked_list_catn_list (list1, list2, 1);
+
+  ck_assert_int_eq (i, 2);
+  ck_assert_str_eq (linked_list_get (list1, 0), element0);
+  ck_assert_str_eq (linked_list_get (list1, 1), element1);
+  ck_assert_str_eq (linked_list_get (list1, 2), element2);
+  ck_assert_str_eq (linked_list_get (list1, 3), element4);
+  ck_assert_str_eq (linked_list_get (list1, 4), element5);
+
+  linked_list_free (list1);
+  linked_list_free (list2);
+}
+END_TEST
+
 Suite *
 linked_list_suite (void)
 {
@@ -256,6 +325,8 @@ linked_list_suite (void)
   tcase_add_test (tc_core, test_linked_list_insert_out_range);
   tcase_add_test (tc_core, test_linked_list_free);
   tcase_add_test (tc_core, test_linked_list_for_each);
+  tcase_add_test (tc_core, test_linked_list_cat_list);
+  tcase_add_test (tc_core, test_linked_list_catn_list);
 
   suite_add_tcase(s, tc_core);
 

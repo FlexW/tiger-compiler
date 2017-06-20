@@ -124,18 +124,21 @@ frm_new_frame (temp_label     *name_ptr,
 
 /* Converts a bool list into a frm_access_list */
 static frm_access_list *
-formals_esc_to_access (util_bool_list *formals_ptr)
+formals_esc_to_access (util_bool_list *bool_list)
 {
-  frm_access_list *formals = linked_list_new ();
+  frm_access_list *formals = NULL, *sformals = NULL;
 
-  bool *b;
-  LINKED_LIST_FOR_EACH (b, formals_ptr)
+  for (int i = 0; bool_list != NULL; bool_list = bool_list->tail, i++)
     {
+      bool       *b      = bool_list->head;
       frm_access *access = alloc_formal (i + 1, b);
-      linked_list_add (formals, access);
-    }
 
-  return formals;
+      if (formals == NULL)
+        sformals = formals = list_new_list (access, NULL);
+      else
+        formals = formals->tail = list_new_list (access, NULL);
+    }
+  return sformals;
 }
 
 /**
@@ -158,9 +161,7 @@ frm_alloc_local (frm_frame *frame_ptr,
     access = in_reg (temp_new_temp ());
 
   /* Add element to frame struct */
-  if (frame_ptr->locals == NULL)
-    frame_ptr->locals = linked_list_new ();
-  linked_list_add (frame_ptr->locals, access);
+  list_new_list (access, frame_ptr->locals);
 
   return access;
 }

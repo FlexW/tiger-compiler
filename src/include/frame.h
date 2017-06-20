@@ -8,16 +8,16 @@
 
 #include <stdbool.h>
 
-#include "linked_list.h"
+#include "list.h"
 #include "temp.h"
 #include "util.h"
 #include "tree.h"
 
 typedef struct _frm_frag   frm_frag;
-typedef        linked_list frm_frag_list;
+typedef        list        frm_frag_list;
 typedef struct _frm_frame  frm_frame;
 typedef struct _frm_access frm_access;
-typedef        linked_list frm_access_list;
+typedef        list        frm_access_list;
 
 extern const int frm_word_size;
 

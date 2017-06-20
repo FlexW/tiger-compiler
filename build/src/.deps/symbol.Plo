@@ -14,7 +14,7 @@ symbol.lo: ../../src/symbol.c /usr/include/stdc-predef.h \
  /usr/include/xlocale.h ../../src/include/debug.h \
  ../../src/include/util.h \
  /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h \
- ../../src/include/linked_list.h ../../src/include/symbol.h \
+ ../../src/include/list.h ../../src/include/symbol.h \
  ../../src/include/table.h ../../src/include/table.h
 
 /usr/include/stdc-predef.h:
@@ -61,7 +61,7 @@ symbol.lo: ../../src/symbol.c /usr/include/stdc-predef.h \
 
 /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h:
 
-../../src/include/linked_list.h:
+../../src/include/list.h:
 
 ../../src/include/symbol.h:
 

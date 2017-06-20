@@ -3,6 +3,7 @@
  * Goes through abstract syntax tree and looks for escaping variables.
  */
 
+#include <assert.h>
 #include <stdlib.h>
 
 #include "include/errormsg.h"
@@ -71,20 +72,22 @@ traverse_exp (sym_table *env_ptr,
 
     case ABSYN_CALL_EXP:
       {
-        absyn_exp *exp;
-        LINKED_LIST_FOR_BEGIN (exp, exp_ptr->u.call.args)
-            traverse_exp (env_ptr, depth, exp);
-        LINKED_LIST_FOR_END
-        return;
+        absyn_exp_list *list = exp_ptr->u.call.args;
+        for (; list != NULL; list = list->tail)
+          traverse_exp (env_ptr, depth, list->head);
+
+        break;
       }
 
     case ABSYN_RECORD_EXP:
       {
-        absyn_efield *efield;
-        LINKED_LIST_FOR_BEGIN (efield, exp_ptr->u.record.fields)
+        absyn_efield_list *list = exp_ptr->u.record.fields;
+        for (; list != NULL; list = list->tail)
+          {
+            absyn_efield *efield = list->head;
             traverse_exp (env_ptr, depth, efield->exp);
-        LINKED_LIST_FOR_END
-        return;
+          }
+        break;
       }
 
     case ABSYN_SEQ_EXP:
@@ -93,11 +96,11 @@ traverse_exp (sym_table *env_ptr,
         if (exp_ptr->u.seq == NULL)
           return;
 
-        absyn_exp *exp;
-        LINKED_LIST_FOR_BEGIN (exp, exp_ptr->u.seq)
-            traverse_exp (env_ptr, depth, exp);
-        LINKED_LIST_FOR_END
-         return;
+        absyn_exp_list *list = exp_ptr->u.seq;
+        for (; list != NULL; list = list->tail)
+          traverse_exp (env_ptr, depth, list->head);
+
+        break;
       }
 
     case ABSYN_IF_EXP:
@@ -133,10 +136,9 @@ traverse_exp (sym_table *env_ptr,
       {
         sym_begin_scope (env_ptr);
 
-        absyn_dec *dec;
-        LINKED_LIST_FOR_BEGIN (dec, exp_ptr->u.let.decs)
-            traverse_dec (env_ptr, depth, dec);
-        LINKED_LIST_FOR_END
+        absyn_dec_list *list = exp_ptr->u.let.decs;
+        for (; list != NULL; list = list->tail)
+          traverse_dec (env_ptr, depth, list->head);
 
         sym_end_scope (env_ptr);
 
@@ -159,9 +161,10 @@ traverse_exp (sym_table *env_ptr,
     case ABSYN_STR_EXP:
     case ABSYN_BREAK_EXP:
       return;
-    }
 
-  errm_impossible ("Got over switch in traverse_exp()!\n");
+    default:
+      assert (0);
+    }
 }
 
 static void traverse_dec (sym_table *env_ptr,
@@ -239,23 +242,26 @@ traverse_formals (sym_table         *env_ptr,
                   int                depth,
                   absyn_fundec_list *fundec_list_ptr)
 {
-  absyn_fundec *fundec;
-  LINKED_LIST_FOR_BEGIN (fundec, fundec_list_ptr)
+  absyn_fundec_list *list = fundec_list_ptr;
+  for (; list != NULL; list = list->tail)
+    {
       depth++;
       sym_begin_scope (env_ptr);
 
+      absyn_fundec     *fundec      = list->head;
       absyn_field_list *params_list = fundec->params;
-      absyn_field      *param;
 
-      LINKED_LIST_FOR_BEGIN (param, params_list)
+      for (; params_list != NULL; params_list = params_list->tail)
+        {
+          absyn_field *param = params_list->head;
           sym_bind_symbol (env_ptr,
                            param->name,
                            new_esc_entry (depth, &param->escape));
-      LINKED_LIST_FOR_END
+        }
 
       traverse_exp (env_ptr, depth, fundec->body);
       depth--;
       sym_end_scope (env_ptr);
 
-  LINKED_LIST_FOR_END
+    }
 }

@@ -134,8 +134,7 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libtiger_la_LIBADD =
 am_libtiger_la_OBJECTS = errormsg.lo symbol.lo table.lo temp.lo \
 	util.lo absyn.lo env.lo escape.lo semant.lo tiger_grm.lo \
-	tiger_lex.lo translate.lo types.lo x64frame.lo tree.lo \
-	linked_list.lo
+	tiger_lex.lo translate.lo types.lo x64frame.lo tree.lo list.lo
 libtiger_la_OBJECTS = $(am_libtiger_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -380,7 +379,7 @@ libtiger_la_SOURCES = \
 	types.c \
 	x64frame.c \
 	tree.c \
-	linked_list.c
+	list.c
 
 EXTRA_DIST = \
 	include/errormsg.h \
@@ -397,7 +396,7 @@ EXTRA_DIST = \
 	include/types.h \
 	include/frame.h \
 	include/tree.h \
-	include/linked_list.h
+	include/list.h
 
 tc_SOURCES = \
 	main.c
@@ -544,7 +543,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/env.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/errormsg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/escape.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linked_list.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/semant.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/symbol.Plo@am__quote@

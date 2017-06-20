@@ -159,8 +159,8 @@ typ_ty*
 typ_actual_ty (typ_ty *typ_ptr)
 {
   typ_ty *original = typ_ptr;
-  int max = 1000;
-  int counter = 0;
+  int max          = 1000;
+  int counter      = 0;
 
   while (typ_ptr->kind == TYP_NAME)
     {
@@ -194,7 +194,7 @@ typ_print_ty (typ_ty *ty_ptr)
         printf (", %s", sym_name(ty_ptr->u.name.sym));
     }
 }
-/*
+
 void
 typ_print_ty_list (typ_ty_list *list_ptr)
 {
@@ -211,4 +211,3 @@ typ_print_ty_list (typ_ty_list *list_ptr)
       printf (")");
     }
 }
-*/

@@ -24,12 +24,11 @@ temp.lo: ../../src/temp.c /usr/include/stdc-predef.h \
  /usr/lib/gcc/x86_64-linux-gnu/6/include/stdarg.h \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
  /usr/include/x86_64-linux-gnu/bits/sys_errlist.h /usr/include/string.h \
- /usr/include/xlocale.h ../../src/include/temp.h \
- ../../src/include/linked_list.h \
- /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h \
+ /usr/include/xlocale.h ../../src/include/temp.h ../../src/include/list.h \
  ../../src/include/symbol.h ../../src/include/table.h \
- ../../src/include/util.h ../../src/include/symbol.h \
- ../../src/include/table.h
+ ../../src/include/util.h \
+ /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h \
+ ../../src/include/symbol.h ../../src/include/table.h
 
 /usr/include/stdc-predef.h:
 
@@ -103,15 +102,15 @@ temp.lo: ../../src/temp.c /usr/include/stdc-predef.h \
 
 ../../src/include/temp.h:
 
-../../src/include/linked_list.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h:
+../../src/include/list.h:
 
 ../../src/include/symbol.h:
 
 ../../src/include/table.h:
 
 ../../src/include/util.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h:
 
 ../../src/include/symbol.h:
 

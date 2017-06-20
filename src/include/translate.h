@@ -8,17 +8,17 @@
 
 #include <stdbool.h>
 
-#include "linked_list.h"
+#include "list.h"
 #include "frame.h"
 #include "temp.h"
 #include "util.h"
 
 
 typedef struct _tra_exp    tra_exp;
-typedef        linked_list tra_exp_list;
+typedef        list        tra_exp_list;
 typedef struct _tra_level  tra_level;
 typedef struct _tra_access tra_access;
-typedef        linked_list tra_access_list;
+typedef        list        tra_access_list;
 
 typedef enum
   {

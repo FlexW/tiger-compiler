@@ -22,16 +22,17 @@ main.o: ../../src/main.c /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/time.h \
  /usr/include/x86_64-linux-gnu/sys/sysmacros.h \
  /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h /usr/include/alloca.h \
- /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
- ../../src/include/util.h \
+ /usr/include/x86_64-linux-gnu/bits/stdlib-float.h /usr/include/string.h \
+ /usr/include/xlocale.h ../../src/include/canon.h \
+ ../../src/include/list.h ../../src/include/temp.h \
+ ../../src/include/symbol.h ../../src/include/table.h \
+ ../../src/include/tree.h ../../src/include/util.h \
  /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h \
- ../../src/include/linked_list.h ../../src/include/symbol.h \
- ../../src/include/table.h ../../src/include/errormsg.h \
+ ../../src/include/symbol.h ../../src/include/errormsg.h \
  ../../src/include/prabsyn.h ../../src/include/absyn.h \
- ../../src/include/symbol.h ../../src/include/semant.h \
- ../../src/include/frame.h ../../src/include/temp.h \
- ../../src/include/util.h ../../src/include/tree.h \
- ../../src/include/absyn.h ../../src/include/debug.h
+ ../../src/include/semant.h ../../src/include/frame.h \
+ ../../src/include/util.h ../../src/include/absyn.h \
+ ../../src/include/debug.h
 
 /usr/include/stdc-predef.h:
 
@@ -99,15 +100,27 @@ main.o: ../../src/main.c /usr/include/stdc-predef.h /usr/include/stdio.h \
 
 /usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
 
-../../src/include/util.h:
+/usr/include/string.h:
 
-/usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h:
+/usr/include/xlocale.h:
 
-../../src/include/linked_list.h:
+../../src/include/canon.h:
+
+../../src/include/list.h:
+
+../../src/include/temp.h:
 
 ../../src/include/symbol.h:
 
 ../../src/include/table.h:
+
+../../src/include/tree.h:
+
+../../src/include/util.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h:
+
+../../src/include/symbol.h:
 
 ../../src/include/errormsg.h:
 
@@ -115,17 +128,11 @@ main.o: ../../src/main.c /usr/include/stdc-predef.h /usr/include/stdio.h \
 
 ../../src/include/absyn.h:
 
-../../src/include/symbol.h:
-
 ../../src/include/semant.h:
 
 ../../src/include/frame.h:
 
-../../src/include/temp.h:
-
 ../../src/include/util.h:
-
-../../src/include/tree.h:
 
 ../../src/include/absyn.h:
 

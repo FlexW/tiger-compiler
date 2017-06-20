@@ -25,7 +25,7 @@ util.lo: ../../src/util.c /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
  ../../src/include/util.h \
  /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h \
- ../../src/include/linked_list.h
+ ../../src/include/list.h
 
 /usr/include/stdc-predef.h:
 
@@ -97,4 +97,4 @@ util.lo: ../../src/util.c /usr/include/stdc-predef.h /usr/include/stdio.h \
 
 /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h:
 
-../../src/include/linked_list.h:
+../../src/include/list.h:

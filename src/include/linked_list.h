@@ -29,6 +29,12 @@ bool          linked_list_insert (linked_list *list,
                                   int          index,
                                   void        *element);
 
+int           linked_list_cat_list (linked_list *dst,
+                                   linked_list *src);
+
+int           linked_list_catn_list (linked_list *dst,
+                                     linked_list *src,
+                                     int          src_index);
 /**
  * DEPRECATED
  * Macro to help with for each loops.

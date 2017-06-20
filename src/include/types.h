@@ -10,14 +10,14 @@
 
 #include <stdbool.h>
 
-#include "linked_list.h"
+#include "list.h"
 #include "symbol.h"
 
 
-typedef struct _typ_ty     typ_ty;
-typedef        linked_list typ_ty_list;
-typedef struct _typ_field  typ_field;
-typedef        linked_list typ_field_list;
+typedef struct _typ_ty    typ_ty;
+typedef        list       typ_ty_list;
+typedef struct _typ_field typ_field;
+typedef        list       typ_field_list;
 
 /**
  * Structure to hold information about a type.

@@ -10,9 +10,9 @@
 
 #include <stdbool.h>
 
-#include "linked_list.h"
+#include "list.h"
 
-typedef linked_list util_bool_list;
+typedef list util_bool_list;
 
 void * new (int sizeof_b);
 

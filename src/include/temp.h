@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 
-#include "linked_list.h"
+#include "list.h"
 #include "symbol.h"
 
 /*
@@ -24,10 +24,10 @@
 
 typedef sym_symbol temp_label;
 
-typedef struct _temp_temp  temp_temp;
-typedef        linked_list temp_temp_list;
-typedef struct _temp_map   temp_map;
-typedef        linked_list temp_label_list;
+typedef struct _temp_temp temp_temp;
+typedef        list       temp_temp_list;
+typedef struct _temp_map  temp_map;
+typedef        list       temp_label_list;
 
 
 temp_temp *       temp_new_temp       (void);
