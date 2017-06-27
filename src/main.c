@@ -3,10 +3,13 @@
  * Main program.
  */
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "include/assem.h"
+#include "include/codegen.h"
 #include "include/canon.h"
 #include "include/util.h"
 #include "include/symbol.h"
@@ -67,22 +70,24 @@ parse (char *fname_ptr)
 }
 
 /* Prints out a procedure in assembly language */
-/*static void
+static void
 do_proc (FILE      *out,
          frm_frame *frame,
          tree_stm  *body)
 {
+  frm_temp_map = temp_new_map ();
+
   tree_stm_list *stm_list = canon_linearize (body);
   stm_list = canon_trace_schedule (canon_basic_blocks (stm_list));
 
-  assem_instr_list *instr_list = frm_codegen (frame, stm_list);
+  assem_instr_list *instr_list = codegen (frame, stm_list);
 
   fprintf (out, "BEGIN %s\n", temp_label_str (frm_name (frame)));
-  assem_pr_instr_list (out,
-                       instr_list,
-                       temp_layer_map (frm_temp_map, temp_name ()));
+  assem_print_instr_list (out,
+                          instr_list,
+                          temp_layer_map (frm_temp_map, temp_name ()));
   fprintf (out, "END %s\n\n", temp_label_str (frm_name (frame)));
-  }*/
+}
 
 int
 main (int    argc,
@@ -110,11 +115,10 @@ main (int    argc,
 
   if (errm_any_errors)
     return 1;
-  /*
-   Convert filename
-  sprintf (outfile, "%s.s", argv[1]);
 
-  out = fopen(outfile, "w");
+  /* Convert filename */
+  //sprintf (outfile, "%s.s", argv[1]);
+  //out = fopen(outfile, "w");
 
   for (; frag_list != NULL; frag_list = frag_list->tail)
     {
@@ -122,15 +126,17 @@ main (int    argc,
       switch (frag->kind)
         {
         case FRM_PROC_FRAG:
-          //do_proc (out, frag->u.proc.frame, frag->u.proc.body);
+          do_proc (out, frag->u.proc.frame, frag->u.proc.body);
           break;
+
         case FRM_STRING_FRAG:
           fprintf (out, "%s\n", frag->u.str.str);
           break;
+
+        default:
+          assert (0);
         }
     }
-
-  fclose (out);
-  */
+  //fclose (out);
   return 0;
 }

@@ -27,7 +27,7 @@ tree_stm_list * canon_linearize (tree_stm *stm);
 	      2.  The parent of every CALL is an EXP(..) or a MOVE(TEMP t,..)
         */
 
-canon_block * canon_basic_blocks (tree_stm_list *stm_list);
+canon_block    canon_basic_blocks (tree_stm_list *stm_list);
         /* basicBlocks : Tree.stm list -> (Tree.stm list list * Tree.label)
 	       From a list of cleaned trees, produce a list of
 	 basic blocks satisfying the following properties:
@@ -40,7 +40,7 @@ canon_block * canon_basic_blocks (tree_stm_list *stm_list);
            upon exit.
         */
 
-tree_stm_list * canon_trace_schedule (canon_block *block);
+tree_stm_list * canon_trace_schedule (canon_block block);
          /* traceSchedule : Tree.stm list list * Tree.label -> Tree.stm list
             From a list of basic blocks satisfying properties 1-6,
             along with an "exit" label,

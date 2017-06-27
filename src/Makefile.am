@@ -23,9 +23,12 @@ libtiger_la_SOURCES = \
 	tiger_lex.l \
 	translate.c \
 	types.c \
-	x64frame.c \
+	x86frame.c \
 	tree.c \
-	list.c
+	list.c \
+	canon.c \
+	assem.c \
+	x86codegen.c
 
 EXTRA_DIST = \
 	include/errormsg.h \
@@ -42,7 +45,10 @@ EXTRA_DIST = \
 	include/types.h \
 	include/frame.h \
 	include/tree.h \
-	include/list.h
+	include/list.h \
+	include/canon.h \
+	include/assem.h \
+	include/codegen.h
 
 bin_PROGRAMS = \
 	tc

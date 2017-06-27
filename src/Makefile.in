@@ -134,7 +134,8 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libtiger_la_LIBADD =
 am_libtiger_la_OBJECTS = errormsg.lo symbol.lo table.lo temp.lo \
 	util.lo absyn.lo env.lo escape.lo semant.lo tiger_grm.lo \
-	tiger_lex.lo translate.lo types.lo x64frame.lo tree.lo list.lo
+	tiger_lex.lo translate.lo types.lo x86frame.lo tree.lo list.lo \
+	canon.lo assem.lo x86codegen.lo
 libtiger_la_OBJECTS = $(am_libtiger_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -377,9 +378,12 @@ libtiger_la_SOURCES = \
 	tiger_lex.l \
 	translate.c \
 	types.c \
-	x64frame.c \
+	x86frame.c \
 	tree.c \
-	list.c
+	list.c \
+	canon.c \
+	assem.c \
+	x86codegen.c
 
 EXTRA_DIST = \
 	include/errormsg.h \
@@ -396,7 +400,10 @@ EXTRA_DIST = \
 	include/types.h \
 	include/frame.h \
 	include/tree.h \
-	include/list.h
+	include/list.h \
+	include/canon.h \
+	include/assem.h \
+	include/codegen.h
 
 tc_SOURCES = \
 	main.c
@@ -540,6 +547,8 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/absyn.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/assem.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/canon.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/env.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/errormsg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/escape.Plo@am__quote@
@@ -555,7 +564,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tree.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/types.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/x64frame.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/x86codegen.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/x86frame.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

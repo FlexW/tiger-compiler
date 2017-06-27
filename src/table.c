@@ -9,7 +9,7 @@
 #include "include/util.h"
 #include "include/table.h"
 
-#define TAB_SIZE 127
+#define TAB_SIZE 371
 
 typedef struct _binder binder;
 

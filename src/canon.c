@@ -7,14 +7,14 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "include/linked_list.h"
+#include "include/list.h"
 #include "include/util.h"
 #include "include/symbol.h"
 #include "include/temp.h"
 #include "include/tree.h"
 #include "include/canon.h"
 
-typedef linked_list exp_ref_list;
+typedef        list     exp_ref_list;
 typedef struct _stm_exp stm_exp;
 
 struct _stm_exp
@@ -29,8 +29,7 @@ static tree_stm *            do_stm    (tree_stm *stm);
 
 static stm_exp *             do_exp    (tree_exp *exp);
 
-static canon_stmlist_list *  mk_blocks (int            stms_index,
-                                        tree_stm_list *stms,
+static canon_stmlist_list *  mk_blocks (tree_stm_list *stms,
                                         temp_label    *done);
 
 static tree_stm_list *       get_next  (void);
@@ -47,65 +46,59 @@ static tree_stm *
 seq (tree_stm *x,
      tree_stm *y)
 {
- if (is_nop (x))
-   return y;
- if (is_nop (y))
-   return x;
+  if (is_nop (x))
+    return y;
+  if (is_nop (y))
+    return x;
 
- return tree_new_seq (x, y);
+  return tree_new_seq (x, y);
 }
 
 static bool
 commute (tree_stm *x,
          tree_exp *y)
 {
- if (is_nop (x))
-   return true;
+  if (is_nop (x))
+    return true;
 
- if (y->kind == TREE_NAME || y->kind == TREE_CONST)
-   return true;
+  if (y->kind == TREE_NAME || y->kind == TREE_CONST)
+    return true;
 
- return false;
+  return false;
 }
 
 
 static tree_stm *
-reorder (int           index,
-         exp_ref_list *ref_list)
+reorder (exp_ref_list *ref_list)
 {
-  if (ref_list == NULL
-      || linked_list_length (ref_list) <= index)
+  if (!ref_list)
     {
-     return tree_new_exp (tree_new_const (0)); /* nop */
+      return tree_new_exp (tree_new_const (0)); /* nop */
     }
-
-  tree_exp *exp = *(tree_exp**)linked_list_get (ref_list, index);
-  if (exp->kind == TREE_CALL)
+  else if ((*(tree_exp**)ref_list->head)->kind == TREE_CALL)
     {
-      temp_temp *temp = temp_new_temp();
-
-      exp = tree_new_eseq (tree_new_move (tree_new_temp (temp), exp),
-                           tree_new_temp(temp));
-      return reorder (index, ref_list);
+      temp_temp *t = temp_new_temp();
+      *(tree_exp**)ref_list->head =
+        tree_new_eseq (tree_new_move (tree_new_temp(t),
+                                      *(tree_exp**)ref_list->head),
+                       tree_new_temp(t));
+      return reorder (ref_list);
     }
   else
     {
-      stm_exp *hd = do_exp (exp);
-      index++;
-      tree_stm *s = reorder (index, ref_list);
-
+      stm_exp  *hd = do_exp (*(tree_exp**)ref_list->head);
+      tree_stm *s  = reorder (ref_list->tail);
       if (commute (s, hd->exp))
         {
-          exp = hd->exp;
+          *(tree_exp**)ref_list->head = hd->exp;
           return seq (hd->stm, s);
         }
       else
         {
           temp_temp *t = temp_new_temp();
-
-          exp = tree_new_temp (t);
+          *(tree_exp**)ref_list->head = tree_new_temp (t);
           return seq (hd->stm,
-                      seq (tree_new_move(tree_new_temp (t), hd->exp), s));
+                      seq (tree_new_move (tree_new_temp (t),hd->exp), s));
         }
     }
 }
@@ -113,17 +106,15 @@ reorder (int           index,
 static exp_ref_list *
 get_call_ref_list (tree_exp *exp)
 {
- tree_exp_list *args    = exp->u.call.args;
- exp_ref_list *ref_list = linked_list_new ();
+  exp_ref_list  *rlist, *curr;
+  tree_exp_list *args = exp->u.call.args;
 
- linked_list_add (ref_list, &exp->u.call.fun);
-
- for (int i = 0; i < linked_list_length (args); i++)
-   {
-     tree_exp *exp = (tree_exp*)linked_list_get (args, i);
-     linked_list_add (ref_list, &exp);
-   }
-  return ref_list;
+  curr = rlist = list_new_list (&exp->u.call.fun, NULL);
+  for (;args; args = args->tail)
+    {
+      curr = curr->tail = list_new_list (&args->head, NULL);
+    }
+  return rlist;
 }
 
 static stm_exp *
@@ -141,39 +132,33 @@ new_stm_exp (tree_stm *stm,
 static stm_exp *
 do_exp (tree_exp *exp)
 {
-  switch (exp->kind)
+  switch(exp->kind)
     {
-  case TREE_BINOP:
-    {
-      exp_ref_list *ref_list = linked_list_new ();
-      linked_list_add (ref_list, &exp->u.bin_op.left);
-      linked_list_add (ref_list, &exp->u.bin_op.right);
+    case TREE_BINOP:
+      {
+        exp_ref_list *rlist = list_new_list(&exp->u.bin_op.right, NULL);
+        rlist = list_new_list (&exp->u.bin_op.left, rlist);
 
-      tree_stm* stm = reorder (0, ref_list);
-
-      return new_stm_exp (stm, exp);
-    }
-  case TREE_MEM:
-    {
-      exp_ref_list *ref_list = linked_list_new ();
-      linked_list_add (ref_list, &exp->u.mem);
-
-      return new_stm_exp (reorder (0, ref_list), exp);
-    }
-
+        return new_stm_exp (reorder (rlist), exp);
+      }
+    case TREE_MEM:
+      {
+        return new_stm_exp (reorder (list_new_list (&exp->u.mem, NULL)), exp);
+      }
     case TREE_ESEQ:
       {
-        stm_exp *stm_exp = do_exp (exp->u.eseq.exp);
-        return new_stm_exp (seq (do_stm (exp->u.eseq.stm), stm_exp->stm),
-                            stm_exp->exp);
+        stm_exp *x = do_exp(exp->u.eseq.exp);
+        return new_stm_exp (seq(do_stm(exp->u.eseq.stm), x->stm), x->exp);
       }
-
-  case TREE_CALL:
-    return new_stm_exp (reorder (0, get_call_ref_list (exp)), exp);
-
-  default:
-    return new_stm_exp (reorder (0, NULL), exp);
-  }
+    case TREE_CALL:
+      {
+        return new_stm_exp (reorder(get_call_ref_list (exp)), exp);
+      }
+    default:
+      {
+        return new_stm_exp (reorder(NULL), exp);
+      }
+    }
 }
 
 /* processes stm so that it contains no eseq nodes */
@@ -183,95 +168,57 @@ do_stm (tree_stm *stm)
   switch (stm->kind)
     {
     case TREE_SEQ:
-      return seq (do_stm (stm->u.seq.left), do_stm (stm->u.seq.right));
+      return seq(do_stm(stm->u.seq.left), do_stm(stm->u.seq.right));
 
     case TREE_JUMP:
-      {
-        exp_ref_list *ref_list = linked_list_new ();
-        linked_list_add (ref_list, &stm->u.jmp.exp);
-
-        return seq (reorder (0, ref_list), stm);
-      }
+      return seq (reorder (list_new_list (&stm->u.jmp.exp, NULL)), stm);
 
     case TREE_CJUMP:
-      {
-        exp_ref_list *ref_list = linked_list_new ();
-        linked_list_add (ref_list, &stm->u.cjump.left);
-        linked_list_add (ref_list, &stm->u.cjump.right);
+      return seq(reorder (list_new_list (&stm->u.cjump.left,
+                                         list_new_list(&stm->u.cjump.right,
+                                                       NULL))),
+                 stm);
 
-        return seq (reorder (0, ref_list), stm);
-      }
+    case TREE_MOVE:
+      if (stm->u.move.dst->kind == TREE_TEMP &&
+            stm->u.move.src->kind == TREE_CALL)
+        return seq (reorder(get_call_ref_list (stm->u.move.src)), stm);
 
-  case TREE_MOVE:
-    if (stm->u.move.dst->kind == TREE_TEMP
-        && stm->u.move.src->kind == TREE_CALL)
-      return seq(reorder(0, get_call_ref_list(stm->u.move.src)), stm);
+      else if (stm->u.move.dst->kind == TREE_TEMP)
+        return seq(reorder(list_new_list (&stm->u.move.src, NULL)), stm);
 
-    else if (stm->u.move.dst->kind == TREE_TEMP)
-      {
-        exp_ref_list *ref_list = linked_list_new ();
-        linked_list_add (ref_list, &stm->u.move.src);
+      else if (stm->u.move.dst->kind == TREE_MEM)
+        return seq(reorder(list_new_list (&stm->u.move.dst->u.mem,
+                                          list_new_list (&stm->u.move.src,
+                                                         NULL))),
+                   stm);
 
-        return seq (reorder (0, ref_list), stm);
-      }
-
-    else if (stm->u.move.dst->kind == TREE_MEM)
-      {
-        exp_ref_list *ref_list = linked_list_new ();
-        linked_list_add (ref_list, &stm->u.move.dst->u.mem);
-        linked_list_add (ref_list, &stm->u.move.src);
-
-        return seq (reorder (0, ref_list), stm);
-      }
-
-    else if (stm->u.move.dst->kind == TREE_ESEQ)
-      {
-        tree_stm *s     = stm->u.move.dst->u.eseq.stm;
-        stm->u.move.dst = stm->u.move.dst->u.eseq.exp;
-
-        return do_stm (tree_new_seq (s, stm));
-      }
-
-    assert(0); /* dst should be temp or mem only */
+      else if (stm->u.move.dst->kind == TREE_ESEQ)
+        {
+          stm->u.move.dst = stm->u.move.dst->u.eseq.exp;
+          return do_stm (tree_new_seq (stm->u.move.dst->u.eseq.stm, stm));
+        }
+      assert(0); /* dst should be temp or mem only */
 
     case TREE_EXP:
       if (stm->u.exp->kind == TREE_CALL)
-        return seq (reorder(0, get_call_ref_list (stm->u.exp)), stm);
-
+        return seq (reorder (get_call_ref_list (stm->u.exp)), stm);
       else
-        {
-          exp_ref_list *ref_list = linked_list_new ();
-          linked_list_add (ref_list, &stm->u.exp);
-
-          return seq (reorder (0, ref_list), stm);
-        }
+        return seq (reorder (list_new_list (&stm->u.exp, NULL)), stm);
 
     default:
       return stm;
- }
+    }
 }
 
 /* linear gets rid of the top-level SEQ's, producing a list */
 static tree_stm_list *
-linear (int right_index, tree_stm *stm, tree_stm_list *right)
+linear (tree_stm *stm, tree_stm_list *right)
 {
   if (stm->kind == TREE_SEQ)
-    {
-      right_index++;
-      return linear (0, stm->u.seq.left, linear (right_index,
-                                                 stm->u.seq.right,
-                                                 right));
-    }
-
-  tree_stm_list *stm_list = linked_list_new ();
-  linked_list_add (stm_list, stm);
-
-  if (right == NULL)
-    return stm_list;
-
-  linked_list_catn_list (stm_list, right, right_index);
-
-  return stm_list;
+    return linear (stm->u.seq.left, linear (stm->u.seq.right, right));
+  else
+    return list_new_list (stm, right);
 }
 
 /**
@@ -287,99 +234,69 @@ linear (int right_index, tree_stm *stm, tree_stm_list *right)
 tree_stm_list *
 canon_linearize (tree_stm *stm)
 {
-  return linear (0, do_stm(stm), NULL);
+  return linear (do_stm (stm), NULL);
 }
 
 /* Go down a list looking for end of basic block */
 static canon_stmlist_list *
-next (int            stms_index,
-      tree_stm_list *prevstms,
+next (tree_stm_list *prevstms,
       tree_stm_list *stms,
       temp_label    *done)
 {
-  if (stms == NULL || linked_list_length (stms) == stms_index)
-    {
-      temp_label_list *label_list = linked_list_new ();
-      tree_stm_list   *stm_list   = linked_list_new ();
-      linked_list_add (label_list, done);
-      linked_list_add (stm_list,
-                       tree_new_jump (tree_new_name (done), label_list));
+  if (!stms)
+    return next (prevstms,
+        list_new_list (tree_new_jump (tree_new_name (done),
+        list_new_list(done, NULL)), NULL), done);
 
-      return next (0, prevstms, stm_list, done);
-    }
-
-  tree_stm *stm = linked_list_get (stms, stms_index);
+  tree_stm *stm = stms->head;
   if (stm->kind == TREE_JUMP || stm->kind == TREE_CJUMP)
     {
-      canon_stmlist_list *stmlist_list;
-
-      linked_list_catn_list (prevstms, stms, stms_index);
-
-      stms_index++;
-      stmlist_list = mk_blocks (stms_index, stms, done);
-      linked_list_remove (stms, stms_index);
-
+      prevstms->tail = stms;
+      canon_stmlist_list *stmlist_list = mk_blocks (stms->tail, done);
+      stms->tail = NULL;
       return stmlist_list;
   }
-
   else if (stm->kind == TREE_LABEL)
     {
-      tree_stm_list   *stm_list   = linked_list_new ();
-      temp_label_list *label_list = linked_list_new ();
-      temp_label      *lab        = stm->u.label;
-      linked_list_add (label_list, lab);
-      linked_list_add (stm_list,
-                       tree_new_jump (tree_new_name (lab), label_list));
-
-      linked_list_catn_list (stm_list, stms, stms_index);
-
-      return next (stms_index, prevstms, stm_list, done);
+      temp_label *lab = stm->u.label;
+      return next (prevstms, list_new_list (tree_new_jump (tree_new_name (lab),
+                                                           list_new_list(lab,
+                                                                         NULL)),
+                                            stms),
+                   done);
     }
-
   else
     {
-      linked_list_catn_list (prevstms, stms, stms_index);
-
-      stms_index++;
-      return next (stms_index, stms, stms, done);
-  }
+      prevstms->tail = stms;
+      return next (stms, stms->tail, done);
+    }
 }
 
 /* Create the beginning of a basic block */
 static canon_stmlist_list *
-mk_blocks (int            stms_index,
-           tree_stm_list *stms,
+mk_blocks (tree_stm_list *stms,
            temp_label    *done)
 {
-  if (stms == NULL || linked_list_length (stms) == stms_index)
+  if (!stms)
     {
       return NULL;
     }
-
-  tree_stm *s = linked_list_get (stms, stms_index);
-  if (s->kind != TREE_LABEL)
+  tree_stm *stm = stms->head;
+  if (stm->kind != TREE_LABEL)
     {
-      tree_stm_list *stm_list = linked_list_new ();
-      linked_list_add (stm_list, tree_new_label (temp_new_label ()));
-      linked_list_catn_list (stm_list, stms, stms_index);
-
-      return mk_blocks (stms_index, stm_list, done);
+      return mk_blocks (list_new_list (tree_new_label (temp_new_label()), stms),
+                        done);
     }
   /* else there already is a label */
-  canon_stmlist_list *stmlist_list = linked_list_new ();
-  linked_list_catn_list (stmlist_list, stms, stms_index);
-  stms_index++;
-  linked_list_add (stmlist_list, next(stms_index, stms, stms, done));
-
-  return stmlist_list;
+  return list_new_list(stms, next(stms, stms->tail, done));
 }
 
 /**
  * BasicBlocks : Tree.stm list -> (Tree.stm list list * Tree.label)
  * From a list of cleaned trees, produce a list of
  * basic blocks satisfying the following properties:
- *	  1. and 2. as above;
- *	  3.  Every block begins with a LABEL;
+ *    1. and 2. as above;
+ *    3.  Every block begins with a LABEL;
  *    4.  A LABEL appears only at the beginning of a block;
  *    5.  Any JUMP or CJUMP is the last stm in a block;
  *    6.  Every block ends with a JUMP or CJUMP;
@@ -390,74 +307,90 @@ mk_blocks (int            stms_index,
  *
  * @returns canon_block.
  */
-canon_block *
+canon_block
 canon_basic_blocks (tree_stm_list *stm_list)
 {
-  canon_block *b = new (sizeof (*b));
+  canon_block b;
 
-  b->label     = temp_new_label ();
-  b->stm_lists = mk_blocks (0, stm_list, b->label);
+  b.label     = temp_new_label ();
+  b.stm_lists = mk_blocks (stm_list, b.label);
 
   return b;
 }
 
-static int global_block_stmlist_index = 0;
 static sym_table   *block_env;
-static canon_block *global_block;
+static canon_block  global_block;
 
 static tree_stm_list *
 get_last(tree_stm_list *list)
 {
-  return linked_list_get (list, linked_list_length (list) - 1);
   tree_stm_list *last = list;
+  while (last->tail->tail)
+    last = last->tail;
 
-  while (last->tail->tail) last = last->tail;
   return last;
 }
 
-static void trace (int            list_index,
-                   tree_stm_list *list)
+static void
+trace (tree_stm_list *list)
 {
-  //tree_stm_list *last = getLast(list);
-  tree_stm      *lab = linked_list_get (list, list_index);
-  tree_stm      *s   = linked_list_get (list, linked_list_length (list) - 1);
+  tree_stm_list *last = get_last (list);
+  tree_stm      *lab  = list->head;
+  tree_stm      *s    = last->tail->head;
 
   sym_bind_symbol (block_env, lab->u.label, NULL);
-
   if (s->kind == TREE_JUMP)
     {
-      sym_symbol    *sym = linked_list_get(s->u.jmp.jumps, 0);
-      tree_stm_list *target = (tree_stm_list*)sym_lookup (block_env, sym);
-
-      if (!s->u.jmp.jumps->tail && target) {
-        last->tail = target; /* merge the 2 lists removing JUMP stm */
-        trace(target);
+      tree_stm_list *target = (tree_stm_list*) sym_lookup (block_env,
+                                                         s->u.jmp.jumps->head);
+      if (!s->u.jmp.jumps->tail && target)
+        {
+          last->tail = target; /* merge the 2 lists removing JUMP stm */
+          trace (target);
+        }
+      else
+        {
+          last->tail->tail = get_next(); /* merge and keep JUMP stm */
+        }
     }
-    else last->tail->tail = getNext(); /* merge and keep JUMP stm */
-  }
   /* we want false label to follow CJUMP */
-  else if (s->kind == T_CJUMP) {
-    T_stmList true =  (T_stmList) S_look(block_env, s->u.CJUMP.true);
-    T_stmList false =  (T_stmList) S_look(block_env, s->u.CJUMP.false);
-    if (false) {
-      last->tail->tail = false;
-      trace(false);
+  else if (s->kind == TREE_CJUMP)
+    {
+      tree_stm_list *truee  = (tree_stm_list*) sym_lookup (block_env,
+                                                         s->u.cjump.truee);
+      tree_stm_list *falsee = (tree_stm_list*) sym_lookup (block_env,
+                                                           s->u.cjump.falsee);
+      if (falsee)
+        {
+          last->tail->tail = falsee;
+          trace(falsee);
+        }
+      else if (truee)
+        { /* convert so that existing label is a false label */
+          last->tail->head = tree_new_cjump (tree_not_rel (s->u.cjump.op),
+                                             s->u.cjump.left,
+                                             s->u.cjump.right,
+                                             s->u.cjump.falsee,
+                                             s->u.cjump.truee);
+          last->tail->tail = truee;
+          trace(truee);
+        }
+      else
+        {
+          temp_label *falsee = temp_new_label ();
+          last->tail->head = tree_new_cjump (s->u.cjump.op,
+                                             s->u.cjump.left,
+                                             s->u.cjump.right,
+                                             s->u.cjump.truee,
+                                             falsee);
+          last->tail->tail = list_new_list (tree_new_label (falsee),
+                                            get_next ());
+        }
     }
-    else if (true) { /* convert so that existing label is a false label */
-      last->tail->head = T_Cjump(T_notRel(s->u.CJUMP.op), s->u.CJUMP.left,
-				 s->u.CJUMP.right, s->u.CJUMP.false,
-				 s->u.CJUMP.true);
-      last->tail->tail = true;
-      trace(true);
+  else
+    {
+      assert(0);
     }
-    else {
-      Temp_label false = Temp_newlabel();
-      last->tail->head = T_Cjump(s->u.CJUMP.op, s->u.CJUMP.left,
-				 s->u.CJUMP.right, s->u.CJUMP.true, false);
-      last->tail->tail = T_StmList(T_Label(false), getNext());
-    }
-  }
-  else assert(0);
 }
 
 /* get the next block from the list of stmLists, using only those that have
@@ -465,28 +398,27 @@ static void trace (int            list_index,
 static tree_stm_list *
 get_next ()
 {
-  if (!global_block->stm_lists
-      || linked_list_length (global_block->stm_lists)
-      <= global_block_stmlist_index)
+  if (!global_block.stm_lists)
     {
-      tree_stm_list *stmlist = linked_list_new ();
-      linked_list_add (stmlist, tree_new_label (global_block->label));
-      return stmlist;
+    return list_new_list (tree_new_label (global_block.label), NULL);
     }
   else
     {
-      tree_stm_list *s = linked_list_get(global_block->stm_lists,
-                                         global_block_stmlist_index);
-    if (sym_lookup (block_env, s->head->u.LABEL)) {/* label exists in the table */
-      trace(s);
-      return s;
+      tree_stm_list *s = global_block.stm_lists->head;
+      tree_stm *stm    = s->head;
+      if (sym_lookup (block_env, stm->u.label))
+        {/* label exists in the table */
+          trace(s);
+          return s;
+        }
+      else
+        {
+          global_block.stm_lists = global_block.stm_lists->tail;
+          return get_next ();
+        }
     }
-    else {
-      global_block.stmLists = global_block.stmLists->tail;
-      return getNext();
-    }
-  }
 }
+
 /**
  * traceSchedule : Tree.stm list list * Tree.label -> Tree.stm list
  * From a list of basic blocks satisfying properties 1-6,
@@ -495,7 +427,7 @@ get_next ()
  *   1. and 2. as above;
  *   7. Every CJUMP(_,t,f) is immediately followed by LABEL f.
  *      The blocks are reordered to satisfy property 7; also
- *	    in this reordering as many JUMP(T.NAME(lab)) statements
+ *      in this reordering as many JUMP(T.NAME(lab)) statements
  *      as possible are eliminated by falling through into T.LABEL(lab).
  *
  * @param b canon_block.
@@ -503,21 +435,19 @@ get_next ()
  * @return tree_stm_list.
  */
 tree_stm_list *
-canon_trace_schedule (canon_block *b)
+canon_trace_schedule (canon_block b)
 {
-  canon_stmlist_list *stmlist_list = linked_list_new ();
-
+  canon_stmlist_list *stmlist_list;
   block_env    = sym_new_table ();
   global_block = b;
-  stmlist_list = global_block->stm_lists;
 
-  canon_stmlist_list *stmlist;
-  LINKED_LIST_FOR_EACH (stmlist, stmlist_list)
+  for (stmlist_list = global_block.stm_lists;
+       stmlist_list;
+       stmlist_list = stmlist_list->tail)
     {
-      tree_stm *stm = linked_list_get (stmlist, 0);
-      sym_bind_symbol (block_env, stm->u.label, stm);
+      tree_stm_list *stm_list = stmlist_list->head;
+      tree_stm      *stm      = stm_list->head;
+      sym_bind_symbol (block_env, stm->u.label, stmlist_list->head);
     }
-
-  global_block_stmlist_index++;
   return get_next();
 }

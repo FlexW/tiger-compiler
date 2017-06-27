@@ -52,7 +52,7 @@ _tree_stm
 {
   enum
     {
-      TREE_SEQ,   /* Sequentiell expression */
+      TREE_SEQ,   /* Sequentiel expression */
       TREE_LABEL, /* Machine code address label */
       TREE_JUMP,  /* Do jump to label */
       TREE_CJUMP, /* Conditional jump */

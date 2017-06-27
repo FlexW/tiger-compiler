@@ -5,13 +5,13 @@
 
 #include <assert.h>
 
-#include "include/linked_list.h"
+#include "include/list.h"
 #include "include/frame.h"
 #include "include/translate.h"
 #include "include/tree.h"
 
 typedef struct _condit_exp condit_exp;
-typedef struct _patch_list patch_list;
+typedef        list        patch_list;
 
 /* Private global list to save all function and string fragments */
 frm_frag_list *frag_list = NULL, *sfrag_list = NULL;
@@ -82,10 +82,6 @@ static tree_exp *   conv_exp              (tra_exp *exp_ptr);
 static tree_stm *   conv_no_res_exp       (tra_exp *exp_ptr);
 
 static condit_exp * conv_conditional_exp  (tra_exp *exp_ptr);
-
-
-static patch_list * new_patch_list        (temp_label *head_ptr,
-                                           patch_list *tail_ptr);
 
 static patch_list * join_patch            (patch_list *first_ptr,
                                            patch_list *second_ptr);
@@ -214,13 +210,13 @@ tra_simple_var (tra_access *access_ptr,
   if (level_ptr == access_ptr->level)
     {
       return trans_exp (frm_exp (access_ptr->access,
-                                 tree_new_temp (frm_frame_pointer ())));
+                                 tree_new_temp (frm_fp ())));
     }
   else /* Calculate offset with static links. */
     {
       tree_exp *mem = get_offset (level_ptr,
                                   access_ptr->level,
-                                  frm_frame_pointer ());
+                                  frm_fp ());
 
       return trans_exp (frm_exp (access_ptr->access, mem));
     }
@@ -404,8 +400,8 @@ tra_conditional_exp (tra_exp *left_ptr,
       break;
     }
 
-  patch_list *trues  = new_patch_list (stm->u.cjump.truee, NULL);
-  patch_list *falses = new_patch_list (stm->u.cjump.falsee, NULL);
+  patch_list *trues  = list_new_list (&stm->u.cjump.truee, NULL);
+  patch_list *falses = list_new_list (&stm->u.cjump.falsee, NULL);
 
   return trans_conditional_exp (trues, falses, stm);
 }
@@ -688,7 +684,7 @@ tra_call_exp (temp_label   *fun_ptr,
   /* Add static link */
   tree_list = list_new_list (get_offset (fun_call_level_ptr,
                                          fun_dec_level_ptr,
-                                         frm_frame_pointer ()),
+                                         frm_fp ()),
                              tree_list);
   return trans_exp (tree_new_call (fun, stree_list));
 }
@@ -762,7 +758,7 @@ tra_var_dec (tra_access *access_ptr,
              tra_exp    *init_ptr)
 {
   tree_exp *mem = frm_exp (access_ptr->access,
-                           tree_new_temp (frm_frame_pointer ()));
+                           tree_new_temp (frm_fp ()));
   return trans_no_res_exp (tree_new_move (mem, conv_exp (init_ptr)));
 }
 
@@ -789,7 +785,7 @@ void
 tra_add_func_frag (tra_exp   *body_ptr,
                    tra_level *level_ptr)
 {
-  tree_exp *temp = tree_new_temp (frm_ret_val_location ());
+  tree_exp *temp = tree_new_temp (frm_fp ());
   frm_frag *frag = frm_new_proc_frag (tree_new_move (temp,
                                                      conv_exp (body_ptr)),
                                       level_ptr->frame);
@@ -909,8 +905,8 @@ conv_conditional_exp (tra_exp *exp_ptr)
                                              tree_new_const (0),
                                              NULL,
                                              NULL);
-        patch_list *trues  = new_patch_list (stm->u.cjump.truee, NULL);
-        patch_list *falses = new_patch_list (stm->u.cjump.falsee, NULL);
+        patch_list *trues  = list_new_list (&(stm->u.cjump.truee), NULL);
+        patch_list *falses = list_new_list (&(stm->u.cjump.falsee), NULL);
 
         return new_condit (stm, trues, falses);
       }
@@ -935,7 +931,7 @@ do_patch (patch_list *t_list_ptr,
           temp_label *label_ptr)
 {
   for (; t_list_ptr; t_list_ptr = t_list_ptr->tail)
-    t_list_ptr->head = label_ptr;
+    *(temp_label**)t_list_ptr->head = label_ptr;
 }
 
 /*
@@ -1052,7 +1048,7 @@ trans_conditional_exp (patch_list *trues_ptr,
 
   return exp;
 }
-
+/*
 static patch_list *
 new_patch_list (temp_label *head_ptr,
                 patch_list *tail_ptr)
@@ -1064,7 +1060,7 @@ new_patch_list (temp_label *head_ptr,
 
   return list;
 }
-
+*/
 static tra_access_list *
 new_formals (tra_level *level)
 {

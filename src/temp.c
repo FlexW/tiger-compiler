@@ -35,11 +35,22 @@ static int temps  = 100;
 
 /* Local functions declarations */
 
-static temp_map * new_empty_map (void);
-
 static temp_map * new_map       (tab_table *tab_ptr,
                                  temp_map  *under_ptr);
 
+
+/**
+ * Returns the name of a label as string.
+ *
+ * @param s Label.
+ *
+ * @returns Name of label.
+ */
+char *
+temp_label_str (temp_label *s)
+{
+  return sym_name (s);
+}
 
 /**
  * Returns a new temporary from an infinite set of temps.
@@ -49,12 +60,14 @@ static temp_map * new_map       (tab_table *tab_ptr,
 temp_temp *
 temp_new_temp (void)
 {
-char buf[BUFFER_SIZE];
+  char buf[BUFFER_SIZE];
   temp_temp *new_temp = new (sizeof (*new_temp));
   new_temp->num = temps++;
 
   snprintf(buf, BUFFER_SIZE, "%d", new_temp->num);
-  temp_bind_temp (temp_name (), new_temp, buf);
+  char *s = new (sizeof (strlen (buf) + 1));
+  strcpy (s, buf);
+  temp_bind_temp (temp_name (), new_temp, s);
 
   return new_temp;
 }
@@ -67,7 +80,7 @@ char buf[BUFFER_SIZE];
 temp_label *
 temp_new_label (void)
 {
-  char buf[BUFFER_SIZE];
+  static char buf[BUFFER_SIZE];
   snprintf(buf, BUFFER_SIZE, "L%d", labels++);
 
   return temp_named_label (buf);
@@ -98,7 +111,7 @@ temp_name (void)
 static temp_map *map = NULL;
 
 if (map == NULL)
-   map = new_empty_map ();
+   map = temp_new_map ();
 
  return map;
 }
@@ -120,8 +133,8 @@ new_map (tab_table *tab_ptr,
  *
  * @return New created map.
  */
-static temp_map *
-new_empty_map (void)
+temp_map *
+temp_new_map (void)
 {
   return new_map (tab_new_table (), NULL);
 }
@@ -138,16 +151,16 @@ if (over_ptr == NULL)
 }
 
 /**
- * Binds a new temprary into the table.
+ * Binds a new temporary into the table.
  *
- * @map_ptr  The map (table) where the value shoud be binded
- * @temp_ptr The key for the value to bind.
- * @str_ptr  The value.
+ * @param map_ptr  The map (table) where the value shoud be binded
+ * @param temp_ptr The key for the value to bind.
+ * @param str_ptr  The value.
  */
 void
 temp_bind_temp (temp_map  *map_ptr,
-                  temp_temp *temp_ptr,
-                  char      *str_ptr)
+                temp_temp *temp_ptr,
+                char      *str_ptr)
 {
   tab_bind_value (map_ptr->tab, temp_ptr, str_ptr);
 }
@@ -162,8 +175,8 @@ temp_bind_temp (temp_map  *map_ptr,
  * @return Name of temp_ptr or NULL.
  */
 char *
-temp_lookup (temp_map *map_ptr,
-               temp_temp *temp_ptr)
+temp_lookup (temp_map  *map_ptr,
+             temp_temp *temp_ptr)
 {
 char * str;
 
@@ -174,6 +187,19 @@ char * str;
     return temp_lookup (map_ptr->under, temp_ptr);
   else
     return NULL;
+}
+
+temp_temp_list *
+temp_reverse_list (temp_temp_list *t)
+{
+  if (t == NULL)
+    return t;
+
+  temp_temp_list *tl = NULL;
+  for (; t; t = t->tail)
+    tl = list_new_list (t->head, tl);
+
+  return tl;
 }
 
 /* Debug functions */
