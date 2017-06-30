@@ -31,16 +31,17 @@ main.o: ../../src/main.c /usr/include/stdc-predef.h /usr/include/assert.h \
  /usr/include/xlocale.h /usr/include/x86_64-linux-gnu/bits/string.h \
  /usr/include/x86_64-linux-gnu/bits/string2.h \
  /usr/include/x86_64-linux-gnu/bits/string3.h ../../src/include/assem.h \
- ../../src/include/temp.h ../../src/include/list.h \
- ../../src/include/symbol.h ../../src/include/table.h \
- ../../src/include/tree.h ../../src/include/frame.h \
+ ../../src/include/temp.h \
  /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h \
- ../../src/include/util.h ../../src/include/assem.h \
- ../../src/include/codegen.h ../../src/include/canon.h \
- ../../src/include/util.h ../../src/include/symbol.h \
- ../../src/include/errormsg.h ../../src/include/prabsyn.h \
- ../../src/include/absyn.h ../../src/include/semant.h \
- ../../src/include/absyn.h ../../src/include/debug.h
+ ../../src/include/list.h ../../src/include/symbol.h \
+ ../../src/include/table.h ../../src/include/tree.h \
+ ../../src/include/frame.h ../../src/include/util.h \
+ ../../src/include/assem.h ../../src/include/codegen.h \
+ ../../src/include/canon.h ../../src/include/util.h \
+ ../../src/include/symbol.h ../../src/include/errormsg.h \
+ ../../src/include/prabsyn.h ../../src/include/absyn.h \
+ ../../src/include/semant.h ../../src/include/absyn.h \
+ ../../src/include/debug.h
 
 /usr/include/stdc-predef.h:
 
@@ -134,6 +135,8 @@ main.o: ../../src/main.c /usr/include/stdc-predef.h /usr/include/assert.h \
 
 ../../src/include/temp.h:
 
+/usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h:
+
 ../../src/include/list.h:
 
 ../../src/include/symbol.h:
@@ -143,8 +146,6 @@ main.o: ../../src/main.c /usr/include/stdc-predef.h /usr/include/assert.h \
 ../../src/include/tree.h:
 
 ../../src/include/frame.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h:
 
 ../../src/include/util.h:
 

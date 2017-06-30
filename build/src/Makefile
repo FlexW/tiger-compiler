@@ -135,7 +135,8 @@ libtiger_la_LIBADD =
 am_libtiger_la_OBJECTS = errormsg.lo symbol.lo table.lo temp.lo \
 	util.lo absyn.lo env.lo escape.lo semant.lo tiger_grm.lo \
 	tiger_lex.lo translate.lo types.lo x86frame.lo tree.lo list.lo \
-	canon.lo assem.lo x86codegen.lo graph.lo flowgraph.lo
+	canon.lo assem.lo x86codegen.lo graph.lo flowgraph.lo \
+	liveness.lo
 libtiger_la_OBJECTS = $(am_libtiger_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -385,7 +386,8 @@ libtiger_la_SOURCES = \
 	assem.c \
 	x86codegen.c \
 	graph.c \
-	flowgraph.c
+	flowgraph.c \
+	liveness.c
 
 EXTRA_DIST = \
 	include/errormsg.h \
@@ -407,7 +409,8 @@ EXTRA_DIST = \
 	include/assem.h \
 	include/codegen.h \
 	include/graph.h \
-	include/flowgraph.h
+	include/flowgraph.h \
+	include/liveness.h
 
 tc_SOURCES = \
 	main.c
@@ -559,6 +562,7 @@ include ./$(DEPDIR)/escape.Plo
 include ./$(DEPDIR)/flowgraph.Plo
 include ./$(DEPDIR)/graph.Plo
 include ./$(DEPDIR)/list.Plo
+include ./$(DEPDIR)/liveness.Plo
 include ./$(DEPDIR)/main.Po
 include ./$(DEPDIR)/semant.Plo
 include ./$(DEPDIR)/symbol.Plo
