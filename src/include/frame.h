@@ -112,4 +112,8 @@ temp_temp_list *   frm_caller_saves      (void);
 
 temp_temp_list *   frm_callee_saves      (void);
 
+int                frm_access_offset     (frm_access *a);
+
+temp_temp_list *   frm_registers         (void);
+
 #endif /* _FRAME_H_ */

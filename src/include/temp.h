@@ -7,6 +7,7 @@
 #define _TEMP_H_
 
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "list.h"
 #include "symbol.h"
@@ -57,4 +58,25 @@ temp_map *        temp_name           (void);
 
 temp_temp_list *  temp_reverse_list   (temp_temp_list *t);
 
+bool              temp_equal          (temp_temp_list *ta,
+                                       temp_temp_list *tb);
+
+void              temp_enter_ptr      (temp_map  *m,
+                                       temp_temp *t,
+                                       void      *ptr);
+
+void *            temp_look_ptr       (temp_map *m,
+                                       temp_temp *t);
+
+temp_temp_list * temp_union           (temp_temp_list *ta,
+                                       temp_temp_list *tb);
+
+temp_temp_list * temp_intersect       (temp_temp_list *ta,
+                                       temp_temp_list *tb);
+
+temp_temp_list * temp_minus           (temp_temp_list *ta,
+                                       temp_temp_list *tb);
+
+bool             temp_in_list         (temp_temp      *t,
+                                       temp_temp_list *tl);
 #endif /* _TEMP_H_ */

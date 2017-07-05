@@ -98,4 +98,17 @@ assem_proc *       assem_new_proc         (char             *p,
 
 //void               assem_fmt_asm_str      (char *fmt,
 //                                         ...);
+
+assem_instr_list * assem_instr_intersect (assem_instr_list *ta,
+                                          assem_instr_list *tb);
+
+assem_instr_list * assem_instr_minus     (assem_instr_list *ta,
+                                          assem_instr_list *tb);
+
+assem_instr_list * assem_instr_union     (assem_instr_list *ta,
+                                          assem_instr_list *tb);
+
+bool               assem_instr_in_list   (assem_instr      *i,
+                                          assem_instr_list *il);
+
 #endif /* _ASSEM_H_ */

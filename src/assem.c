@@ -318,3 +318,94 @@ cmp_jmp_lookup (tree_rel_op op)
       assert (0);
     }
 }
+
+assem_instr_list *
+assem_instr_union (assem_instr_list *ta,
+                   assem_instr_list *tb)
+{
+  assem_instr *t;
+  assem_instr_list *tl = NULL;
+  tab_table        *m  = tab_new_table ();
+
+  for (; ta; ta = ta->tail)
+    {
+      t = ta->head;
+      if (tab_lookup (m, t) == NULL)
+        {
+          tab_bind_value (m, t, "u");
+          tl = list_new_list (t, tl);
+        }
+    }
+  for (; tb; tb = tb->tail)
+    {
+      t = tb->head;
+      if (tab_lookup (m, t) == NULL)
+        {
+          tab_bind_value (m, t, "u");
+          tl = list_new_list (t, tl);
+        }
+    }
+  return tl;
+}
+
+assem_instr_list *
+assem_instr_minus (assem_instr_list *ta,
+                   assem_instr_list *tb)
+{
+  assem_instr *t;
+  assem_instr_list *tl = NULL;
+  tab_table *m = tab_new_table ();
+
+  for (; tb; tb = tb->tail)
+    {
+      t = tb->head;
+      tab_bind_value (m, t, "m");
+    }
+  for (; ta; ta = ta->tail)
+    {
+      t = ta->head;
+      if (tab_lookup (m, t) == NULL)
+        {
+          tl = list_new_list (t, tl);
+        }
+    }
+  return tl;
+}
+
+assem_instr_list *
+assem_instr_intersect (assem_instr_list *ta,
+                       assem_instr_list *tb)
+{
+  assem_instr *t;
+  assem_instr_list *tl = NULL;
+  tab_table *m = tab_new_table ();
+
+  for (; ta; ta = ta->tail)
+    {
+      t = ta->head;
+      tab_bind_value (m, t, "i");
+    }
+  for (; tb; tb = tb->tail)
+    {
+      t = tb->head;
+      if (tab_lookup (m, t) != NULL)
+        {
+          tl = list_new_list (t, tl);
+        }
+    }
+  return tl;
+}
+
+bool
+assem_instr_in_list (assem_instr      *i,
+                     assem_instr_list *il)
+{
+  for (; il; il = il->tail)
+    {
+      if (il->head == i)
+        {
+          return true;
+        }
+    }
+  return false;
+}

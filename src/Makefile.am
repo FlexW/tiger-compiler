@@ -28,7 +28,12 @@ libtiger_la_SOURCES = \
 	list.c \
 	canon.c \
 	assem.c \
-	x86codegen.c
+	x86codegen.c \
+	graph.c \
+	flowgraph.c \
+	liveness.c \
+	color.c \
+	regalloc.c
 
 EXTRA_DIST = \
 	include/errormsg.h \
@@ -48,7 +53,12 @@ EXTRA_DIST = \
 	include/list.h \
 	include/canon.h \
 	include/assem.h \
-	include/codegen.h
+	include/codegen.h \
+	include/graph.h \
+	include/flowgraph.h \
+	include/liveness.h \
+	include/color.h \
+	include/regalloc.h
 
 bin_PROGRAMS = \
 	tc

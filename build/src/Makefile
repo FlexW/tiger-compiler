@@ -136,7 +136,7 @@ am_libtiger_la_OBJECTS = errormsg.lo symbol.lo table.lo temp.lo \
 	util.lo absyn.lo env.lo escape.lo semant.lo tiger_grm.lo \
 	tiger_lex.lo translate.lo types.lo x86frame.lo tree.lo list.lo \
 	canon.lo assem.lo x86codegen.lo graph.lo flowgraph.lo \
-	liveness.lo
+	liveness.lo color.lo regalloc.lo
 libtiger_la_OBJECTS = $(am_libtiger_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -387,7 +387,9 @@ libtiger_la_SOURCES = \
 	x86codegen.c \
 	graph.c \
 	flowgraph.c \
-	liveness.c
+	liveness.c \
+	color.c \
+	regalloc.c
 
 EXTRA_DIST = \
 	include/errormsg.h \
@@ -410,7 +412,9 @@ EXTRA_DIST = \
 	include/codegen.h \
 	include/graph.h \
 	include/flowgraph.h \
-	include/liveness.h
+	include/liveness.h \
+	include/color.h \
+	include/regalloc.h
 
 tc_SOURCES = \
 	main.c
@@ -556,6 +560,7 @@ distclean-compile:
 include ./$(DEPDIR)/absyn.Plo
 include ./$(DEPDIR)/assem.Plo
 include ./$(DEPDIR)/canon.Plo
+include ./$(DEPDIR)/color.Plo
 include ./$(DEPDIR)/env.Plo
 include ./$(DEPDIR)/errormsg.Plo
 include ./$(DEPDIR)/escape.Plo
@@ -564,6 +569,7 @@ include ./$(DEPDIR)/graph.Plo
 include ./$(DEPDIR)/list.Plo
 include ./$(DEPDIR)/liveness.Plo
 include ./$(DEPDIR)/main.Po
+include ./$(DEPDIR)/regalloc.Plo
 include ./$(DEPDIR)/semant.Plo
 include ./$(DEPDIR)/symbol.Plo
 include ./$(DEPDIR)/table.Plo

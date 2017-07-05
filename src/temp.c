@@ -3,6 +3,7 @@
  * Functions for creating and managing temps and lables.
  */
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -202,6 +203,34 @@ temp_reverse_list (temp_temp_list *t)
   return tl;
 }
 
+bool
+temp_equal (temp_temp_list *ta,
+            temp_temp_list *tb)
+{
+  temp_temp *t;
+  temp_temp_list *tl = NULL;
+  temp_map *m = temp_new_map ();
+  int ca = 0, cb = 0;
+
+  for (; ta; ta = ta->tail)
+    {
+      t = ta->head;
+      temp_bind_temp (m, t, "e");
+      ca++;
+    }
+
+  for (; tb; tb = tb->tail)
+    {
+      t = tb->head;
+      if (temp_lookup (m, t) == NULL)
+        {
+          return false;
+        }
+    cb++;
+  }
+  return (ca == cb);
+}
+
 /* Debug functions */
 
 void showit(temp_temp *temp_ptr,
@@ -211,8 +240,8 @@ void showit(temp_temp *temp_ptr,
 }
 
 void
-temp_dump_map(FILE *out_ptr,
-              temp_map *map_ptr)
+temp_dump_map (FILE     *out_ptr,
+               temp_map *map_ptr)
 {
   outfile = out_ptr;
 
@@ -222,4 +251,118 @@ temp_dump_map(FILE *out_ptr,
      fprintf(out_ptr, "---------\n");
      temp_dump_map(out_ptr, map_ptr->under);
   }
+}
+
+void
+temp_enter_ptr (temp_map  *m,
+                temp_temp *t,
+                void      *ptr)
+{
+  assert (m && m->tab);
+  tab_bind_value (m->tab, t, ptr);
+}
+
+void *
+temp_look_ptr (temp_map *m,
+               temp_temp *t)
+{
+  assert (m && m->tab);
+  void *s = tab_lookup (m->tab, t);
+  if (s)
+    return s;
+  else if (m->under)
+    return temp_look_ptr (m->under, t);
+  else
+    return NULL;
+}
+
+temp_temp_list *
+temp_union (temp_temp_list *ta,
+            temp_temp_list *tb)
+{
+  temp_temp *t;
+  temp_temp_list *tl = NULL;
+  temp_map *m = temp_new_map ();
+
+  for (; ta; ta = ta->tail)
+    {
+      t = ta->head;
+      if (temp_lookup (m, t) == NULL)
+        {
+          temp_bind_temp (m, t, "u");
+          tl = list_new_list (t, tl);
+        }
+    }
+  for (; tb; tb = tb->tail)
+    {
+      t = tb->head;
+      if (temp_lookup (m, t) == NULL)
+        {
+          temp_bind_temp (m, t, "u");
+          tl = list_new_list (t, tl);
+        }
+    }
+  return tl;
+}
+
+temp_temp_list *
+temp_intersect (temp_temp_list *ta,
+                temp_temp_list *tb)
+{
+  temp_temp *t;
+  temp_temp_list *tl = NULL;
+  temp_map *m = temp_new_map ();
+
+  for (; ta; ta = ta->tail)
+    {
+      t = ta->head;
+      temp_bind_temp (m, t, "i");
+    }
+  for (; tb; tb = tb->tail)
+    {
+      t = tb->head;
+      if (temp_lookup (m, t) != NULL)
+        {
+          tl = list_new_list (t, tl);
+        }
+    }
+  return tl;
+}
+
+temp_temp_list *
+temp_minus (temp_temp_list *ta,
+            temp_temp_list *tb)
+{
+  temp_temp *t;
+  temp_temp_list *tl = NULL;
+  temp_map *m = temp_new_map ();
+
+  for (; tb; tb = tb->tail)
+    {
+      t = tb->head;
+      temp_bind_temp (m, t, "m");
+    }
+  for (; ta; ta = ta->tail)
+    {
+      t = ta->head;
+      if (temp_lookup (m, t) == NULL)
+        {
+          tl = list_new_list (t, tl);
+        }
+    }
+  return tl;
+}
+
+bool
+temp_in_list (temp_temp      *t,
+              temp_temp_list *tl)
+{
+  for (; tl; tl = tl->tail)
+    {
+      if (tl->head == t)
+        {
+          return true;
+        }
+    }
+  return false;
 }

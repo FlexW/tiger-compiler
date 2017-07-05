@@ -135,7 +135,8 @@ libtiger_la_LIBADD =
 am_libtiger_la_OBJECTS = errormsg.lo symbol.lo table.lo temp.lo \
 	util.lo absyn.lo env.lo escape.lo semant.lo tiger_grm.lo \
 	tiger_lex.lo translate.lo types.lo x86frame.lo tree.lo list.lo \
-	canon.lo assem.lo x86codegen.lo
+	canon.lo assem.lo x86codegen.lo graph.lo flowgraph.lo \
+	liveness.lo color.lo regalloc.lo
 libtiger_la_OBJECTS = $(am_libtiger_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -383,7 +384,12 @@ libtiger_la_SOURCES = \
 	list.c \
 	canon.c \
 	assem.c \
-	x86codegen.c
+	x86codegen.c \
+	graph.c \
+	flowgraph.c \
+	liveness.c \
+	color.c \
+	regalloc.c
 
 EXTRA_DIST = \
 	include/errormsg.h \
@@ -403,7 +409,12 @@ EXTRA_DIST = \
 	include/list.h \
 	include/canon.h \
 	include/assem.h \
-	include/codegen.h
+	include/codegen.h \
+	include/graph.h \
+	include/flowgraph.h \
+	include/liveness.h \
+	include/color.h \
+	include/regalloc.h
 
 tc_SOURCES = \
 	main.c
@@ -549,11 +560,16 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/absyn.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/assem.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/canon.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/color.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/env.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/errormsg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/escape.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flowgraph.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/graph.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liveness.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regalloc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/semant.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/symbol.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/table.Plo@am__quote@
