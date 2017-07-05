@@ -18,7 +18,7 @@
 #include "include/semant.h"
 #include "include/absyn.h"
 #include "include/debug.h"
-
+#include "include/regalloc.h"
 
 extern int yyparse(void);
 
@@ -75,18 +75,115 @@ do_proc (FILE      *out,
          frm_frame *frame,
          tree_stm  *body)
 {
-  frm_temp_map = temp_new_map ();
+  assem_proc       *proc;
+  tree_stm_list    *stm_list;
+  assem_instr_list *ilist;
 
-  tree_stm_list *stm_list = canon_linearize (body);
-  stm_list = canon_trace_schedule (canon_basic_blocks (stm_list));
+ frm_temp_map = temp_new_map ();
+ //printStmList(stdout, T_StmList(body, NULL));
 
-  assem_instr_list *instr_list = codegen (frame, stm_list);
+ stm_list = canon_linearize (body);
+ stm_list = canon_trace_schedule (canon_basic_blocks (stm_list));
+ /* printStmList(stdout, stmList);*/
+ //print_stm_list (stdout, stm_list);
+ ilist  = codegen (frame, stm_list); /* 9 */
+ //assem_printInstrList (out, iList, Temp_layerMap(F_tempMap,Temp_name()));
 
-  fprintf (out, "BEGIN %s\n", temp_label_str (frm_name (frame)));
-  assem_print_instr_list (out,
-                          instr_list,
-                          temp_layer_map (frm_temp_map, temp_name ()));
-  fprintf (out, "END %s\n\n", temp_label_str (frm_name (frame)));
+ struct regalloc_result ra = regalloc_do (frame, ilist);  /* 10, 11 */
+ ilist = ra.il;
+
+ ilist = frm_proc_entry_exit2 (ilist);
+ proc = frm_proc_entry_exit3 (frame, ilist);
+
+ fprintf(out, "%s\n", proc->prolog);
+ assem_print_instr_list (out,
+                         proc->body,
+                         temp_layer_map (frm_temp_map,
+                                         temp_layer_map (ra.coloring,
+                                                         temp_name())));
+ fprintf(out, "%s\n", proc->epilog);
+
+//  fprintf(out, "BEGIN function\n");
+//  assem_printInstrList (out, iList,
+//                     Temp_layerMap(F_tempMap,
+//                                   Temp_layerMap(ra.coloring, Temp_name())));
+//  fprintf(out, "END function\n\n");
+}
+
+char *
+expand_escapes (const char* src)
+{
+  char* str = new (2 * strlen (src) + 10);
+
+  char* dest = str;
+  char c;
+
+  while ((c = *(src++)))
+    {
+      switch(c)
+        {
+        case '\a':
+          *(dest++) = '\\';
+          *(dest++) = 'a';
+          break;
+        case '\b':
+          *(dest++) = '\\';
+          *(dest++) = 'b';
+          break;
+        case '\t':
+          *(dest++) = '\\';
+          *(dest++) = 't';
+          break;
+        case '\n':
+          *(dest++) = '\\';
+          *(dest++) = 'n';
+          break;
+        case '\v':
+          *(dest++) = '\\';
+          *(dest++) = 'v';
+          break;
+        case '\f':
+          *(dest++) = '\\';
+          *(dest++) = 'f';
+          break;
+        case '\r':
+          *(dest++) = '\\';
+          *(dest++) = 'r';
+          break;
+        case '\\':
+          *(dest++) = '\\';
+          *(dest++) = '\\';
+          break;
+        case '\"':
+          *(dest++) = '\\';
+          *(dest++) = '\"';
+          break;
+        default:
+          *(dest++) = c;
+        }
+    }
+  *(dest++) = '\\';
+  *(dest++) = '0';
+
+  *(dest++) = '\\';
+  *(dest++) = '0';
+
+  *(dest++) = '\\';
+  *(dest++) = '0';
+
+  *(dest++) = '\0'; /* Ensure nul terminator */
+  return str;
+}
+
+static void
+do_str (FILE       *out,
+        char       *str,
+        temp_label *label)
+{
+  fprintf (out, "%s:\n", temp_label_str (label));
+  fprintf (out, "    .long 0x%lx\n", strlen (str));
+  fprintf (out, "    .ascii \"%s\"\n", expand_escapes (str));
+  fprintf (out, "\n");
 }
 
 int
@@ -120,22 +217,20 @@ main (int    argc,
   //sprintf (outfile, "%s.s", argv[1]);
   //out = fopen(outfile, "w");
 
-  for (; frag_list != NULL; frag_list = frag_list->tail)
+  fprintf(out, ".globl tigermain\n\n");
+  fprintf(out, ".text\n\n");
+  for (frm_frag_list *fl = frag_list; fl != NULL; fl = fl->tail)
     {
       frm_frag *frag = frag_list->head;
-      switch (frag->kind)
-        {
-        case FRM_PROC_FRAG:
-          do_proc (out, frag->u.proc.frame, frag->u.proc.body);
-          break;
-
-        case FRM_STRING_FRAG:
-          fprintf (out, "%s\n", frag->u.str.str);
-          break;
-
-        default:
-          assert (0);
-        }
+      if (frag->kind == FRM_PROC_FRAG)
+        do_proc (out, frag->u.proc.frame, frag->u.proc.body);
+    }
+  fprintf(out, ".data\n\n");
+  for (frm_frag_list *fl = frag_list; fl != NULL; fl = fl->tail)
+    {
+      frm_frag *frag = frag_list->head;
+      if (frag->kind == FRM_STRING_FRAG)
+        do_str (out, frag->u.str.str, frag->u.str.label);
     }
   //fclose (out);
   return 0;
