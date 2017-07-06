@@ -41,7 +41,7 @@ main.o: ../../src/main.c /usr/include/stdc-predef.h /usr/include/assert.h \
  ../../src/include/symbol.h ../../src/include/errormsg.h \
  ../../src/include/prabsyn.h ../../src/include/absyn.h \
  ../../src/include/semant.h ../../src/include/absyn.h \
- ../../src/include/debug.h
+ ../../src/include/debug.h ../../src/include/regalloc.h
 
 /usr/include/stdc-predef.h:
 
@@ -170,3 +170,5 @@ main.o: ../../src/main.c /usr/include/stdc-predef.h /usr/include/assert.h \
 ../../src/include/absyn.h:
 
 ../../src/include/debug.h:
+
+../../src/include/regalloc.h:
