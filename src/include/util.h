@@ -14,6 +14,8 @@
 
 typedef list util_bool_list;
 
-void * new (int sizeof_b);
+void * new        (int sizeof_b);
+
+char * string_new (char *s);
 
 #endif // _UTIL_H_

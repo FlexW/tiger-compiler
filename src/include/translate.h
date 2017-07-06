@@ -74,14 +74,18 @@ tra_exp *         tra_assign_exp      (tra_exp *container_ptr,
 
 tra_exp *         tra_seq_exp         (tra_exp_list *list_ptr);
 
-tra_exp *         tra_call_exp        (temp_label   *fun_ptr,
-                                       tra_exp_list *exp_list_ptr,
-                                       tra_level    *fun_dec_level_ptr,
-                                       tra_level    *fun_call_level_ptr);
+tra_exp *         tra_call_exp        (bool          is_lib_func,
+                                       tra_level    *funclv,
+                                       tra_level    *lv,
+                                       temp_label   *name,
+                                       tra_exp_list *rawel);
 
-tra_exp *         tra_for_exp         (tra_exp *low_ptr,
-                                       tra_exp *hi_ptr,
-                                       tra_exp *body_ptr);
+tra_exp *         tra_for_exp         (tra_access *i,
+                                       tra_level  *lv,
+                                       tra_exp    *explo,
+                                       tra_exp    *exphi,
+                                       tra_exp    *body,
+                                       temp_label *breaklbl);
 
 tra_exp *         tra_nil_exp         (void);
 

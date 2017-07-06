@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "include/util.h"
 
@@ -18,5 +19,13 @@ new (int b_sizeof)
     fprintf (stderr, "\nRan out of memory!\n");
     exit(1);
   }
+  return p;
+}
+
+char *
+string_new (char *s)
+{
+  char *p = new (strlen(s)+1);
+  strcpy(p,s);
   return p;
 }

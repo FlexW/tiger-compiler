@@ -66,9 +66,7 @@ temp_new_temp (void)
   new_temp->num = temps++;
 
   snprintf(buf, BUFFER_SIZE, "%d", new_temp->num);
-  char *s = new (sizeof (strlen (buf) + 1));
-  strcpy (s, buf);
-  temp_bind_temp (temp_name (), new_temp, s);
+  temp_bind_temp (temp_name (), new_temp, string_new (buf));
 
   return new_temp;
 }
@@ -81,10 +79,10 @@ temp_new_temp (void)
 temp_label *
 temp_new_label (void)
 {
-  static char buf[BUFFER_SIZE];
+  char buf[BUFFER_SIZE];
   snprintf(buf, BUFFER_SIZE, "L%d", labels++);
 
-  return temp_named_label (buf);
+  return temp_named_label (string_new (buf));
 }
 
 /**

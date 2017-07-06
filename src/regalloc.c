@@ -252,9 +252,7 @@ regalloc_do (frm_frame        *f,
           frm_access *local = (frm_access*)tab_lookup (spilled_local, temp);
           sprintf(buf, "movl %d(`s0), `d0  # spilled\n",
                   frm_access_offset (local));
-          char *c = new (sizeof (buf));
-          memcpy (c, buf, sizeof (buf));
-          rewrite_list = list_new_list (assem_new_oper (c,
+          rewrite_list = list_new_list (assem_new_oper (string_new (buf),
                                                        list_new_list (temp,
                                                                       NULL),
                                                        list_new_list (frm_fp (),
@@ -272,9 +270,7 @@ regalloc_do (frm_frame        *f,
           frm_access *local = (frm_access*)tab_lookup (spilled_local, temp);
           sprintf(buf, "movl `s0, %d(`s1)  # spilled\n",
                   frm_access_offset (local));
-          char *c = new (sizeof (buf));
-          memcpy (c, buf, sizeof (buf));
-          rewrite_list = list_new_list (assem_new_oper (c,
+          rewrite_list = list_new_list (assem_new_oper (string_new (buf),
                                                        NULL,
                                                        list_new_list (temp,
                                                                       list_new_list (frm_fp(),
@@ -305,9 +301,7 @@ regalloc_do (frm_frame        *f,
               char buf[1024];
               sprintf(buf, "# ");
               strcat(buf, inst->u.oper.assem);
-              char *c = new (sizeof (buf));
-              memcpy (c, buf, sizeof (buf));
-              inst->u.oper.assem = c;
+              inst->u.oper.assem = string_new (buf);
               //continue;
             }
           rewrite_list = list_new_list (inst, rewrite_list);

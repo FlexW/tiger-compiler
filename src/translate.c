@@ -31,8 +31,8 @@ _tra_level
 {
   tra_level       *parent;
   frm_frame       *frame;
-  tra_access_list *formals;
-  tra_access_list *locals;
+  //tra_access_list *formals;
+  //tra_access_list *locals;
 };
 
 struct
@@ -118,17 +118,29 @@ tra_new_level (tra_level      *parent_ptr,
                util_bool_list *formals_ptr)
 {
   tra_level *new_level   = new (sizeof (*new_level));
-  bool      *static_link = new (sizeof (*static_link));
-  *static_link = true;
+  //bool      *static_link = new (sizeof (*static_link));
+  //*static_link = true;
 
-  formals_ptr = list_new_list (static_link, formals_ptr); /* Add static link */
+  //formals_ptr = list_new_list (static_link, formals_ptr); /* Add static link */
 
   new_level->frame   = frm_new_frame (name_ptr, formals_ptr);
   new_level->parent  = parent_ptr;
-  new_level->formals = new_formals (new_level);
-  new_level->locals  = NULL;
+  //new_level->formals = new_formals (new_level);
+  //new_level->locals  = NULL;
 
   return new_level;
+}
+
+tra_access *
+tra_new_access (tra_level  *level,
+                frm_access *frm_access)
+{
+  tra_access *access = new (sizeof (*access));
+
+  access->access = frm_access;
+  access->level  = level;
+
+  return access;
 }
 
 /**
@@ -141,28 +153,41 @@ tra_new_level (tra_level      *parent_ptr,
  * @return tra_access structure.
  */
 tra_access *
-tra_alloc_local (tra_level *level_ptr,
+tra_alloc_local (tra_level *level,
                  bool       escape)
 {
-  tra_access *access = new (sizeof (*access));
-
-  access->access = frm_alloc_local (level_ptr->frame, escape);
-  access->level  = level_ptr;
-
-  return access;
+  return tra_new_access (level, frm_alloc_local (level->frame, escape));
 }
 
 /**
  * Creates a access list for all formals from given level.
  *
- * @param level_ptr The level
+ * @param level The level
  *
  * @return tra_access_list with all the formals translated in access structs.
  */
 tra_access_list *
-tra_formals (tra_level *level_ptr)
+tra_formals (tra_level *level)
 {
-  return level_ptr->formals;
+  frm_access_list *access_list = frm_formals (level->frame);
+  tra_access_list *a = NULL, *last_a = NULL;
+  for (; access_list; access_list = access_list->tail)
+    {
+      if (last_a == NULL)
+        {
+          a = list_new_list (tra_new_access (level, access_list->head), NULL);
+          last_a = a;
+        }
+      else
+        {
+          last_a->tail = list_new_list (tra_new_access (level,
+                                                        access_list->head),
+                                        NULL);
+          last_a = last_a->tail;
+        }
+    }
+  return a;
+  // return level_ptr->formals;
 }
 
 /**
@@ -176,9 +201,22 @@ tra_outermost_level (void)
   static tra_level *outermost_level = NULL;
 
   if (outermost_level == NULL)
-      return outermost_level = tra_new_level (NULL, temp_new_label (), NULL);
+      return outermost_level = tra_new_level (NULL,
+                                              temp_named_label ("tigermain"),
+                                              NULL);
 
   return outermost_level;
+}
+
+void
+tra_proc_entry_exit (tra_level       *level,
+                     tra_exp         *body,
+                     tra_access_list *formals)
+{
+  tree_stm *stm = tree_new_move (tree_new_temp (frm_rv ()), conv_exp (body));
+  frm_frag *frag = frm_proc_frag (stm, level->frame);
+  frag_list = list_new_list (frag, frag_list);
+  frm_proc_entry_exit1 (level->frame, stm);
 }
 
 /**
@@ -198,28 +236,37 @@ tra_int_exp (int num)
  * Translates the access of a simple Variable into the intermediate code
  * representation.
  *
- * @param access_ptr The access to the variable.
- * @param level_ptr  The level in wich the variable is used.
+ * @param access The access to the variable.
+ * @param level  The level in wich the variable is used.
  *
  * @return Intermediate code representation.
  */
 tra_exp *
-tra_simple_var (tra_access *access_ptr,
-                tra_level  *level_ptr)
+tra_simple_var (tra_access *access,
+                tra_level  *level)
 {
   /* Variable is declared in the same level */
-  if (level_ptr == access_ptr->level)
+  if (level == access->level)
     {
-      return trans_exp (frm_exp (access_ptr->access,
+      return trans_exp (frm_exp (access->access,
                                  tree_new_temp (frm_fp ())));
     }
   else /* Calculate offset with static links. */
     {
-      tree_exp *mem = get_offset (level_ptr,
-                                  access_ptr->level,
+      tree_exp *static_link = frm_static_link_exp (tree_new_temp (frm_fp ()));
+      /*
+        tree_exp *mem = get_offset (level,
+                                  access->level,
                                   frm_fp ());
 
-      return trans_exp (frm_exp (access_ptr->access, mem));
+      return trans_exp (frm_exp (access->access, mem));
+      */
+      while (access->level != level)
+        {
+          static_link = frm_upper_static_link_exp (static_link);
+          level = level->parent;
+        }
+      return trans_exp (frm_exp_with_static_link (access->access, static_link));
     }
 }
 
@@ -316,10 +363,6 @@ tra_arithmetic_exp (tra_exp* left_ptr,
 
     default:
       assert (0);
-      op = tree_new_bin_op (TREE_PLUS,
-                            conv_exp (left_ptr),
-                            conv_exp (right_ptr));
-      break;
     }
 
   return trans_exp (op);
@@ -408,6 +451,64 @@ tra_conditional_exp (tra_exp *left_ptr,
 }
 
 /**
+ * Special conditional if comparing two strings.
+ *
+ * @param o Operator.
+ * @param left Left expression.
+ * @param right Expression.
+ *
+ * @return Intermediate code.
+ */
+tra_exp *
+tra_str_cond_exp(TRA_OP   o,
+                 tra_exp *left,
+                 tra_exp *right)
+{
+  tree_rel_op op = TREE_PLUS;
+  tree_stm *s;
+  switch (o)
+    {
+    case TRA_EQ:
+      op = TREE_EQ;
+      break;
+    case TRA_NEQ:
+      op = TREE_NEQ;
+      break;
+    case TRA_LT:
+      op = TREE_LT;
+      break;
+    case TRA_LE:
+      op = TREE_LE;
+      break;
+    case TRA_GT:
+      op = TREE_GT;
+      break;
+    case TRA_GE:
+      op = TREE_GE;
+      break;
+    default:
+      assert (0);
+  }
+  /* String equal */
+  if (op == TREE_EQ || op == TREE_NEQ)
+    {
+    tree_exp *e = frm_external_call ("stringEqual",
+                                     list_new_list (conv_exp (left),
+                                                    list_new_list (conv_exp (right),
+                                                                   NULL)));
+    s = tree_new_cjump (op, e, tree_new_const (1), NULL, NULL);
+    /* String compare */
+    }
+  else
+    {
+      assert(0);  // Not implemented
+    }
+  patch_list *trues = list_new_list (&s->u.cjump.truee, NULL);
+  patch_list *falses =list_new_list (&s->u.cjump.falsee, NULL);
+  return trans_conditional_exp (trues, falses, s);
+}
+
+/**
  * Translates a if expression into intermediate code.
  *
  * @param test_ptr Test condition.
@@ -485,7 +586,8 @@ tra_exp *
 tra_array_exp (tra_exp *size,
                tra_exp *init)
 {
-  tree_exp_list *args = list_new_list (init, list_new_list (size, NULL));
+  tree_exp_list *args = list_new_list (conv_exp (init),
+                                       list_new_list (conv_exp (size), NULL));
   /* Call external function that handels the init */
   return trans_exp (frm_external_call ("initArray", args));
 }
@@ -505,7 +607,7 @@ tra_record_exp (tra_exp_list *tra_list)
     Call external function malloc, save pointer in register record.
     In loop create the move statements to initialize each record field
     with the right value.
-  */
+
   tree_exp      *record = tree_new_temp (temp_new_temp ());
   int            s      = list_length (tra_list) * frm_word_size;
   tree_exp      *size   = tree_new_const (s);
@@ -546,6 +648,41 @@ tra_record_exp (tra_exp_list *tra_list)
   tree_stm *init_seq = tree_new_seq (tree_new_move (record, malloc),
                                      seq_start);
   return trans_exp (tree_new_eseq (init_seq, record));
+  */
+  /* Allocation */
+  int field_count = list_length (tra_list);
+  temp_temp *r = temp_new_temp ();
+  tree_stm * alloc = tree_new_move (tree_new_temp (r),
+                  frm_external_call ("allocRecord",
+                                     list_new_list (tree_new_const (field_count
+                                                                    * frm_word_size)
+                                                    , NULL)));
+
+  /* Init fields */
+  tree_stm *init = NULL, *current = NULL;
+  int field_index = 0;
+  for (; tra_list; tra_list = tra_list->tail, field_index++)
+    {
+      if (init == NULL)
+        {
+          init = current = tree_new_seq (tree_new_move (tree_new_mem (tree_new_bin_op (TREE_PLUS,
+                              tree_new_temp (r),
+                              tree_new_const ((field_count - 1 - field_index) * frm_word_size))),
+                                conv_exp (tra_list->head)),
+                        tree_new_exp (tree_new_const (0)));         /* statements in seq cannot be null */
+        }
+      else
+        {
+          current->u.seq.right = tree_new_seq (tree_new_move (tree_new_mem (tree_new_bin_op (TREE_PLUS,
+                                    tree_new_temp (r),
+                                    tree_new_const ((field_count - 1 - field_index) * frm_word_size))),
+                                      conv_exp (tra_list->head)),
+                              tree_new_exp (tree_new_const (0)));   /* statements in seq cannot be null */
+          current = current->u.seq.right;
+        }
+    }
+  return trans_exp (tree_new_eseq (tree_new_seq (alloc, init),
+                                   tree_new_temp (r)));
 }
 
 /**
@@ -625,6 +762,7 @@ tra_assign_exp (tra_exp *container_ptr,
 tra_exp *
 tra_seq_exp (tra_exp_list *tra_list)
 {
+  /*
   tree_stm *tree_seq = NULL, *stree_seq = NULL;
 
   if (list_length (tra_list) == 1)
@@ -649,8 +787,21 @@ tra_seq_exp (tra_exp_list *tra_list)
           tree_seq = tree_seq->u.seq.right;
         }
     }
-  assert (tree_seq->u.seq.right); /* Error if NULL */
+  assert (tree_seq->u.seq.right);  Error if NULL
   return trans_no_res_exp (stree_seq);
+  */
+  tra_exp_list *rel = NULL;
+  for (; tra_list; tra_list = tra_list->tail)
+    {
+      rel = list_new_list (tra_list->head, rel);
+    }
+
+  tree_exp *seq = tree_new_const (0);
+  for (; rel; rel = rel->tail)
+    {
+      seq = tree_new_eseq (tree_new_exp (seq), conv_exp (rel->head));
+    }
+  return trans_exp (seq);
 }
 
 /**
@@ -664,11 +815,13 @@ tra_seq_exp (tra_exp_list *tra_list)
  * @return Intermediate code.
  */
 tra_exp *
-tra_call_exp (temp_label   *fun_ptr,
-              tra_exp_list *tra_list,
-              tra_level    *fun_dec_level_ptr,
-              tra_level    *fun_call_level_ptr)
+tra_call_exp (bool          is_lib_func,
+              tra_level    *funclv,
+              tra_level    *lv,
+              temp_label   *name,
+              tra_exp_list *rawel)
 {
+  /*
   tree_exp_list *tree_list = NULL, *stree_list = NULL;
   tree_exp      *fun                           = tree_new_name (fun_ptr);
 
@@ -682,12 +835,48 @@ tra_call_exp (temp_label   *fun_ptr,
       else
         tree_list = tree_list->tail = list_new_list (exp, NULL);
     }
-  /* Add static link */
+   Add static link
   tree_list = list_new_list (get_offset (fun_call_level_ptr,
                                          fun_dec_level_ptr,
                                          frm_fp ()),
                              tree_list);
   return trans_exp (tree_new_call (fun, stree_list));
+  */
+  tree_exp_list *el = NULL, *last_el = NULL;
+  for (; rawel; rawel = rawel->tail)
+    {
+      if (last_el == NULL)
+        {
+          last_el = el = list_new_list (conv_exp (rawel->head), NULL);
+        }
+      else
+        {
+          last_el->tail = list_new_list (conv_exp (rawel->head), NULL);
+          last_el = last_el->tail;
+        }
+    }
+
+  /* Static link */
+  if (!is_lib_func)
+    {
+      tra_level *current     = lv;
+      tree_exp  *static_link = frm_static_link_exp (tree_new_temp (frm_fp ()));
+    /* Finding static link iteratively */
+    if (funclv->parent != current)
+      {
+        while (current)
+          {
+            static_link = tree_new_mem (static_link);
+            if (funclv->parent == current->parent)
+              {
+                break;
+              }
+            current = current->parent;
+          }
+      }
+    el = list_new_list (static_link, el);
+  }
+  return trans_exp (tree_new_call (tree_new_name (name), el));
 }
 
 /**
@@ -712,13 +901,29 @@ tra_nil_exp (void)
  * @return Intermediate code.
  */
 tra_exp *
-tra_for_exp (tra_exp *low_ptr,
-             tra_exp *hi_ptr,
-             tra_exp *body_ptr)
+tra_for_exp (tra_access *i,
+             tra_level  *lv,
+             tra_exp    *explo,
+             tra_exp    *exphi,
+             tra_exp    *body,
+             temp_label *breaklbl)
 {
-  /* TODO:  Implement function.*/
-  assert (0);
-  return trans_exp (tree_new_const (0));
+  temp_label *test      = temp_new_label ();
+  temp_label *loopstart = temp_new_label ();
+  temp_label *done      = breaklbl;
+  temp_temp  *limit     = temp_new_temp();
+  tree_exp   *vari      = conv_exp (tra_simple_var (i, lv));
+
+  tree_stm *s = tree_new_seq(tree_new_move (vari, conv_exp (explo)),
+              tree_new_seq (tree_new_label (test),
+                tree_new_seq (tree_new_move (tree_new_temp (limit), conv_exp (exphi)),
+                  tree_new_seq (tree_new_cjump (TREE_LE, vari, tree_new_temp (limit), loopstart, done),
+                    tree_new_seq (tree_new_label (loopstart),
+                      tree_new_seq (conv_no_res_exp (body),
+                        tree_new_seq (tree_new_move (vari, tree_new_bin_op (TREE_PLUS, vari, tree_new_const (1))),
+                          tree_new_seq (tree_new_jump (tree_new_name (test), list_new_list (test, NULL)),
+                            tree_new_label (done)))))))));
+  return trans_no_res_exp (s);
 }
 
 /**
@@ -742,8 +947,16 @@ tra_exp *
 tra_let_exp (tra_exp_list *list,
              tra_exp      *body)
 {
+  tree_exp *exp = conv_exp (body);
+  for (; list; list = list->tail)
+    {
+      exp = tree_new_eseq (conv_no_res_exp (list->head), exp);
+    }
+  return trans_exp (exp);
+  /*
   return trans_exp (tree_new_eseq (conv_no_res_exp (tra_seq_exp (list)),
                                    conv_exp (body)));
+  */
 }
 
 /**
