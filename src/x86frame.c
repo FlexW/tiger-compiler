@@ -699,3 +699,31 @@ bind_temp (temp_temp *temp,
 {
   temp_bind_temp (frm_temp_map, temp, name);
 }
+
+tree_exp *
+frm_static_link_exp (tree_exp *frame_ptr)
+{
+  // static link at fp + 8
+  return tree_new_bin_op (TREE_PLUS,
+                          frame_ptr,
+                          tree_new_const (2 * frm_word_size));
+}
+
+tree_exp *
+frm_upper_static_link_exp (tree_exp *static_link)
+{
+  return tree_new_mem (static_link);
+}
+
+tree_exp *
+frm_exp_with_static_link (frm_access *acc,
+                          tree_exp   *static_link)
+{
+  if (acc->kind == IN_REG)
+    {
+      return tree_new_temp (frm_access_reg (acc));
+    }
+  return tree_new_mem (tree_new_bin_op(TREE_PLUS,
+                                       static_link,
+                                       tree_new_const (frm_access_offset(acc) - 8)));
+}

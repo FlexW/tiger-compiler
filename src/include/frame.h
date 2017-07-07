@@ -116,4 +116,10 @@ int                frm_access_offset     (frm_access *a);
 
 temp_temp_list *   frm_registers         (void);
 
+tree_exp *         frm_upper_static_link_exp (tree_exp *static_link);
+
+tree_exp *         frm_static_link_exp       (tree_exp *frame_ptr);
+
+tree_exp *         frm_exp_with_static_link (frm_access *acc,
+                                             tree_exp   *static_link);
 #endif /* _FRAME_H_ */

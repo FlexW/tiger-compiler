@@ -284,16 +284,13 @@ new_expty (tra_exp *exp_ptr,
 frm_frag_list *
 sem_trans_prog (absyn_exp *exp_ptr)
 {
-  sym_table *venv;
-  sym_table *tenv;
-
-  tenv = env_base_tenv (); /* Get basic type enviroment */
-  venv = env_base_venv (); /* Get basic variable enviroment */
-
+  sym_table *tenv  = env_base_tenv (); /* Get basic type enviroment */
+  sym_table *venv  = env_base_venv (); /* Get basic variable enviroment */
+  tra_level *outer = tra_outermost_level ();
   esc_find_escaping_var (exp_ptr); /* look for escaping variables */
   /* Do sematic analyse */
-  trans_exp (tra_outermost_level (), venv, tenv, exp_ptr, NULL);
-
+  expty *prog = trans_exp (outer, venv, tenv, exp_ptr, NULL);
+  tra_proc_entry_exit (outer, prog->exp, NULL);
   return tra_get_frag_list ();
 }
 
@@ -618,6 +615,8 @@ check_str_exp (tra_level *level_ptr,
                absyn_exp *exp_ptr,
                temp_label *break_done)
 {
+  if (exp_ptr->u.str == NULL)
+    errm_printf (exp_ptr->pos, "String required");
   return new_expty (tra_str_exp (exp_ptr->u.str), typ_new_str ());
 }
 
@@ -648,10 +647,12 @@ check_call_exp (tra_level *level_ptr,
   if (tra_list == NULL)
     return TRANS_ERROR;
 
-  tra_exp *tra_exp = tra_call_exp (fundec->u.fun.label,
-                                   tra_list,
+  bool lib_fun = (sym_lookup (env_base_venv (), exp_ptr->u.call.func) != NULL);
+  tra_exp *tra_exp = tra_call_exp (lib_fun,
                                    fundec->u.fun.level,
-                                   level_ptr);
+                                   level_ptr,
+                                   fundec->u.fun.label,
+                                   tra_list);
   return new_expty (tra_exp, typ_actual_ty (fundec->u.fun.result));
 }
 
@@ -1019,11 +1020,14 @@ check_for_exp (tra_level *level_ptr,
   sym_begin_scope (venv_ptr);
   /* Add counter to enviroment */
   tra_access *access = tra_alloc_local (level_ptr, exp_ptr->u.forr.escape);
+  env_enventry *counter = env_new_var_entry (access, typ_new_int ());
   sym_bind_symbol (venv_ptr,
                    exp_ptr->u.forr.var,
-                   env_new_var_entry (access, typ_new_int ()));
+                   counter);
 
   set_loop_status (&loop_status, true);
+
+  break_done = temp_new_label ();
   expty *body = trans_exp(level_ptr,
                           venv_ptr,
                           tenv_ptr,
@@ -1058,7 +1062,12 @@ check_for_exp (tra_level *level_ptr,
     }
 
   sym_end_scope (venv_ptr);
-  tra_exp *exp = tra_for_exp (lo->exp, hi->exp, body->exp);
+  tra_exp *exp = tra_for_exp (counter->u.var.access,
+                              level_ptr,
+                              lo->exp,
+                              hi->exp,
+                              body->exp,
+                              break_done);
 
   return new_expty (exp, body->ty);
 }
@@ -1466,12 +1475,11 @@ check_var_dec (tra_level *level_ptr,
                absyn_dec *dec_ptr,
                temp_label *break_done)
 {
-  expty *init;
-  init = trans_exp (level_ptr,
-                    venv_ptr,
-                    tenv_ptr,
-                    dec_ptr->u.var.init,
-                    break_done);
+  expty *init = trans_exp (level_ptr,
+                           venv_ptr,
+                           tenv_ptr,
+                           dec_ptr->u.var.init,
+                           break_done);
 
   /* If type is given, check if is equal to init expression */
   if (dec_ptr->u.var.typ != NULL)
@@ -1495,7 +1503,8 @@ check_var_dec (tra_level *level_ptr,
   env_enventry *enventry = env_new_var_entry (access, init->ty); // Maybe NIL ?
   sym_bind_symbol (venv_ptr, dec_ptr->u.var.var, enventry);
 
-  return tra_var_dec (access, init->exp);
+  //return tra_var_dec (access, init->exp);
+  return tra_assign_exp (tra_simple_var(access, level_ptr), init->exp);
 }
 
 /**

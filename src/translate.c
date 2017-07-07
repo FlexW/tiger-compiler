@@ -90,9 +90,9 @@ static patch_list * join_patch            (patch_list *first_ptr,
 static void         do_patch              (patch_list *tlist_ptr,
                                            temp_label *label_ptr);
 
-static tree_exp *   get_offset            (tra_level *used_level_ptr,
-                                           tra_level *declared_level_ptr,
-                                           temp_temp *frame_pointer_ptr);
+//static tree_exp *   get_offset            (tra_level *used_level_ptr,
+//                                           tra_level *declared_level_ptr,
+//                                         temp_temp *frame_pointer_ptr);
 
 static void         frag_list_add         (frm_frag *frag_ptr);
 
@@ -100,7 +100,7 @@ static condit_exp * new_condit            (tree_stm   *stm_ptr,
                                            patch_list *trues_ptr,
                                            patch_list *falses_ptr);
 
-static tra_access_list * new_formals      (tra_level *level);
+//static tra_access_list * new_formals      (tra_level *level);
 
 
 /**
@@ -214,7 +214,7 @@ tra_proc_entry_exit (tra_level       *level,
                      tra_access_list *formals)
 {
   tree_stm *stm = tree_new_move (tree_new_temp (frm_rv ()), conv_exp (body));
-  frm_frag *frag = frm_proc_frag (stm, level->frame);
+  frm_frag *frag = frm_new_proc_frag (stm, level->frame);
   frag_list = list_new_list (frag, frag_list);
   frm_proc_entry_exit1 (level->frame, stm);
 }
@@ -966,7 +966,7 @@ tra_let_exp (tra_exp_list *list,
  * @init_ptr   The init value of the variable.
  *
  * @return Intermediate code representation.
- */
+
 tra_exp *
 tra_var_dec (tra_access *access_ptr,
              tra_exp    *init_ptr)
@@ -975,7 +975,7 @@ tra_var_dec (tra_access *access_ptr,
                            tree_new_temp (frm_fp ()));
   return trans_no_res_exp (tree_new_move (mem, conv_exp (init_ptr)));
 }
-
+*/
 /**
  * Translates a type declaration into intermediate code representation.
  *
@@ -1163,8 +1163,8 @@ join_patch (patch_list *first_ptr,
   first_ptr->tail = second_ptr;
   return first_ptr;
 }
-
-/* Gets the memory offset for a variable that is declared in another scope */
+/*
+ Gets the memory offset for a variable that is declared in another scope
 static tree_exp *
 get_offset (tra_level *used_level_ptr,
             tra_level *declared_level_ptr,
@@ -1187,7 +1187,7 @@ get_offset (tra_level *used_level_ptr,
 
   return mem;
 }
-
+*/
 /*
   Creates or adds a element to the private global fragment list.
  */
@@ -1275,6 +1275,7 @@ new_patch_list (temp_label *head_ptr,
   return list;
 }
 */
+ /*
 static tra_access_list *
 new_formals (tra_level *level)
 {
@@ -1297,3 +1298,4 @@ new_formals (tra_level *level)
     }
   return stra_access_list;
 }
+ */
