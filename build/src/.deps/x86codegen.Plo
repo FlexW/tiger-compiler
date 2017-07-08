@@ -26,15 +26,14 @@ x86codegen.lo: ../../src/x86codegen.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
  ../../src/include/util.h \
  /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h \
- ../../src/include/list.h ../../src/include/symbol.h \
- ../../src/include/table.h ../../src/include/absyn.h \
- ../../src/include/symbol.h ../../src/include/temp.h \
- ../../src/include/errormsg.h ../../src/include/tree.h \
- ../../src/include/temp.h ../../src/include/assem.h \
- ../../src/include/tree.h ../../src/include/frame.h \
- ../../src/include/util.h ../../src/include/assem.h \
- ../../src/include/frame.h ../../src/include/codegen.h \
- ../../src/include/table.h
+ ../../src/include/symbol.h ../../src/include/table.h \
+ ../../src/include/absyn.h ../../src/include/symbol.h \
+ ../../src/include/temp.h ../../src/include/errormsg.h \
+ ../../src/include/tree.h ../../src/include/temp.h \
+ ../../src/include/assem.h ../../src/include/tree.h \
+ ../../src/include/frame.h ../../src/include/util.h \
+ ../../src/include/assem.h ../../src/include/frame.h \
+ ../../src/include/codegen.h ../../src/include/table.h
 
 /usr/include/stdc-predef.h:
 
@@ -107,8 +106,6 @@ x86codegen.lo: ../../src/x86codegen.c /usr/include/stdc-predef.h \
 ../../src/include/util.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h:
-
-../../src/include/list.h:
 
 ../../src/include/symbol.h:
 

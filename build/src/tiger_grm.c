@@ -72,7 +72,7 @@
 #include "include/errormsg.h"
 #include "include/symbol.h"
 #include "include/absyn.h"
-#include "include/list.h"
+//#include "include/list.h"
 
 int yylex (void); /* function prototype */
 
@@ -1630,7 +1630,7 @@ yyreduce:
   case 4:
 #line 150 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      (yyval.explist) = list_new_list ((yyvsp[0].exp), NULL);
+      (yyval.explist) = absyn_new_exp_list ((yyvsp[0].exp), NULL);
     }
 #line 1636 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -1638,7 +1638,7 @@ yyreduce:
   case 5:
 #line 155 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      (yyval.explist) = list_new_list ((yyvsp[-2].exp), (yyvsp[0].explist));
+      (yyval.explist) = absyn_new_exp_list ((yyvsp[-2].exp), (yyvsp[0].explist));
     }
 #line 1644 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -1646,7 +1646,7 @@ yyreduce:
   case 6:
 #line 160 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      (yyval.explist) = list_new_list (NULL, (yyvsp[0].explist));
+      (yyval.explist) = absyn_new_exp_list (NULL, (yyvsp[0].explist));
     }
 #line 1652 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -1660,7 +1660,7 @@ yyreduce:
   case 8:
 #line 171 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      (yyval.explist) = list_new_list ((yyvsp[0].exp), NULL);
+      (yyval.explist) = absyn_new_exp_list ((yyvsp[0].exp), NULL);
     }
 #line 1666 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -1668,7 +1668,7 @@ yyreduce:
   case 9:
 #line 176 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      (yyval.explist) = list_new_list ((yyvsp[-2].exp), (yyvsp[0].explist));
+      (yyval.explist) = absyn_new_exp_list ((yyvsp[-2].exp), (yyvsp[0].explist));
     }
 #line 1674 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -1676,7 +1676,7 @@ yyreduce:
   case 10:
 #line 181 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      (yyval.explist) = list_new_list (NULL, (yyvsp[0].explist));
+      (yyval.explist) = absyn_new_exp_list (NULL, (yyvsp[0].explist));
     }
 #line 1682 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -1970,7 +1970,7 @@ yyreduce:
   case 55:
 #line 367 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      (yyval.efieldlist) = list_new_list ((yyvsp[0].efield), NULL);
+      (yyval.efieldlist) = absyn_new_efield_list ((yyvsp[0].efield), NULL);
     }
 #line 1976 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -1978,7 +1978,7 @@ yyreduce:
   case 56:
 #line 372 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      (yyval.efieldlist) = list_new_list ((yyvsp[-2].efield), (yyvsp[0].efieldlist));
+      (yyval.efieldlist) = absyn_new_efield_list ((yyvsp[-2].efield), (yyvsp[0].efieldlist));
     }
 #line 1984 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -1986,7 +1986,7 @@ yyreduce:
   case 57:
 #line 377 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      (yyval.efieldlist) = list_new_list (NULL, (yyvsp[0].efieldlist));
+      (yyval.efieldlist) = absyn_new_efield_list (NULL, (yyvsp[0].efieldlist));
     }
 #line 1992 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -2114,7 +2114,7 @@ yyreduce:
   case 78:
 #line 464 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      (yyval.declist) = list_new_list ((yyvsp[0].dec), NULL);
+      (yyval.declist) = absyn_new_dec_list ((yyvsp[0].dec), NULL);
     }
 #line 2120 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -2122,7 +2122,7 @@ yyreduce:
   case 79:
 #line 469 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      (yyval.declist) = list_new_list ((yyvsp[-1].dec), (yyvsp[0].declist));
+      (yyval.declist) = absyn_new_dec_list ((yyvsp[-1].dec), (yyvsp[0].declist));
     }
 #line 2128 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -2130,7 +2130,7 @@ yyreduce:
   case 80:
 #line 474 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-       (yyval.declist) = list_new_list (NULL, (yyvsp[0].declist));
+       (yyval.declist) = absyn_new_dec_list (NULL, (yyvsp[0].declist));
     }
 #line 2136 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -2156,7 +2156,7 @@ yyreduce:
   case 84:
 #line 494 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-       (yyval.fundeclist) = list_new_list ((yyvsp[0].fundec), NULL);
+       (yyval.fundeclist) = absyn_new_fundec_list ((yyvsp[0].fundec), NULL);
     }
 #line 2162 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -2164,7 +2164,7 @@ yyreduce:
   case 85:
 #line 499 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-       (yyval.fundeclist) = list_new_list ((yyvsp[-1].fundec), (yyvsp[0].fundeclist));
+       (yyval.fundeclist) = absyn_new_fundec_list ((yyvsp[-1].fundec), (yyvsp[0].fundeclist));
     }
 #line 2170 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -2172,7 +2172,7 @@ yyreduce:
   case 86:
 #line 506 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-       (yyval.nametylist) = list_new_list ((yyvsp[0].namety), NULL);
+      (yyval.nametylist) = absyn_new_name_ty_list ((yyvsp[0].namety), NULL);
     }
 #line 2178 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -2180,7 +2180,7 @@ yyreduce:
   case 87:
 #line 511 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      (yyval.nametylist) = list_new_list ((yyvsp[-1].namety), (yyvsp[0].nametylist));
+      (yyval.nametylist) = absyn_new_name_ty_list ((yyvsp[-1].namety), (yyvsp[0].nametylist));
     }
 #line 2186 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -2236,7 +2236,7 @@ yyreduce:
   case 96:
 #line 553 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      (yyval.fieldlist) = list_new_list ((yyvsp[0].field), NULL);
+      (yyval.fieldlist) = absyn_new_field_list ((yyvsp[0].field), NULL);
     }
 #line 2242 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -2244,7 +2244,7 @@ yyreduce:
   case 97:
 #line 558 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      (yyval.fieldlist) = list_new_list ((yyvsp[-2].field), (yyvsp[0].fieldlist));
+      (yyval.fieldlist) = absyn_new_field_list ((yyvsp[-2].field), (yyvsp[0].fieldlist));
     }
 #line 2250 "tiger_grm.c" /* yacc.c:1646  */
     break;
@@ -2252,7 +2252,7 @@ yyreduce:
   case 98:
 #line 563 "../../src/tiger_grm.y" /* yacc.c:1646  */
     {
-      (yyval.fieldlist) = list_new_list (NULL, (yyvsp[0].fieldlist));
+      (yyval.fieldlist) = absyn_new_field_list (NULL, (yyvsp[0].fieldlist));
     }
 #line 2258 "tiger_grm.c" /* yacc.c:1646  */
     break;

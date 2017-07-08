@@ -13,15 +13,14 @@ graph.lo: ../../src/graph.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/sys_errlist.h \
  ../../src/include/util.h \
  /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h \
- ../../src/include/list.h ../../src/include/symbol.h \
- ../../src/include/table.h ../../src/include/temp.h \
- ../../src/include/symbol.h ../../src/include/tree.h \
- ../../src/include/temp.h ../../src/include/absyn.h \
- ../../src/include/assem.h ../../src/include/tree.h \
- ../../src/include/frame.h ../../src/include/util.h \
- ../../src/include/assem.h ../../src/include/frame.h \
- ../../src/include/graph.h ../../src/include/errormsg.h \
- ../../src/include/table.h
+ ../../src/include/symbol.h ../../src/include/table.h \
+ ../../src/include/temp.h ../../src/include/symbol.h \
+ ../../src/include/tree.h ../../src/include/temp.h \
+ ../../src/include/absyn.h ../../src/include/assem.h \
+ ../../src/include/tree.h ../../src/include/frame.h \
+ ../../src/include/util.h ../../src/include/assem.h \
+ ../../src/include/frame.h ../../src/include/graph.h \
+ ../../src/include/errormsg.h ../../src/include/table.h
 
 /usr/include/stdc-predef.h:
 
@@ -60,8 +59,6 @@ graph.lo: ../../src/graph.c /usr/include/stdc-predef.h \
 ../../src/include/util.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h:
-
-../../src/include/list.h:
 
 ../../src/include/symbol.h:
 

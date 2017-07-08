@@ -12,10 +12,9 @@ tiger_grm.lo: tiger_grm.c /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/sys_errlist.h \
  ../../src/include/util.h \
  /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h \
- ../../src/include/list.h ../../src/include/errormsg.h \
- ../../src/include/symbol.h ../../src/include/table.h \
- ../../src/include/absyn.h ../../src/include/symbol.h \
- ../../src/include/list.h
+ ../../src/include/errormsg.h ../../src/include/symbol.h \
+ ../../src/include/table.h ../../src/include/absyn.h \
+ ../../src/include/symbol.h
 
 /usr/include/stdc-predef.h:
 
@@ -53,8 +52,6 @@ tiger_grm.lo: tiger_grm.c /usr/include/stdc-predef.h /usr/include/stdio.h \
 
 /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h:
 
-../../src/include/list.h:
-
 ../../src/include/errormsg.h:
 
 ../../src/include/symbol.h:
@@ -64,5 +61,3 @@ tiger_grm.lo: tiger_grm.c /usr/include/stdc-predef.h /usr/include/stdio.h \
 ../../src/include/absyn.h:
 
 ../../src/include/symbol.h:
-
-../../src/include/list.h:

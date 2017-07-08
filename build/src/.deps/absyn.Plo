@@ -1,17 +1,14 @@
 absyn.lo: ../../src/absyn.c /usr/include/stdc-predef.h \
  ../../src/include/util.h \
  /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h \
- ../../src/include/list.h ../../src/include/symbol.h \
- ../../src/include/table.h ../../src/include/absyn.h \
- ../../src/include/symbol.h
+ ../../src/include/symbol.h ../../src/include/table.h \
+ ../../src/include/absyn.h ../../src/include/symbol.h
 
 /usr/include/stdc-predef.h:
 
 ../../src/include/util.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h:
-
-../../src/include/list.h:
 
 ../../src/include/symbol.h:
 

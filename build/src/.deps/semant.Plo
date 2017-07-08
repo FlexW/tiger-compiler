@@ -27,8 +27,8 @@ semant.lo: ../../src/semant.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/sys_errlist.h /usr/include/string.h \
  /usr/include/xlocale.h ../../src/include/symbol.h \
  ../../src/include/table.h ../../src/include/util.h \
- ../../src/include/list.h ../../src/include/errormsg.h \
- ../../src/include/debug.h ../../src/include/translate.h \
+ ../../src/include/errormsg.h ../../src/include/debug.h \
+ ../../src/include/translate.h ../../src/include/list.h \
  ../../src/include/frame.h ../../src/include/temp.h \
  ../../src/include/symbol.h ../../src/include/util.h \
  ../../src/include/tree.h ../../src/include/assem.h \
@@ -117,13 +117,13 @@ semant.lo: ../../src/semant.c /usr/include/stdc-predef.h \
 
 ../../src/include/util.h:
 
-../../src/include/list.h:
-
 ../../src/include/errormsg.h:
 
 ../../src/include/debug.h:
 
 ../../src/include/translate.h:
+
+../../src/include/list.h:
 
 ../../src/include/frame.h:
 

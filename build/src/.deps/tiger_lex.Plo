@@ -31,9 +31,8 @@ tiger_lex.lo: tiger_lex.c /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/stdint.h /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/assert.h ../../src/include/util.h \
  /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h \
- ../../src/include/list.h ../../src/include/errormsg.h \
- ../../src/include/tokens.h /usr/include/unistd.h \
- /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
+ ../../src/include/errormsg.h ../../src/include/tokens.h \
+ /usr/include/unistd.h /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
  /usr/include/x86_64-linux-gnu/bits/environments.h \
  /usr/include/x86_64-linux-gnu/bits/confname.h /usr/include/getopt.h
 
@@ -132,8 +131,6 @@ tiger_lex.lo: tiger_lex.c /usr/include/stdc-predef.h /usr/include/stdio.h \
 ../../src/include/util.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h:
-
-../../src/include/list.h:
 
 ../../src/include/errormsg.h:
 

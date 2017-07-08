@@ -26,16 +26,16 @@ regalloc.lo: ../../src/regalloc.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h /usr/include/string.h \
  /usr/include/xlocale.h ../../src/include/errormsg.h \
  /usr/lib/gcc/x86_64-linux-gnu/6/include/stdbool.h \
- ../../src/include/util.h ../../src/include/list.h \
- ../../src/include/symbol.h ../../src/include/table.h \
- ../../src/include/temp.h ../../src/include/symbol.h \
- ../../src/include/tree.h ../../src/include/temp.h \
- ../../src/include/absyn.h ../../src/include/assem.h \
- ../../src/include/tree.h ../../src/include/frame.h \
- ../../src/include/util.h ../../src/include/assem.h \
- ../../src/include/frame.h ../../src/include/graph.h \
- ../../src/include/color.h ../../src/include/graph.h \
- ../../src/include/flowgraph.h ../../src/include/liveness.h \
+ ../../src/include/util.h ../../src/include/symbol.h \
+ ../../src/include/table.h ../../src/include/temp.h \
+ ../../src/include/symbol.h ../../src/include/tree.h \
+ ../../src/include/temp.h ../../src/include/absyn.h \
+ ../../src/include/assem.h ../../src/include/tree.h \
+ ../../src/include/frame.h ../../src/include/util.h \
+ ../../src/include/assem.h ../../src/include/frame.h \
+ ../../src/include/graph.h ../../src/include/color.h \
+ ../../src/include/graph.h ../../src/include/flowgraph.h \
+ ../../src/include/liveness.h ../../src/include/list.h \
  ../../src/include/regalloc.h ../../src/include/table.h
 
 /usr/include/stdc-predef.h:
@@ -116,8 +116,6 @@ regalloc.lo: ../../src/regalloc.c /usr/include/stdc-predef.h \
 
 ../../src/include/util.h:
 
-../../src/include/list.h:
-
 ../../src/include/symbol.h:
 
 ../../src/include/table.h:
@@ -153,6 +151,8 @@ regalloc.lo: ../../src/regalloc.c /usr/include/stdc-predef.h \
 ../../src/include/flowgraph.h:
 
 ../../src/include/liveness.h:
+
+../../src/include/list.h:
 
 ../../src/include/regalloc.h:
 
