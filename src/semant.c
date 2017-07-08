@@ -1361,7 +1361,7 @@ process_func_body (sym_table  *venv_ptr,
       typ_ty           *typ       = func_head->u.fun.result;
 
       tra_access_list *access_list = tra_formals (func_head->u.fun.level);
-      access_list = access_list->tail; /* Since first param is static link */
+      //access_list = access_list->tail; /* Since first param is static link */
       /* Start new scope, then declare function parameters */
       sym_begin_scope (venv_ptr);
       for (;
@@ -1392,7 +1392,10 @@ process_func_body (sym_table  *venv_ptr,
         }
 
       sym_end_scope (venv_ptr);
-      tra_add_func_frag (body->exp, func_head->u.fun.level);
+      tra_proc_entry_exit (func_head->u.fun.level,
+                           body->exp,
+                           tra_formals (func_head->u.fun.level));
+      //tra_add_func_frag (body->exp, func_head->u.fun.level);
     }
 }
 

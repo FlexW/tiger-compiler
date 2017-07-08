@@ -201,10 +201,11 @@ tra_outermost_level (void)
   static tra_level *outermost_level = NULL;
 
   if (outermost_level == NULL)
+    {
       return outermost_level = tra_new_level (NULL,
                                               temp_named_label ("tigermain"),
                                               NULL);
-
+    }
   return outermost_level;
 }
 
@@ -215,7 +216,7 @@ tra_proc_entry_exit (tra_level       *level,
 {
   tree_stm *stm = tree_new_move (tree_new_temp (frm_rv ()), conv_exp (body));
   frm_frag *frag = frm_new_proc_frag (stm, level->frame);
-  frag_list = list_new_list (frag, frag_list);
+  frag_list_add (frag);
   frm_proc_entry_exit1 (level->frame, stm);
 }
 
@@ -994,7 +995,7 @@ tra_type_dec (void)
  * @frame_ptr Function frame.
  *
  * @return Intermediate code representation.
- */
+ *
 void
 tra_add_func_frag (tra_exp   *body_ptr,
                    tra_level *level_ptr)
@@ -1006,7 +1007,7 @@ tra_add_func_frag (tra_exp   *body_ptr,
 
   frag_list_add (frag);
 }
-
+*/
 /**
  * Translates a function declaration into intermediate code representation.
  *

@@ -215,7 +215,7 @@ AUTOMAKE = ${SHELL} /home/felix/Develop/tc-0.0.1/missing automake-1.15
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2
+CFLAGS = -g -O0
 CHECK_CFLAGS = -pthread
 CHECK_LIBS = -lcheck_pic -pthread -lrt -lm -lsubunit
 CPP = gcc -E
@@ -223,7 +223,7 @@ CPPFLAGS =
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2
+CXXFLAGS = -g -O0
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps

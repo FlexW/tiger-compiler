@@ -198,9 +198,9 @@ regalloc_do (frm_frame        *f,
   while (++try < 7)
     {
       flow = fgraph_assem_flow_graph (il, f);
-      graph_show (stdout, graph_nodes(flow), print_inst);
+      //graph_show (stdout, graph_nodes(flow), print_inst);
       live = live_liveness (flow);
-      graph_show (stdout, graph_nodes(live.graph), print_temp);
+      //graph_show (stdout, graph_nodes(live.graph), print_temp);
       initial = frm_initial_registers (f);
       col = col_color (live.graph, initial, frm_registers (),
                        live.worklist_moves, live.move_list, live.spill_cost);

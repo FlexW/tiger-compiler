@@ -96,7 +96,7 @@ assem_print_instr_list (FILE             *out,
   for (; ilist; ilist = ilist->tail)
     {
       assem_print(out, ilist->head, m);
-      fprintf (out, "\n");
+      //fprintf (out, "\n");
     }
   fprintf (out, "\n");
 }
@@ -252,7 +252,7 @@ assem_print (FILE        *out,
               instr->u.oper.src,
               instr->u.oper.jumps,
               map);
-      fprintf(out, "%s", result);
+      fprintf(out, "    %s", result);
       break;
 
     case I_LABEL:
@@ -268,7 +268,7 @@ assem_print (FILE        *out,
              instr->u.move.src,
              NULL,
              map);
-      fprintf(out, "%s", result);
+      fprintf(out, "    %s", result);
       break;
     default:
       assert (0);
