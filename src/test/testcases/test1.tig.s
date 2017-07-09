@@ -2,6 +2,28 @@
 
 .text
 
+L1:
+    movl 100, 113
+    addl $-16, 113
+    movl 113, 112
+    pushl %edx
+    pushl %ecx
+    movl $0, 114
+    pushl 114
+    movl $10, 115
+    pushl 115
+    call initArray
+    addl $8, 101
+    popl %ecx
+    popl %edx
+    movl 104, 111
+    movl 111, (112)
+    movl -16(100), 116
+    movl 116, 104
+    jmp L0
+L0:
+    nop
+
 # PROCEDURE tigermain
 
 tigermain:

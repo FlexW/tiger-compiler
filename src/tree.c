@@ -254,3 +254,23 @@ tree_commute (tree_rel_op rel_op)
   assert(0);
   return 0;
 }
+
+tree_stm_list *
+tree_new_stm_list (tree_stm *head,
+                   tree_stm_list *tail)
+{
+  tree_stm_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}
+
+tree_exp_list *
+tree_new_exp_list (tree_exp *head,
+                   tree_exp_list *tail)
+{
+  tree_exp_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}

@@ -10,7 +10,7 @@
 
 #include <stdbool.h>
 
-#include "list.h"
+//#include "list.h"
 #include "symbol.h"
 
 typedef struct _absyn_var absyn_var;
@@ -18,17 +18,59 @@ typedef struct _absyn_exp absyn_exp;
 typedef struct _absyn_dec absyn_dec;
 typedef struct _absyn_ty  absyn_ty;
 
-typedef        list           absyn_dec_list;
-typedef        list           absyn_exp_list;
-typedef struct _absyn_field   absyn_field;
-typedef        list           absyn_field_list;
-typedef struct _absyn_fundec  absyn_fundec;
-typedef        list           absyn_fundec_list;
-typedef struct _absyn_name_ty absyn_name_ty;
-typedef        list           absyn_name_ty_list;
-typedef struct _absyn_efield  absyn_efield;
-typedef        list           absyn_efield_list;
+typedef struct _absyn_dec_list     absyn_dec_list;
+typedef struct _absyn_exp_list     absyn_exp_list;
+typedef struct _absyn_field        absyn_field;
+typedef struct _absyn_field_list   absyn_field_list;
+typedef struct _absyn_fundec       absyn_fundec;
+typedef struct _absyn_fundec_list  absyn_fundec_list;
+typedef struct _absyn_name_ty      absyn_name_ty;
+typedef struct _absyn_name_ty_list absyn_name_ty_list;
+typedef struct _absyn_efield       absyn_efield;
+typedef struct _absyn_efield_list  absyn_efield_list;
 
+
+struct
+_absyn_dec_list
+{
+  absyn_dec      *head;
+  absyn_dec_list *tail;
+};
+
+struct
+_absyn_exp_list
+{
+  absyn_exp      *head;
+  absyn_exp_list *tail;
+};
+
+struct
+_absyn_field_list
+{
+  absyn_field      *head;
+  absyn_field_list *tail;
+};
+
+struct
+_absyn_fundec_list
+{
+  absyn_fundec      *head;
+  absyn_fundec_list *tail;
+};
+
+struct
+_absyn_name_ty_list
+{
+  absyn_name_ty      *head;
+  absyn_name_ty_list *tail;
+};
+
+struct
+_absyn_efield_list
+{
+  absyn_efield      *head;
+  absyn_efield_list *tail;
+};
 
 /**
  * Enum to track wich operator was choosen.
@@ -374,5 +416,25 @@ absyn_name_ty*      absyn_new_namety      (sym_symbol *name_ptr,
 
 absyn_efield*       absyn_new_efield      (sym_symbol *name_ptr,
                                            absyn_exp  *exp_ptr);
+
+
+
+absyn_efield_list * absyn_new_efield_list (absyn_efield      *head,
+                                           absyn_efield_list *tail);
+
+absyn_name_ty_list * absyn_new_name_ty_list (absyn_name_ty      *head,
+                                             absyn_name_ty_list *tail);
+
+absyn_fundec_list * absyn_new_fundec_list (absyn_fundec      *head,
+                                           absyn_fundec_list *tail);
+
+absyn_field_list * absyn_new_field_list (absyn_field      *head,
+                                         absyn_field_list *tail);
+
+absyn_exp_list * absyn_new_exp_list (absyn_exp      *head,
+                                     absyn_exp_list *tail);
+
+absyn_dec_list * absyn_new_dec_list (absyn_dec      *head,
+                                     absyn_dec_list *tail);
 
 #endif

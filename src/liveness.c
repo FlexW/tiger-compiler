@@ -23,11 +23,9 @@ live_new_move_list (graph_node     *src,
                     live_move_list *tail)
 {
   live_move_list *lm = new (sizeof (*lm));
-
   lm->src  = src;
-	lm->dst  = dst;
-	lm->tail = tail;
-
+  lm->dst  = dst;
+  lm->tail = tail;
   return lm;
 }
 
@@ -213,10 +211,11 @@ solve_liveness (struct live_graph *lg,
             find_or_create_node (t, g, tab);
             assem_instr_list *ml =
               (assem_instr_list*)temp_look_ptr (move_list, t);
-            ml = inst_union (ml, list_new_list (inst, NULL));
+            ml = inst_union (ml, assem_new_instr_list (inst, NULL));
             temp_enter_ptr (move_list, t, (void*)ml);
           }
-        worklist_moves = inst_union (worklist_moves, list_new_list (inst, NULL));
+        worklist_moves = inst_union (worklist_moves,
+                                     assem_new_instr_list (inst, NULL));
       }
 
     // Traverse defined vars
@@ -398,9 +397,9 @@ struct live_graph
 live_liveness(graph_graph *flow)
 {
   graph_table *in = graph_new_table (), *out = graph_new_table ();
-	get_live_map (flow, in, out);
+  get_live_map (flow, in, out);
   // Construct interference graph
-	struct live_graph lg;
+  struct live_graph lg;
   solve_liveness (&lg, flow, in, out);
-	return lg;
+  return lg;
 }

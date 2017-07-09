@@ -413,3 +413,63 @@ absyn_new_efield (sym_symbol *name_ptr,
 
   return f;
 }
+
+absyn_dec_list *
+absyn_new_dec_list (absyn_dec      *head,
+                    absyn_dec_list *tail)
+{
+  absyn_dec_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+};
+
+absyn_exp_list *
+absyn_new_exp_list (absyn_exp      *head,
+                    absyn_exp_list *tail)
+{
+  absyn_exp_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+};
+
+absyn_field_list *
+absyn_new_field_list (absyn_field      *head,
+                      absyn_field_list *tail)
+{
+  absyn_field_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+};
+
+absyn_fundec_list *
+absyn_new_fundec_list (absyn_fundec      *head,
+                       absyn_fundec_list *tail)
+{
+  absyn_fundec_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+};
+
+absyn_name_ty_list *
+absyn_new_name_ty_list (absyn_name_ty      *head,
+                        absyn_name_ty_list *tail)
+{
+  absyn_name_ty_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+};
+
+absyn_efield_list *
+absyn_new_efield_list (absyn_efield      *head,
+                       absyn_efield_list *tail)
+{
+  absyn_efield_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+};

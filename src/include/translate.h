@@ -15,10 +15,10 @@
 
 
 typedef struct _tra_exp    tra_exp;
-typedef        list        tra_exp_list;
+typedef struct _tra_exp_list tra_exp_list;
 typedef struct _tra_level  tra_level;
 typedef struct _tra_access tra_access;
-typedef        list        tra_access_list;
+typedef struct _tra_access_list tra_access_list;
 
 typedef enum
   {
@@ -33,6 +33,20 @@ typedef enum
     TRA_EQ,
     TRA_NEQ
   } TRA_OP;
+
+struct
+_tra_exp_list
+{
+    tra_exp *head;
+    tra_exp_list *tail;
+};
+
+struct
+_tra_access_list
+{
+    tra_access *head;
+    tra_access_list *tail;
+};
 
 
 tra_exp *         tra_simple_var      (tra_access*,
@@ -122,6 +136,13 @@ void              tra_proc_entry_exit (tra_level       *level_ptr,
 frm_frag_list *   tra_get_result      (void);
 
 frm_frag_list *   tra_get_frag_list   (void);
+
+
+tra_access_list * tra_new_access_list (tra_access *head,
+                                       tra_access_list *tail);
+
+tra_exp_list * tra_new_exp_list (tra_exp *head,
+                                 tra_exp_list *tail);
 
 
 #endif /* _TRANSLATE_H_ */

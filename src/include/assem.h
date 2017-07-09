@@ -8,14 +8,21 @@
 
 #include "temp.h"
 #include "tree.h"
-#include "list.h"
+//#include "list.h"
 
-typedef struct _assem_targets assem_targets;
-typedef        list           assem_instr_list;
-typedef struct _assem_instr   assem_instr;
-typedef struct _assem_proc    assem_proc;
+typedef struct _assem_targets    assem_targets;
+typedef struct _assem_instr_list assem_instr_list;
+typedef struct _assem_instr      assem_instr;
+typedef struct _assem_proc       assem_proc;
 
 #include "frame.h"
+
+struct
+_assem_instr_list
+{
+  assem_instr      *head;
+  assem_instr_list *tail;
+};
 
 struct
 _assem_targets
@@ -110,5 +117,8 @@ assem_instr_list * assem_instr_union     (assem_instr_list *ta,
 
 bool               assem_instr_in_list   (assem_instr      *i,
                                           assem_instr_list *il);
+
+assem_instr_list * assem_new_instr_list (assem_instr      *head,
+                                         assem_instr_list *tail);
 
 #endif /* _ASSEM_H_ */

@@ -701,9 +701,9 @@ check_call_args (tra_level  *level,
                                   call,
                                   break_done);
       if (list == NULL)
-        slist = list = list_new_list (tra_arg->exp, NULL);
+        slist = list = tra_new_exp_list (tra_arg->exp, NULL);
       else
-        list = list->tail = list_new_list (tra_arg->exp, NULL);
+        list = list->tail = tra_new_exp_list (tra_arg->exp, NULL);
 
       if (!typ_cmpty (tra_arg->ty, dec))
         {
@@ -792,9 +792,9 @@ check_record_init (tra_level  *level,
                                break_done);
 
       if (list == NULL)
-        slist = list = list_new_list (init->exp, NULL);
+        slist = list = tra_new_exp_list (init->exp, NULL);
       else
-        list = list->tail = list_new_list (init->exp, NULL);
+        list = list->tail = tra_new_exp_list (init->exp, NULL);
 
       /* See if type matches */
       if (!typ_cmpty(init->ty, field->ty))
@@ -848,9 +848,9 @@ check_seq_exp (tra_level *level_ptr,
         }
 
       if (list == NULL)
-        slist = list = list_new_list (expty->exp, NULL);
+        slist = list = tra_new_exp_list (expty->exp, NULL);
       else
-        list = list->tail = list_new_list (expty->exp, NULL);
+        list = list->tail = tra_new_exp_list (expty->exp, NULL);
     }
   return new_expty (tra_seq_exp (slist), expty->ty);
 }
@@ -1145,9 +1145,9 @@ check_let_exp (tra_level *level_ptr,
                                       dec,
                                       break_done);
       if (list == NULL)
-        slist = list = list_new_list (tra_exp, NULL);
+        slist = list = tra_new_exp_list (tra_exp, NULL);
       else
-        list = list->tail = list_new_list (tra_exp, NULL);
+        list = list->tail = tra_new_exp_list (tra_exp, NULL);
     }
   /* Go trough body */
   expty *body = trans_exp (level_ptr,
@@ -1596,9 +1596,9 @@ mk_formal_field_list (sym_table        *tenv,
 
       typ_field *tyfield = typ_new_field (field->name, typ);
       if (tyfield_list == NULL)
-        styfield_list = tyfield_list = list_new_list (tyfield, NULL);
+        styfield_list = tyfield_list = typ_new_field_list (tyfield, NULL);
       else
-        tyfield_list = tyfield_list->tail = list_new_list (tyfield, NULL);
+        tyfield_list = tyfield_list->tail = typ_new_field_list (tyfield, NULL);
     }
   return styfield_list;
 }
@@ -1618,9 +1618,9 @@ mk_formal_ty_list (sym_table        *tenv,
       typ_ty      *typ   = sym_lookup (tenv, field->typ);
 
       if (ty_list == NULL)
-        sty_list = ty_list = list_new_list (typ, NULL);
+        sty_list = ty_list = typ_new_ty_list (typ, NULL);
       else
-        ty_list = ty_list->tail = list_new_list (typ, NULL);
+        ty_list = ty_list->tail = typ_new_ty_list (typ, NULL);
     }
   return sty_list;
 }
@@ -1634,9 +1634,9 @@ mk_formal_escape_list (absyn_field_list *params)
     {
       absyn_field *field = params->head;
       if (bool_list == NULL)
-        sbool_list = bool_list = list_new_list (&field->escape, NULL);
+        sbool_list = bool_list = util_new_bool_list (field->escape, NULL);
       else
-        bool_list = bool_list->tail = list_new_list (&field->escape, NULL);
+        bool_list = bool_list->tail = util_new_bool_list (field->escape, NULL);
     }
   return sbool_list;
 }

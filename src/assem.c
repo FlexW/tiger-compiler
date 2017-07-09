@@ -18,6 +18,17 @@
 #include "include/frame.h"
 #include "include/errormsg.h"
 
+
+assem_instr_list *
+assem_new_instr_list (assem_instr      *head,
+                      assem_instr_list *tail)
+{
+  assem_instr_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}
+
 assem_targets *
 assem_new_targets (temp_label_list *labels)
 {
@@ -333,7 +344,7 @@ assem_instr_union (assem_instr_list *ta,
       if (tab_lookup (m, t) == NULL)
         {
           tab_bind_value (m, t, "u");
-          tl = list_new_list (t, tl);
+          tl = assem_new_instr_list (t, tl);
         }
     }
   for (; tb; tb = tb->tail)
@@ -342,7 +353,7 @@ assem_instr_union (assem_instr_list *ta,
       if (tab_lookup (m, t) == NULL)
         {
           tab_bind_value (m, t, "u");
-          tl = list_new_list (t, tl);
+          tl = assem_new_instr_list (t, tl);
         }
     }
   return tl;
@@ -366,7 +377,7 @@ assem_instr_minus (assem_instr_list *ta,
       t = ta->head;
       if (tab_lookup (m, t) == NULL)
         {
-          tl = list_new_list (t, tl);
+          tl = assem_new_instr_list (t, tl);
         }
     }
   return tl;
@@ -390,7 +401,7 @@ assem_instr_intersect (assem_instr_list *ta,
       t = tb->head;
       if (tab_lookup (m, t) != NULL)
         {
-          tl = list_new_list (t, tl);
+          tl = assem_new_instr_list (t, tl);
         }
     }
   return tl;

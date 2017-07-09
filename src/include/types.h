@@ -14,10 +14,24 @@
 #include "symbol.h"
 
 
-typedef struct _typ_ty    typ_ty;
-typedef        list       typ_ty_list;
-typedef struct _typ_field typ_field;
-typedef        list       typ_field_list;
+typedef struct _typ_ty         typ_ty;
+typedef struct _typ_ty_list    typ_ty_list;
+typedef struct _typ_field      typ_field;
+typedef struct _typ_field_list typ_field_list;
+
+struct
+_typ_ty_list
+{
+  typ_ty *head;
+  typ_ty_list *tail;
+};
+
+struct
+_typ_field_list
+{
+  typ_field *head;
+  typ_field_list *tail;
+};
 
 /**
  * Structure to hold information about a type.
@@ -84,5 +98,11 @@ typ_ty*         typ_lookup         (int         pos,
                                     sym_table  *tenv_ptr);
 
 typ_ty*         typ_actual_ty      (typ_ty *typ_ptr);
+
+typ_ty_list * typ_new_ty_list (typ_ty *head,
+                               typ_ty_list *tail);
+
+typ_field_list * typ_new_field_list (typ_field *head,
+                                     typ_field_list *tail);
 
 #endif /* _TYPES_H_ */

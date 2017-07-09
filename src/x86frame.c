@@ -84,6 +84,37 @@ static frm_access_list * formals_esc_to_access (util_bool_list *formals_ptr);
 
 static void              bind_temp             (temp_temp *label,
                                                 char      *name);
+
+frm_frame_list *
+frm_new_frame_list (frm_frame *head,
+                    frm_frame_list *tail)
+{
+  frm_frame_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}
+
+frm_frag_list *
+frm_new_frag_list (frm_frag *head,
+                   frm_frag_list *tail)
+{
+  frm_frag_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}
+
+frm_access_list *
+frm_new_access_list (frm_access *head,
+                     frm_access_list *tail)
+{
+  frm_access_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}
+
 /**
  * Returns the frame pointer register.
  *
@@ -144,12 +175,14 @@ frm_exp (frm_access *access_ptr,
                                             offset);
         return tree_new_mem (bin_op);
       }
+
+    default:
+      assert (0);
     }
-  assert (0);
   return NULL;
 }
 
-static frm_frag_list * frame_stack = NULL;
+static frm_frame_list * frame_stack = NULL;
 
 frm_frame *
 frm_new_frame (temp_label     *name_ptr,
@@ -170,14 +203,14 @@ frm_new_frame (temp_label     *name_ptr,
   while (formal_esc)
     {
       offset += 4;
-      formal = list_new_list (in_frame (offset), formal);
+      formal = frm_new_access_list (in_frame (offset), formal);
       formal_esc = formal_esc->tail;
     }
   frame->formals = formal;
   frame->locals  = NULL;
   frame->temp    = temp_new_map ();
 
-  frame_stack = list_new_list (frame, frame_stack);
+  frame_stack = frm_new_frame_list (frame, frame_stack);
   //frame->locals_cnt  = 2; /* Return and frame pointer adress */
 
   return frame;
@@ -191,13 +224,13 @@ formals_esc_to_access (util_bool_list *bool_list)
 
   for (int i = 0; bool_list != NULL; bool_list = bool_list->tail, i++)
     {
-      bool       *b      = bool_list->head;
+      bool        b      = bool_list->head;
       frm_access *access = alloc_formal (i + 1, b);
 
       if (formals == NULL)
-        sformals = formals = list_new_list (access, NULL);
+        sformals = formals = frm_new_access_list (access, NULL);
       else
-        formals = formals->tail = list_new_list (access, NULL);
+        formals = formals->tail = frm_new_access_list (access, NULL);
     }
   return sformals;
 }
@@ -231,14 +264,14 @@ frm_alloc_local (frm_frame *frame_ptr,
         }
 
       frm_access *l = in_frame (offset);
-      frame_ptr->locals = list_new_list (l, frame_ptr->locals);
+      frame_ptr->locals = frm_new_access_list (l, frame_ptr->locals);
       return l;
     }
   else
     {
       access = in_reg (temp_new_temp ());
       /* Add element to frame struct */
-      list_new_list (access, frame_ptr->locals);
+      frm_new_access_list (access, frame_ptr->locals);
     }
   return access;
 }
@@ -304,11 +337,11 @@ append_callee_save (assem_instr_list *il)
   assem_instr_list *ail = il;
   for (; callee_saves; callee_saves = callee_saves->tail)
     {
-      ail = list_new_list (assem_new_oper ("pushl `s0\n",
-                                           list_new_list (frm_sp (), NULL),
-                                           list_new_list (callee_saves->head,
-                                                          NULL),
-                                           NULL),
+      ail = assem_new_instr_list (assem_new_oper ("pushl `s0\n",
+                                                  temp_new_temp_list (frm_sp (), NULL),
+                                                  temp_new_temp_list (callee_saves->head,
+                                                                 NULL),
+                                                  NULL),
                            ail);
     }
   return ail;
@@ -322,9 +355,9 @@ restore_callee_save (assem_instr_list *il)
   assem_instr_list *ail = NULL;
   for (; callee_saves; callee_saves = callee_saves->tail)
     {
-      ail = list_new_list (assem_new_oper ("popl `s0\n",
-                                           list_new_list (frm_sp (), NULL),
-                                           list_new_list (callee_saves->head,
+      ail = assem_new_instr_list (assem_new_oper ("popl `s0\n",
+                                                  temp_new_temp_list (frm_sp (), NULL),
+                                                  temp_new_temp_list (callee_saves->head,
                                                           NULL),
                                            NULL),
                            ail);
@@ -395,21 +428,21 @@ frm_proc_entry_exit2 (assem_instr_list *body)
 {
   temp_temp_list *callee_saves = frm_callee_saves();
   if (!return_sink)
-    return_sink = list_new_list (frm_ra(),
-                                 list_new_list (frm_sp (), callee_saves));
+    return_sink = temp_new_temp_list (frm_ra(),
+                                 temp_new_temp_list (frm_sp (), callee_saves));
 
   char inst_add[128];
   int frame_size = 100;//frameSize(frame);
   sprintf (inst_add, "addl $%d, `s0\n", frame_size);
 
   return assem_splice (body,
-                       list_new_list (assem_new_oper (inst_add,
-                                                      list_new_list (frm_sp (),
-                                                                     NULL),
-                                                      list_new_list(frm_sp (),
-                                                                    NULL),
-                                                      NULL),
-                                      restore_callee_save (list_new_list (assem_new_oper ("leave\n", list_new_list (frm_sp(), list_new_list (frm_fp(), NULL)), list_new_list (frm_sp(), NULL), NULL), list_new_list (assem_new_oper ("ret\n", NULL, return_sink, NULL), NULL)))));
+                       assem_new_instr_list (assem_new_oper (string_new (inst_add),
+                                                             temp_new_temp_list (frm_sp (),
+                                                                                 NULL),
+                                                             temp_new_temp_list (frm_sp (),
+                                                                                 NULL),
+                                                             NULL),
+                                      restore_callee_save (assem_new_instr_list (assem_new_oper ("leave\n", temp_new_temp_list (frm_sp(), temp_new_temp_list (frm_fp(), NULL)), temp_new_temp_list (frm_sp(), NULL), NULL), assem_new_instr_list (assem_new_oper ("ret\n", NULL, return_sink, NULL), NULL)))));
 }
 
 assem_proc *
@@ -425,13 +458,13 @@ frm_proc_entry_exit3 (frm_frame        *frame,
   // sprintf(buf, "%s    movl %%esp, %%ebp\n", buf);
   sprintf(inst_sub, "subl $%d, `s0\n", frame_size);
 
-  body = list_new_list (assem_new_label(inst_lbl, frame->start_label),
-            list_new_list (assem_new_oper ("pushl `s0\n", list_new_list (frm_fp(), list_new_list (frm_sp(), NULL)), list_new_list (frm_fp(), NULL), NULL),
-              list_new_list (assem_new_move ("movl `s0, `d0\n", list_new_list (frm_fp(), NULL), list_new_list (frm_sp(), NULL)),
+  body = assem_new_instr_list (assem_new_label(string_new (inst_lbl), frame->start_label),
+            assem_new_instr_list (assem_new_oper ("pushl `s0\n", temp_new_temp_list (frm_fp(), temp_new_temp_list (frm_sp(), NULL)), temp_new_temp_list (frm_fp(), NULL), NULL),
+              assem_new_instr_list (assem_new_move ("movl `s0, `d0\n", temp_new_temp_list (frm_fp(), NULL), temp_new_temp_list (frm_sp(), NULL)),
                 append_callee_save(
-                   list_new_list (assem_new_oper (inst_sub, list_new_list (frm_sp(), NULL), list_new_list (frm_sp(), NULL), NULL),
+                                   assem_new_instr_list (assem_new_oper (string_new (inst_sub), temp_new_temp_list (frm_sp(), NULL), temp_new_temp_list (frm_sp(), NULL), NULL),
                                   body)))));
-  return assem_new_proc ((buf), body, "# END\n");
+  return assem_new_proc (string_new (buf), body, "# END\n");
 }
 
 frm_frag *
@@ -545,8 +578,8 @@ frm_caller_saves (void)
     frm_init_registers();
 
   return //list_new_list(eax,
-            list_new_list(edx,
-              list_new_list(ecx, NULL));//);
+            temp_new_temp_list (edx,
+              temp_new_temp_list (ecx, NULL));//);
 }
 
 temp_temp_list *
@@ -555,9 +588,9 @@ frm_callee_saves(void)
   if (fp == NULL)
     frm_init_registers();
 
-  return list_new_list(ebx,
-            list_new_list(esi,
-              list_new_list(edi, NULL)));
+  return temp_new_temp_list (ebx,
+            temp_new_temp_list (esi,
+              temp_new_temp_list (edi, NULL)));
 }
 
 temp_temp_list *
@@ -567,11 +600,11 @@ frm_registers(void)
     frm_init_registers();
 
   return //list_new_list(eax,
-            list_new_list(ecx,
-              list_new_list(edx,
-                list_new_list(ebx,
-                  list_new_list(esi,
-                    list_new_list(edi, NULL)))));//);
+            temp_new_temp_list (ecx,
+              temp_new_temp_list (edx,
+                temp_new_temp_list (ebx,
+                  temp_new_temp_list (esi,
+                    temp_new_temp_list (edi, NULL)))));//);
 }
 
 
@@ -662,9 +695,9 @@ frm_init_registers (void)
   temp_bind_temp(temp_name (), esi, "%esi");
   temp_bind_temp(temp_name (), edi, "%edi");
 
-  specialregs = list_new_list(rv,
-                  list_new_list(fp,
-                    list_new_list(ra, NULL)));
+  specialregs = temp_new_temp_list (rv,
+                  temp_new_temp_list (fp,
+                    temp_new_temp_list (ra, NULL)));
 }
 
 temp_map *

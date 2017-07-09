@@ -103,8 +103,8 @@ fgraph_assem_flow_graph (assem_instr_list *il,
              {
                if (last_inst->kind == I_LABEL)
                  {
-                   nl = list_new_list (n, nl);
-                   ll = list_new_list (last_inst->u.label.label, ll);
+                   nl = graph_new_node_list (n, nl);
+                   ll = temp_new_label_list (last_inst->u.label.label, ll);
                    if (last_nonlbl_inst)
                      {
                        graph_add_edge (last_n, n);
@@ -127,7 +127,7 @@ fgraph_assem_flow_graph (assem_instr_list *il,
              }
        if (inst->kind == I_OPER && inst->u.oper.jumps != NULL)
          {
-           jumpnl = list_new_list (n, jumpnl);
+           jumpnl = graph_new_node_list (n, jumpnl);
          }
        last_n = n;
        last_nonlbl_inst = inst;

@@ -6,7 +6,7 @@
 
 #include "include/list.h"
 #include "include/util.h"
-
+/*
 list *
 list_new_list (void *head,
                list *tail)
@@ -27,3 +27,4 @@ list_length (list *list)
     len++;
   return len;
 }
+*/

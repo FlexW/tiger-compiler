@@ -5,16 +5,23 @@
 
 #include <assert.h>
 
-#include "include/list.h"
+//#include "include/list.h"
 #include "include/frame.h"
 #include "include/translate.h"
 #include "include/tree.h"
 
 typedef struct _condit_exp condit_exp;
-typedef        list        patch_list;
+typedef struct _patch_list patch_list;
 
 /* Private global list to save all function and string fragments */
 frm_frag_list *frag_list = NULL, *sfrag_list = NULL;
+
+struct
+_patch_list
+{
+  temp_label **head;
+  patch_list *tail;
+};
 
 /**
  * Saves nested level of variable and access frame.
@@ -62,13 +69,6 @@ _tra_exp
   } u;
 };
 
-struct
-_patch_list
-{
-  temp_label *head;
-  patch_list *tail;
-};
-
 
 static tra_exp *    trans_exp             (tree_exp *exp_ptr);
 
@@ -102,6 +102,35 @@ static condit_exp * new_condit            (tree_stm   *stm_ptr,
 
 //static tra_access_list * new_formals      (tra_level *level);
 
+tra_access_list *
+tra_new_access_list (tra_access *head,
+                     tra_access_list *tail)
+{
+  tra_access_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}
+
+tra_exp_list *
+tra_new_exp_list (tra_exp *head,
+                  tra_exp_list *tail)
+{
+  tra_exp_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}
+
+patch_list *
+new_patch_list (temp_label **head,
+                patch_list  *tail)
+{
+  patch_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}
 
 /**
  * Creates a new nesting level for a function.
@@ -175,14 +204,15 @@ tra_formals (tra_level *level)
     {
       if (last_a == NULL)
         {
-          a = list_new_list (tra_new_access (level, access_list->head), NULL);
+          a = tra_new_access_list (tra_new_access (level, access_list->head),
+                                   NULL);
           last_a = a;
         }
       else
         {
-          last_a->tail = list_new_list (tra_new_access (level,
-                                                        access_list->head),
-                                        NULL);
+          last_a->tail = tra_new_access_list (tra_new_access (level,
+                                                              access_list->head),
+                                              NULL);
           last_a = last_a->tail;
         }
     }
@@ -445,8 +475,8 @@ tra_conditional_exp (tra_exp *left_ptr,
       break;
     }
 
-  patch_list *trues  = list_new_list (&stm->u.cjump.truee, NULL);
-  patch_list *falses = list_new_list (&stm->u.cjump.falsee, NULL);
+  patch_list *trues  = new_patch_list (&stm->u.cjump.truee, NULL);
+  patch_list *falses = new_patch_list (&stm->u.cjump.falsee, NULL);
 
   return trans_conditional_exp (trues, falses, stm);
 }
@@ -494,8 +524,8 @@ tra_str_cond_exp(TRA_OP   o,
   if (op == TREE_EQ || op == TREE_NEQ)
     {
     tree_exp *e = frm_external_call ("stringEqual",
-                                     list_new_list (conv_exp (left),
-                                                    list_new_list (conv_exp (right),
+                                     tree_new_exp_list (conv_exp (left),
+                                                    tree_new_exp_list (conv_exp (right),
                                                                    NULL)));
     s = tree_new_cjump (op, e, tree_new_const (1), NULL, NULL);
     /* String compare */
@@ -504,8 +534,8 @@ tra_str_cond_exp(TRA_OP   o,
     {
       assert(0);  // Not implemented
     }
-  patch_list *trues = list_new_list (&s->u.cjump.truee, NULL);
-  patch_list *falses =list_new_list (&s->u.cjump.falsee, NULL);
+  patch_list *trues = new_patch_list (&s->u.cjump.truee, NULL);
+  patch_list *falses = new_patch_list (&s->u.cjump.falsee, NULL);
   return trans_conditional_exp (trues, falses, s);
 }
 
@@ -545,7 +575,7 @@ tra_if_exp (tra_exp* test_ptr,
         After true and false expression evaluated,
         they jump to the common label done.
       */
-      temp_label_list *label_list = list_new_list (done, NULL);
+      temp_label_list *label_list = temp_new_label_list (done, NULL);
 
       tree_stm *move_false_to_res = tree_new_move (reg_result, elsee);
       tree_stm *false_label       = tree_new_seq (tree_new_label (falsee),
@@ -587,8 +617,9 @@ tra_exp *
 tra_array_exp (tra_exp *size,
                tra_exp *init)
 {
-  tree_exp_list *args = list_new_list (conv_exp (init),
-                                       list_new_list (conv_exp (size), NULL));
+  tree_exp_list *args = tree_new_exp_list (conv_exp (size),
+                                           tree_new_exp_list (conv_exp (init),
+                                                              NULL));
   /* Call external function that handels the init */
   return trans_exp (frm_external_call ("initArray", args));
 }
@@ -651,13 +682,16 @@ tra_record_exp (tra_exp_list *tra_list)
   return trans_exp (tree_new_eseq (init_seq, record));
   */
   /* Allocation */
-  int field_count = list_length (tra_list);
+  int field_count = 0;
+  for (; tra_list != NULL; tra_list = tra_list->tail)
+    field_count++;
+
   temp_temp *r = temp_new_temp ();
   tree_stm * alloc = tree_new_move (tree_new_temp (r),
                   frm_external_call ("allocRecord",
-                                     list_new_list (tree_new_const (field_count
-                                                                    * frm_word_size)
-                                                    , NULL)));
+                                     tree_new_exp_list (tree_new_const (field_count
+                                                                        * frm_word_size)
+                                                        , NULL)));
 
   /* Init fields */
   tree_stm *init = NULL, *current = NULL;
@@ -708,7 +742,7 @@ tra_while_exp (tra_exp    *test_ptr,
   do_patch (test->trues, body_label);
   do_patch (test->falses, done_ptr);
 
-  temp_label_list *label_list = list_new_list (test_label, NULL);
+  temp_label_list *label_list = temp_new_label_list (test_label, NULL);
 
   tree_stm *looper   = tree_new_jump (tree_new_name (test_label), label_list);
   tree_stm *test_exp = tree_new_seq (tree_new_label (test_label), test->stm);
@@ -729,7 +763,7 @@ tra_while_exp (tra_exp    *test_ptr,
 tra_exp *
 tra_break_exp (temp_label *done_ptr)
 {
-  temp_label_list *label_list = list_new_list (done_ptr, NULL);
+  temp_label_list *label_list = temp_new_label_list (done_ptr, NULL);
 
   tree_stm *jump = tree_new_jump (tree_new_name (done_ptr), label_list);
   return trans_no_res_exp (jump);
@@ -794,7 +828,7 @@ tra_seq_exp (tra_exp_list *tra_list)
   tra_exp_list *rel = NULL;
   for (; tra_list; tra_list = tra_list->tail)
     {
-      rel = list_new_list (tra_list->head, rel);
+      rel = tra_new_exp_list (tra_list->head, rel);
     }
 
   tree_exp *seq = tree_new_const (0);
@@ -848,11 +882,11 @@ tra_call_exp (bool          is_lib_func,
     {
       if (last_el == NULL)
         {
-          last_el = el = list_new_list (conv_exp (rawel->head), NULL);
+          last_el = el = tree_new_exp_list (conv_exp (rawel->head), NULL);
         }
       else
         {
-          last_el->tail = list_new_list (conv_exp (rawel->head), NULL);
+          last_el->tail = tree_new_exp_list (conv_exp (rawel->head), NULL);
           last_el = last_el->tail;
         }
     }
@@ -875,7 +909,7 @@ tra_call_exp (bool          is_lib_func,
             current = current->parent;
           }
       }
-    el = list_new_list (static_link, el);
+    el = tree_new_exp_list (static_link, el);
   }
   return trans_exp (tree_new_call (tree_new_name (name), el));
 }
@@ -922,7 +956,7 @@ tra_for_exp (tra_access *i,
                     tree_new_seq (tree_new_label (loopstart),
                       tree_new_seq (conv_no_res_exp (body),
                         tree_new_seq (tree_new_move (vari, tree_new_bin_op (TREE_PLUS, vari, tree_new_const (1))),
-                          tree_new_seq (tree_new_jump (tree_new_name (test), list_new_list (test, NULL)),
+                          tree_new_seq (tree_new_jump (tree_new_name (test), temp_new_label_list (test, NULL)),
                             tree_new_label (done)))))))));
   return trans_no_res_exp (s);
 }
@@ -1120,8 +1154,8 @@ conv_conditional_exp (tra_exp *exp_ptr)
                                              tree_new_const (0),
                                              NULL,
                                              NULL);
-        patch_list *trues  = list_new_list (&(stm->u.cjump.truee), NULL);
-        patch_list *falses = list_new_list (&(stm->u.cjump.falsee), NULL);
+        patch_list *trues  = new_patch_list (&(stm->u.cjump.truee), NULL);
+        patch_list *falses = new_patch_list (&(stm->u.cjump.falsee), NULL);
 
         return new_condit (stm, trues, falses);
       }
@@ -1196,9 +1230,9 @@ static void
 frag_list_add (frm_frag *frag)
 {
   if (frag_list == NULL)
-    sfrag_list = frag_list = list_new_list (frag, NULL);
+    sfrag_list = frag_list = frm_new_frag_list (frag, NULL);
   else
-    frag_list = frag_list->tail = list_new_list (frag, NULL);
+    frag_list = frag_list->tail = frm_new_frag_list (frag, NULL);
 }
 
 /**

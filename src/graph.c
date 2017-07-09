@@ -36,6 +36,16 @@ _graph_node
   void            *info;
 };
 
+graph_node_list *
+graph_new_node_list (graph_node      *head,
+                     graph_node_list *tail)
+{
+  graph_node_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}
+
 graph_graph *
 graph_new_graph (void)
 {
@@ -55,7 +65,7 @@ graph_get_graph_node (graph_graph *g,
 {
   graph_node *n = new (sizeof *n);
 
-  graph_node_list *p = list_new_list (n, NULL);
+  graph_node_list *p = graph_new_node_list (n, NULL);
 
   assert (g);
   n->mygraph = g;
@@ -104,8 +114,8 @@ graph_add_edge (graph_node *from,
   if (graph_goes_to (from, to))
     return;
 
-  to->preds   = list_new_list (from, to->preds);
-  from->succs = list_new_list (to, from->succs);
+  to->preds   = graph_new_node_list (from, to->preds);
+  from->succs = graph_new_node_list (to, from->succs);
 }
 
 static graph_node_list *
@@ -117,7 +127,7 @@ delete (graph_node      *a,
   if (a == l->head)
     return l->tail;
   else
-    return list_new_list (l->head, delete(a, l->tail));
+    return graph_new_node_list (l->head, delete(a, l->tail));
 }
 
 void
@@ -218,7 +228,7 @@ cat (graph_node_list *a,
   if (a == NULL)
     return b;
   else
-    return list_new_list (a->head, cat(a->tail, b));
+    return graph_new_node_list (a->head, cat(a->tail, b));
 }
 
 /* create the adjacency list for node n by combining the successor and
@@ -264,6 +274,6 @@ graph_reverse_nodes (graph_node_list *l)
 {
   graph_node_list *nl = NULL;
   for (; l; l = l->tail)
-    nl = list_new_list (l->head, nl);
+    nl = graph_new_node_list (l->head, nl);
   return nl;
 }

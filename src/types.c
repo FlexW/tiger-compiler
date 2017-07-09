@@ -174,6 +174,26 @@ typ_actual_ty (typ_ty *typ_ptr)
   return typ_ptr;
 }
 
+typ_ty_list *
+typ_new_ty_list (typ_ty *head,
+                 typ_ty_list *tail)
+{
+  typ_ty_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}
+
+typ_field_list *
+typ_new_field_list (typ_field *head,
+                    typ_field_list *tail)
+{
+  typ_field_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}
+
 /*
   Printing functions for debugging.
  */

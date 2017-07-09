@@ -40,7 +40,7 @@ reverse_instr_list (assem_instr_list *il)
   assem_instr_list *rl = NULL;
   for (; il; il = il->tail)
     {
-      rl = list_new_list (il->head, rl);
+      rl = assem_new_instr_list (il->head, rl);
     }
   return rl;
 }
@@ -175,7 +175,7 @@ aliased (temp_temp_list *tl,
       graph_node *n = temp_to_node (t, ig);
       graph_node *alias = get_alias (n, aliases, cn);
       t = node_to_temp (n);
-      al = list_new_list (t, al);
+      al = temp_new_temp_list (t, al);
     }
   return union_temp (al, NULL);
 }
@@ -241,7 +241,7 @@ regalloc_do (frm_frame        *f,
       // Skip unspilled instructions
       if (temp_spilled == NULL)
         {
-          rewrite_list = list_new_list (inst, rewrite_list);
+          rewrite_list = assem_new_instr_list (inst, rewrite_list);
           continue;
         }
 
@@ -252,16 +252,16 @@ regalloc_do (frm_frame        *f,
           frm_access *local = (frm_access*)tab_lookup (spilled_local, temp);
           sprintf(buf, "movl %d(`s0), `d0  # spilled\n",
                   frm_access_offset (local));
-          rewrite_list = list_new_list (assem_new_oper (string_new (buf),
-                                                       list_new_list (temp,
+          rewrite_list = assem_new_instr_list (assem_new_oper (string_new (buf),
+                                                       temp_new_temp_list (temp,
                                                                       NULL),
-                                                       list_new_list (frm_fp (),
+                                                       temp_new_temp_list (frm_fp (),
                                                                       NULL),
                                                        NULL),
                                        rewrite_list);
       }
 
-      rewrite_list = list_new_list (inst, rewrite_list);
+      rewrite_list = assem_new_instr_list (inst, rewrite_list);
 
       for (tl = def_spilled; tl; tl = tl->tail)
         {
@@ -270,11 +270,11 @@ regalloc_do (frm_frame        *f,
           frm_access *local = (frm_access*)tab_lookup (spilled_local, temp);
           sprintf(buf, "movl `s0, %d(`s1)  # spilled\n",
                   frm_access_offset (local));
-          rewrite_list = list_new_list (assem_new_oper (string_new (buf),
+          rewrite_list = assem_new_instr_list (assem_new_oper (string_new (buf),
                                                        NULL,
-                                                       list_new_list (temp,
-                                                                      list_new_list (frm_fp(),
-                                                                                     NULL)),
+                                                       temp_new_temp_list (temp,
+                                                                      temp_new_temp_list (frm_fp(),
+                                                                                          NULL)),
                                                        NULL),
                                        rewrite_list);
       }
@@ -304,7 +304,7 @@ regalloc_do (frm_frame        *f,
               inst->u.oper.assem = string_new (buf);
               //continue;
             }
-          rewrite_list = list_new_list (inst, rewrite_list);
+          rewrite_list = assem_new_instr_list (inst, rewrite_list);
     }
     il = reverse_instr_list (rewrite_list);
   }

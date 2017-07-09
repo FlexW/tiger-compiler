@@ -136,7 +136,7 @@ am_libtiger_la_OBJECTS = errormsg.lo symbol.lo table.lo temp.lo \
 	util.lo absyn.lo env.lo escape.lo semant.lo tiger_grm.lo \
 	tiger_lex.lo translate.lo types.lo x86frame.lo tree.lo list.lo \
 	canon.lo assem.lo x86codegen.lo graph.lo flowgraph.lo \
-	liveness.lo color.lo regalloc.lo
+	liveness.lo color.lo regalloc.lo prtree.lo prabsyn.lo
 libtiger_la_OBJECTS = $(am_libtiger_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -389,7 +389,9 @@ libtiger_la_SOURCES = \
 	flowgraph.c \
 	liveness.c \
 	color.c \
-	regalloc.c
+	regalloc.c \
+	prtree.c \
+	prabsyn.c
 
 EXTRA_DIST = \
 	include/errormsg.h \
@@ -414,7 +416,9 @@ EXTRA_DIST = \
 	include/flowgraph.h \
 	include/liveness.h \
 	include/color.h \
-	include/regalloc.h
+	include/regalloc.h \
+	include/prtree.h \
+	include/prabsyn.h
 
 tc_SOURCES = \
 	main.c
@@ -569,6 +573,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liveness.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/prabsyn.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/prtree.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regalloc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/semant.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/symbol.Plo@am__quote@

@@ -7,20 +7,28 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "include/list.h"
+//#include "include/list.h"
 #include "include/util.h"
 #include "include/symbol.h"
 #include "include/temp.h"
 #include "include/tree.h"
 #include "include/canon.h"
 
-typedef        list     exp_ref_list;
-typedef struct _stm_exp stm_exp;
+typedef struct _exp_ref_list exp_ref_list;
+typedef struct _stm_exp      stm_exp;
 
-struct _stm_exp
+struct
+_stm_exp
 {
   tree_stm *stm;
   tree_exp *exp;
+};
+
+struct
+_exp_ref_list
+{
+  tree_exp     **head;
+  exp_ref_list  *tail;
 };
 
 /* Local function prototypes */
@@ -35,6 +43,26 @@ static canon_stmlist_list *  mk_blocks (tree_stm_list *stms,
 static tree_stm_list *       get_next  (void);
 
 /* End local function prototypes */
+
+canon_stmlist_list *
+canon_new_stmlist_list (tree_stm_list      *head,
+                        canon_stmlist_list *tail)
+{
+  canon_stmlist_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}
+
+exp_ref_list *
+new_exp_ref_list (tree_exp     **head,
+                  exp_ref_list  *tail)
+{
+  exp_ref_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}
 
 static bool
 is_nop (tree_stm *x)
@@ -109,10 +137,10 @@ get_call_ref_list (tree_exp *exp)
   exp_ref_list  *rlist, *curr;
   tree_exp_list *args = exp->u.call.args;
 
-  curr = rlist = list_new_list (&exp->u.call.fun, NULL);
+  curr = rlist = new_exp_ref_list (&exp->u.call.fun, NULL);
   for (;args; args = args->tail)
     {
-      curr = curr->tail = list_new_list (&args->head, NULL);
+      curr = curr->tail = new_exp_ref_list (&args->head, NULL);
     }
   return rlist;
 }
@@ -136,14 +164,15 @@ do_exp (tree_exp *exp)
     {
     case TREE_BINOP:
       {
-        exp_ref_list *rlist = list_new_list(&exp->u.bin_op.right, NULL);
-        rlist = list_new_list (&exp->u.bin_op.left, rlist);
+        exp_ref_list *rlist = new_exp_ref_list (&exp->u.bin_op.right, NULL);
+        rlist = new_exp_ref_list (&exp->u.bin_op.left, rlist);
 
         return new_stm_exp (reorder (rlist), exp);
       }
     case TREE_MEM:
       {
-        return new_stm_exp (reorder (list_new_list (&exp->u.mem, NULL)), exp);
+        return new_stm_exp (reorder (new_exp_ref_list (&exp->u.mem, NULL)),
+                            exp);
       }
     case TREE_ESEQ:
       {
@@ -171,12 +200,12 @@ do_stm (tree_stm *stm)
       return seq(do_stm(stm->u.seq.left), do_stm(stm->u.seq.right));
 
     case TREE_JUMP:
-      return seq (reorder (list_new_list (&stm->u.jmp.exp, NULL)), stm);
+      return seq (reorder (new_exp_ref_list (&stm->u.jmp.exp, NULL)), stm);
 
     case TREE_CJUMP:
-      return seq(reorder (list_new_list (&stm->u.cjump.left,
-                                         list_new_list(&stm->u.cjump.right,
-                                                       NULL))),
+      return seq(reorder (new_exp_ref_list (&stm->u.cjump.left,
+                                            new_exp_ref_list (&stm->u.cjump.right,
+                                                              NULL))),
                  stm);
 
     case TREE_MOVE:
@@ -185,12 +214,12 @@ do_stm (tree_stm *stm)
         return seq (reorder(get_call_ref_list (stm->u.move.src)), stm);
 
       else if (stm->u.move.dst->kind == TREE_TEMP)
-        return seq(reorder(list_new_list (&stm->u.move.src, NULL)), stm);
+        return seq(reorder(new_exp_ref_list (&stm->u.move.src, NULL)), stm);
 
       else if (stm->u.move.dst->kind == TREE_MEM)
-        return seq(reorder(list_new_list (&stm->u.move.dst->u.mem,
-                                          list_new_list (&stm->u.move.src,
-                                                         NULL))),
+        return seq(reorder(new_exp_ref_list (&stm->u.move.dst->u.mem,
+                                             new_exp_ref_list (&stm->u.move.src,
+                                                               NULL))),
                    stm);
 
       else if (stm->u.move.dst->kind == TREE_ESEQ)
@@ -204,7 +233,7 @@ do_stm (tree_stm *stm)
       if (stm->u.exp->kind == TREE_CALL)
         return seq (reorder (get_call_ref_list (stm->u.exp)), stm);
       else
-        return seq (reorder (list_new_list (&stm->u.exp, NULL)), stm);
+        return seq (reorder (new_exp_ref_list (&stm->u.exp, NULL)), stm);
 
     default:
       return stm;
@@ -218,7 +247,7 @@ linear (tree_stm *stm, tree_stm_list *right)
   if (stm->kind == TREE_SEQ)
     return linear (stm->u.seq.left, linear (stm->u.seq.right, right));
   else
-    return list_new_list (stm, right);
+    return tree_new_stm_list (stm, right);
 }
 
 /**
@@ -245,8 +274,11 @@ next (tree_stm_list *prevstms,
 {
   if (!stms)
     return next (prevstms,
-        list_new_list (tree_new_jump (tree_new_name (done),
-        list_new_list(done, NULL)), NULL), done);
+                 tree_new_stm_list (tree_new_jump (tree_new_name (done),
+                                                   temp_new_label_list (done,
+                                                                        NULL)),
+                                    NULL),
+                 done);
 
   tree_stm *stm = stms->head;
   if (stm->kind == TREE_JUMP || stm->kind == TREE_CJUMP)
@@ -259,10 +291,10 @@ next (tree_stm_list *prevstms,
   else if (stm->kind == TREE_LABEL)
     {
       temp_label *lab = stm->u.label;
-      return next (prevstms, list_new_list (tree_new_jump (tree_new_name (lab),
-                                                           list_new_list(lab,
-                                                                         NULL)),
-                                            stms),
+      return next (prevstms, tree_new_stm_list (tree_new_jump (tree_new_name (lab),
+                                                               temp_new_label_list (lab,
+                                                                                    NULL)),
+                                                stms),
                    done);
     }
   else
@@ -284,11 +316,12 @@ mk_blocks (tree_stm_list *stms,
   tree_stm *stm = stms->head;
   if (stm->kind != TREE_LABEL)
     {
-      return mk_blocks (list_new_list (tree_new_label (temp_new_label()), stms),
+      return mk_blocks (tree_new_stm_list (tree_new_label (temp_new_label()),
+                                           stms),
                         done);
     }
   /* else there already is a label */
-  return list_new_list(stms, next(stms, stms->tail, done));
+  return canon_new_stmlist_list (stms, next(stms, stms->tail, done));
 }
 
 /**
@@ -383,8 +416,8 @@ trace (tree_stm_list *list)
                                              s->u.cjump.right,
                                              s->u.cjump.truee,
                                              falsee);
-          last->tail->tail = list_new_list (tree_new_label (falsee),
-                                            get_next ());
+          last->tail->tail = tree_new_stm_list (tree_new_label (falsee),
+                                                get_next ());
         }
     }
   else
@@ -400,7 +433,7 @@ get_next ()
 {
   if (!global_block.stm_lists)
     {
-    return list_new_list (tree_new_label (global_block.label), NULL);
+      return tree_new_stm_list (tree_new_label (global_block.label), NULL);
     }
   else
     {

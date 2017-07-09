@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include "list.h"
+//#include "list.h"
 #include "symbol.h"
 
 /*
@@ -25,11 +25,24 @@
 
 typedef sym_symbol temp_label;
 
-typedef struct _temp_temp temp_temp;
-typedef        list       temp_temp_list;
-typedef struct _temp_map  temp_map;
-typedef        list       temp_label_list;
+typedef struct _temp_temp       temp_temp;
+typedef struct _temp_temp_list  temp_temp_list;
+typedef struct _temp_map        temp_map;
+typedef struct _temp_label_list temp_label_list;
 
+struct
+_temp_temp_list
+{
+  temp_temp *head;
+  temp_temp_list *tail;
+};
+
+struct
+_temp_label_list
+{
+  temp_label *head;
+  temp_label_list *tail;
+};
 
 temp_temp *       temp_new_temp        (void);
 
@@ -79,4 +92,10 @@ temp_temp_list * temp_minus           (temp_temp_list *ta,
 
 bool             temp_in_list         (temp_temp      *t,
                                        temp_temp_list *tl);
+
+temp_temp_list * temp_new_temp_list (temp_temp      *head,
+                                     temp_temp_list *tail);
+
+temp_label_list * temp_new_label_list (temp_label     *head,
+                                       temp_label_list *tail);
 #endif /* _TEMP_H_ */

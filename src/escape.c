@@ -140,9 +140,8 @@ traverse_exp (sym_table *env_ptr,
         for (; list != NULL; list = list->tail)
           traverse_dec (env_ptr, depth, list->head);
 
-        sym_end_scope (env_ptr);
-
         traverse_exp (env_ptr, depth, exp_ptr->u.let.body);
+        sym_end_scope (env_ptr);
         return;
       }
 
@@ -183,10 +182,11 @@ static void traverse_dec (sym_table *env_ptr,
       return;
 
     case ABSYN_VAR_DEC:
+      traverse_exp (env_ptr, depth, dec_ptr->u.var.init);
       sym_bind_symbol (env_ptr,
                        dec_ptr->u.var.var,
                        new_esc_entry (depth, &dec_ptr->u.var.escape));
-      return traverse_exp (env_ptr, depth, dec_ptr->u.var.init);
+      return;
     }
   errm_impossible ("Got over switch in traverse_dec()!\n");
 }
@@ -203,7 +203,7 @@ static void traverse_var (sym_table *env_ptr,
     case ABSYN_SIMPLE_VAR:
       {
         esc_entry *declared_var = sym_lookup (env_ptr, var_ptr->u.simple);
-        if (declared_var != NULL && declared_var->depth < depth)
+        if (declared_var != NULL)
           *declared_var->escape = true;
         return;
       }

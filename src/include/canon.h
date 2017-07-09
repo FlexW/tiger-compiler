@@ -11,14 +11,24 @@
 #include "temp.h"
 #include "tree.h"
 
-typedef        list         canon_stmlist_list;
-typedef struct _canon_block canon_block;
+typedef struct _canon_stmlist_list canon_stmlist_list;
+typedef struct _canon_block        canon_block;
+
+struct
+_canon_stmlist_list
+{
+  tree_stm_list      *head;
+  canon_stmlist_list *tail;
+};
 
 struct _canon_block
 {
   canon_stmlist_list *stm_lists;
   temp_label         *label;
 };
+
+canon_stmlist_list * canon_new_stmlist_list (tree_stm_list      *head,
+                                             canon_stmlist_list *tail);
 
 tree_stm_list * canon_linearize (tree_stm *stm);
         /* From an arbitrary Tree statement, produce a list of cleaned trees

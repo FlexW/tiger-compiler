@@ -43,11 +43,12 @@ emit (assem_instr *instr)
   if (global_instr_list_last != NULL)
     {
       global_instr_list_last =
-        global_instr_list_last->tail = list_new_list (instr, NULL);
+        global_instr_list_last->tail = assem_new_instr_list (instr, NULL);
     }
   else
     {
-      global_instr_list_last = global_instr_list = list_new_list (instr, NULL);
+      global_instr_list_last = global_instr_list = assem_new_instr_list (instr,
+                                                                         NULL);
     }
 }
 
@@ -74,10 +75,13 @@ codegen (frm_frame     *f,
     {
       munch_stm (sl->head);
     }
+  if (global_instr_list_last && global_instr_list_last->head->kind == I_LABEL)
+    {
+      emit(assem_new_oper ("nop\n", NULL, NULL, NULL));
+    }
 
   list = global_instr_list;
   global_instr_list = global_instr_list_last = NULL;
-
   return list;
 }
 
@@ -98,8 +102,8 @@ generate_mem (tree_exp *e,
           temp_temp *r = temp_new_temp();
           sprintf (inst, "movl %d(`s0), `d0\n", i);
           emit(assem_new_oper(inst,
-                              list_new_list(r, NULL),
-                              list_new_list(munch_exp (e1), NULL),
+                              temp_new_temp_list (r, NULL),
+                              temp_new_temp_list (munch_exp (e1), NULL),
                               NULL));
           return r;
         }
@@ -112,8 +116,8 @@ generate_mem (tree_exp *e,
           temp_temp *r = temp_new_temp();
           sprintf (inst, "movl %d(`s0), `d0\n", i);
           emit(assem_new_oper (inst,
-                               list_new_list (r, NULL),
-                               list_new_list (munch_exp (e1), NULL),
+                               temp_new_temp_list (r, NULL),
+                               temp_new_temp_list (munch_exp (e1), NULL),
                                NULL));
           return r;
         }
@@ -124,8 +128,8 @@ generate_mem (tree_exp *e,
           temp_temp *r = temp_new_temp();
           sprintf (inst, "movl (`s0), `d0\n");
           emit(assem_new_oper (inst,
-                               list_new_list (r, NULL),
-                               list_new_list (munch_exp(e1), NULL),
+                               temp_new_temp_list (r, NULL),
+                               temp_new_temp_list (munch_exp(e1), NULL),
                                NULL));
           return r;
         }
@@ -137,7 +141,7 @@ generate_mem (tree_exp *e,
         temp_temp *r = temp_new_temp();
         sprintf (inst, "movl %d, `d0\n", i);
         emit(assem_new_oper (inst,
-                             list_new_list (r, NULL),
+                             temp_new_temp_list (r, NULL),
                              NULL,
                              NULL));
         return r;
@@ -149,8 +153,8 @@ generate_mem (tree_exp *e,
       temp_temp *r = temp_new_temp ();
       sprintf (inst, "movl (`s0), `d0\n");
       emit(assem_new_oper(inst,
-                          list_new_list (r, NULL),
-                          list_new_list (munch_exp(e1), NULL),
+                          temp_new_temp_list (r, NULL),
+                          temp_new_temp_list (munch_exp(e1), NULL),
                           NULL));
       return r;
     }
@@ -170,12 +174,12 @@ generate_binop (tree_exp *e,
       temp_temp *r = temp_new_temp();
       sprintf(inst, "movl `s0, `d0\n");
       emit(assem_new_move (inst,
-                           list_new_list(r, NULL),
-                           list_new_list(munch_exp(e1), NULL)));
+                           temp_new_temp_list (r, NULL),
+                           temp_new_temp_list (munch_exp(e1), NULL)));
       sprintf(inst2, "addl $%d, `d0\n", i);
       emit(assem_new_oper(inst2,
-                          list_new_list(r, NULL),
-                          list_new_list(r, NULL),
+                          temp_new_temp_list (r, NULL),
+                          temp_new_temp_list (r, NULL),
                           NULL));
       return r;
     }
@@ -188,12 +192,12 @@ generate_binop (tree_exp *e,
       temp_temp *r = temp_new_temp();
       sprintf(inst, "movl `s0, `d0\n");
       emit(assem_new_move(inst,
-                          list_new_list(r, NULL),
-                          list_new_list(munch_exp(e1), NULL)));
+                          temp_new_temp_list (r, NULL),
+                          temp_new_temp_list (munch_exp(e1), NULL)));
       sprintf(inst2, "addl $%d, `d0\n", i);
       emit(assem_new_oper(inst2,
-                          list_new_list(r, NULL),
-                          list_new_list(r, NULL),
+                          temp_new_temp_list (r, NULL),
+                          temp_new_temp_list (r, NULL),
                           NULL));
       return r;
     }
@@ -206,12 +210,12 @@ generate_binop (tree_exp *e,
       temp_temp *r = temp_new_temp();
       sprintf(inst, "movl `s0, `d0\n");
       emit(assem_new_move(inst,
-                          list_new_list(r, NULL),
-                          list_new_list(munch_exp(e1), NULL)));
+                          temp_new_temp_list (r, NULL),
+                          temp_new_temp_list (munch_exp(e1), NULL)));
       sprintf(inst2, "subl $%d, `d0\n", i);
       emit(assem_new_oper(inst2,
-                          list_new_list(r, NULL),
-                          list_new_list(r, NULL),
+                          temp_new_temp_list (r, NULL),
+                          temp_new_temp_list (r, NULL),
                           NULL));
       return r;
     }
@@ -224,12 +228,12 @@ generate_binop (tree_exp *e,
       temp_temp *r2 = munch_exp(e2);
       sprintf(inst, "movl `s0, `d0\n");
       emit(assem_new_move(inst,
-                          list_new_list(r, NULL),
-                          list_new_list(r1, NULL)));
+                          temp_new_temp_list (r, NULL),
+                          temp_new_temp_list (r1, NULL)));
       sprintf(inst2, "addl `s0, `d0\n");
       emit(assem_new_oper(inst2,
-                          list_new_list(r, NULL),
-                          list_new_list(r2, list_new_list (r, NULL)),
+                          temp_new_temp_list (r, NULL),
+                          temp_new_temp_list (r2, temp_new_temp_list (r, NULL)),
                           NULL));
       return r;
     }
@@ -242,12 +246,12 @@ generate_binop (tree_exp *e,
       temp_temp *r2 = munch_exp(e2);
       sprintf(inst, "movl `s0, `d0\n");
       emit(assem_new_move(inst,
-                          list_new_list(r, NULL),
-                          list_new_list(r1, NULL)));
+                          temp_new_temp_list (r, NULL),
+                          temp_new_temp_list (r1, NULL)));
       sprintf(inst2, "subl `s0, `d0\n");
       emit(assem_new_oper(inst2,
-                          list_new_list(r, NULL),
-                          list_new_list(r2, list_new_list(r, NULL)),
+                          temp_new_temp_list (r, NULL),
+                          temp_new_temp_list (r2, temp_new_temp_list (r, NULL)),
                           NULL));
       return r;
     }
@@ -262,12 +266,12 @@ generate_binop (tree_exp *e,
           int i = e->u.bin_op.right->u.constt;
           sprintf(inst, "movl `s0, `d0\n");
           emit(assem_new_move(inst,
-                              list_new_list(r, NULL),
-                              list_new_list(r1, NULL)));
+                              temp_new_temp_list (r, NULL),
+                              temp_new_temp_list (r1, NULL)));
           sprintf(inst2, "imul $%d, `d0\n", i);
           emit(assem_new_oper(inst2,
-                              list_new_list(r, NULL),
-                              list_new_list(r, NULL),
+                              temp_new_temp_list (r, NULL),
+                              temp_new_temp_list (r, NULL),
                               NULL));
           return r;
         }
@@ -280,12 +284,12 @@ generate_binop (tree_exp *e,
           int i = e->u.bin_op.left->u.constt;
           sprintf(inst, "movl `s0, `d0\n");
           emit(assem_new_move(inst,
-                              list_new_list(r, NULL),
-                              list_new_list(r1, NULL)));
+                              temp_new_temp_list (r, NULL),
+                              temp_new_temp_list (r1, NULL)));
           sprintf(inst2, "imul $%d, `d0\n", i);
           emit(assem_new_oper(inst2,
-                              list_new_list(r, NULL),
-                              list_new_list(r, NULL),
+                              temp_new_temp_list (r, NULL),
+                              temp_new_temp_list (r, NULL),
                               NULL));
           return r;
         }
@@ -298,12 +302,13 @@ generate_binop (tree_exp *e,
           temp_temp *r2 = munch_exp(e2);
           sprintf(inst, "movl `s0, `d0\n");
           emit(assem_new_move(inst,
-                              list_new_list(r, NULL),
-                              list_new_list(r1, NULL)));
+                              temp_new_temp_list (r, NULL),
+                              temp_new_temp_list (r1, NULL)));
           sprintf(inst2, "imul `s0, `d0\n");
           emit(assem_new_oper(inst2,
-                              list_new_list(r, NULL),
-                              list_new_list(r2, list_new_list(r, NULL)),
+                              temp_new_temp_list (r, NULL),
+                              temp_new_temp_list (r2,
+                                                  temp_new_temp_list (r, NULL)),
                               NULL));
           return r;
         }
@@ -316,24 +321,24 @@ generate_binop (tree_exp *e,
       temp_temp *r1 = munch_exp(e1);
       temp_temp *r2 = munch_exp(e2);
       emit(assem_new_move("movl `s0, `d0\n",
-                          list_new_list(frm_eax(), NULL),
-                          list_new_list(r1, NULL)));
+                          temp_new_temp_list (frm_eax(), NULL),
+                          temp_new_temp_list (r1, NULL)));
       emit(assem_new_oper("movl $0, `d0\n",
-                          list_new_list(frm_edx(), NULL),
+                          temp_new_temp_list (frm_edx(), NULL),
                           NULL,
                           NULL));
       emit(assem_new_oper("divl `s0\n",
-                          list_new_list(frm_eax(),
-                                        list_new_list (frm_edx(),
-                                                       NULL)),
-                          list_new_list(r2,
-                                        list_new_list(frm_edx(),
-                                                      list_new_list(frm_eax(),
-                                                                    NULL))),
+                          temp_new_temp_list (frm_eax(),
+                                        temp_new_temp_list  (frm_edx(),
+                                                             NULL)),
+                          temp_new_temp_list (r2,
+                                        temp_new_temp_list (frm_edx(),
+                                                      temp_new_temp_list (frm_eax(),
+                                                                          NULL))),
                           NULL));
       emit(assem_new_move("movl `s0, `d0\n",
-                          list_new_list(r, NULL),
-                          list_new_list(frm_eax(), NULL)));
+                          temp_new_temp_list (r, NULL),
+                          temp_new_temp_list (frm_eax(), NULL)));
       return r;
     }
   else
@@ -351,7 +356,7 @@ generate_const (tree_exp *e,
   int i = e->u.constt;
   temp_temp *r = temp_new_temp();
   sprintf(inst, "movl $%d, `d0\n", i);
-  emit(assem_new_oper(inst, list_new_list(r, NULL), NULL, NULL));
+  emit(assem_new_oper(inst, temp_new_temp_list (r, NULL), NULL, NULL));
 
   return r;
 }
@@ -373,7 +378,7 @@ generate_name (tree_exp *e,
   temp_label *lab = e->u.name;
   temp_temp *r = temp_new_temp();
   sprintf(inst, "movl $%s, `d0\n", temp_label_str (lab));
-  emit(assem_new_oper(inst, list_new_list(r, NULL), NULL, NULL));
+  emit(assem_new_oper(inst, temp_new_temp_list (r, NULL), NULL, NULL));
 
   return r;
 }
@@ -392,14 +397,14 @@ generate_call (tree_exp *e,
   temp_temp_list *calldefs = frm_caller_saves();
   sprintf(inst, "call %s\n", temp_label_str(lab));
   emit(assem_new_oper(inst,
-                      list_new_list (frm_rv(), calldefs),
+                      temp_new_temp_list (frm_rv(), calldefs),
                       l,
                       NULL));
   munch_caller_restore(l);
   sprintf(inst2, "movl `s0, `d0\n");
   emit(assem_new_move(inst2,
-                      list_new_list(t, NULL),
-                      list_new_list (frm_rv (), NULL)));
+                      temp_new_temp_list (t, NULL),
+                      temp_new_temp_list (frm_rv (), NULL)));
   return t;
 }
 
@@ -453,7 +458,7 @@ generate_move (tree_stm *s,
                sprintf(inst, "movl $%d, %d(`s0)\n", j, i);
                emit(assem_new_oper (inst,
                                     NULL,
-                                    list_new_list (munch_exp(e1), NULL),
+                                    temp_new_temp_list (munch_exp(e1), NULL),
                                     NULL));
              }
            else
@@ -464,9 +469,9 @@ generate_move (tree_stm *s,
                sprintf(inst, "movl `s1, %d(`s0)\n", i);
                emit(assem_new_oper (inst,
                                     NULL,
-                                    list_new_list (munch_exp(e1),
-                                                   list_new_list(munch_exp(e2),
-                                                                 NULL)),
+                                    temp_new_temp_list (munch_exp(e1),
+                                                   temp_new_temp_list (munch_exp(e2),
+                                                                       NULL)),
                                     NULL));
              }
          }
@@ -483,7 +488,7 @@ generate_move (tree_stm *s,
                sprintf(inst, "movl $%d, %d(`s0)\n", j, i);
                emit(assem_new_oper (inst,
                                     NULL,
-                                    list_new_list (munch_exp(e1), NULL),
+                                    temp_new_temp_list (munch_exp(e1), NULL),
                                     NULL));
              }
            else
@@ -494,8 +499,8 @@ generate_move (tree_stm *s,
                sprintf(inst, "movl `s1, %d(`s0)\n", i);
                emit(assem_new_oper (inst,
                                     NULL,
-                                    list_new_list(munch_exp (e1),
-                                                   list_new_list(munch_exp (e2),
+                                    temp_new_temp_list (munch_exp (e1),
+                                                   temp_new_temp_list (munch_exp (e2),
                                                                   NULL)),
                                     NULL));
              }
@@ -507,14 +512,14 @@ generate_move (tree_stm *s,
           temp_temp * r = temp_new_temp();
           sprintf(inst, "movl (`s0), `d0\n");
           emit(assem_new_oper (inst,
-                               list_new_list (r, NULL),
-                               list_new_list (munch_exp (e2), NULL),
+                               temp_new_temp_list (r, NULL),
+                               temp_new_temp_list (munch_exp (e2), NULL),
                                NULL));
           sprintf(inst2, "movl `s0, (`s1)\n");
           emit(assem_new_oper (inst2,
                                NULL,
-                               list_new_list (r, list_new_list (munch_exp (e1),
-                                                                NULL)),
+                               temp_new_temp_list (r, temp_new_temp_list (munch_exp (e1),
+                                                                          NULL)),
                                NULL));
          }
        else if (dst->u.mem->kind == TREE_CONST)
@@ -525,7 +530,7 @@ generate_move (tree_stm *s,
            sprintf(inst, "movl `s0, %d\n", i);
            emit(assem_new_oper (inst,
                                 NULL,
-                                list_new_list (munch_exp (e2), NULL),
+                                temp_new_temp_list (munch_exp (e2), NULL),
                                 NULL));
         }
        else
@@ -535,8 +540,8 @@ generate_move (tree_stm *s,
            sprintf(inst, "movl `s1, (`s0)\n");
            emit(assem_new_oper (inst,
                                 NULL,
-                                list_new_list (munch_exp (e1),
-                                               list_new_list (munch_exp (e2),
+                                temp_new_temp_list (munch_exp (e1),
+                                               temp_new_temp_list (munch_exp (e2),
                                                               NULL)),
                                 NULL));
          }
@@ -556,14 +561,14 @@ generate_move (tree_stm *s,
                temp_temp_list *calldefs = frm_caller_saves();
                sprintf(inst, "call %s\n", temp_label_str(lab));
                emit(assem_new_oper (inst,
-                                    list_new_list (frm_rv(), calldefs),
+                                    temp_new_temp_list (frm_rv(), calldefs),
                                     l,
                                     NULL));
                munch_caller_restore (l);
                sprintf(inst2, "movl `s0, `d0\n");
                emit(assem_new_move(inst2,
-                                   list_new_list (t, NULL),
-                                   list_new_list (frm_rv(), NULL)));
+                                   temp_new_temp_list (t, NULL),
+                                   temp_new_temp_list (frm_rv(), NULL)));
              }
            else
              {
@@ -591,8 +596,8 @@ generate_move (tree_stm *s,
            temp_temp * i = dst->u.temp;
            sprintf(inst, "movl `s0, `d0\n");
            emit(assem_new_move(inst,
-                               list_new_list (i, NULL),
-                               list_new_list (munch_exp (e2), NULL)));
+                               temp_new_temp_list (i, NULL),
+                               temp_new_temp_list (munch_exp (e2), NULL)));
          }
      }
    else
@@ -684,8 +689,8 @@ generate_jump (tree_stm *s,
       sprintf(inst, "jmp *`s0\n");
       emit(assem_new_oper(inst,
                           NULL,
-                          list_new_list(munch_exp(e), NULL),
-                          assem_new_targets(jumps)));
+                          temp_new_temp_list (munch_exp(e), NULL),
+                          assem_new_targets (jumps)));
     }
 }
 
@@ -706,15 +711,15 @@ generate_cjump (tree_stm *s,
   temp_label *jt = s->u.cjump.truee;
   temp_label *jf = s->u.cjump.falsee;
   emit(assem_new_move("movl `s0, `d0\n",
-                      list_new_list (r3, NULL),
-                      list_new_list (r1, NULL)));
+                      temp_new_temp_list (r3, NULL),
+                      temp_new_temp_list (r1, NULL)));
   emit(assem_new_move("movl `s0, `d0\n",
-                      list_new_list (r4, NULL),
-                      list_new_list (r2, NULL)));
+                      temp_new_temp_list (r4, NULL),
+                      temp_new_temp_list (r2, NULL)));
   sprintf(inst, "cmp `s1, `s0\n");
   emit(assem_new_oper(inst,
                       NULL,
-                      list_new_list (r3, list_new_list (r4, NULL)),
+                      temp_new_temp_list (r3, temp_new_temp_list (r4, NULL)),
                       NULL));
 
   char* opcode = "";
@@ -735,12 +740,12 @@ generate_cjump (tree_stm *s,
   emit(assem_new_oper(inst2,
                       NULL,
                       NULL,
-                      assem_new_targets(list_new_list(jt, NULL))));
+                      assem_new_targets(temp_new_label_list (jt, NULL))));
   sprintf(inst3, "jmp `j0\n");
   emit(assem_new_oper(inst3,
                       NULL,
                       NULL,
-                      assem_new_targets(list_new_list(jf, NULL))));
+                      assem_new_targets(temp_new_label_list (jf, NULL))));
 }
 
 static void
@@ -779,8 +784,8 @@ munch_caller_save ()
 
   for (; caller_saves; caller_saves = caller_saves->tail)
     emit(assem_new_oper("pushl `s0\n",
-                        list_new_list (frm_sp(), NULL),
-                        list_new_list (caller_saves->head, NULL),
+                        temp_new_temp_list (frm_sp(), NULL),
+                        temp_new_temp_list (caller_saves->head, NULL),
                         NULL));
 }
 
@@ -795,15 +800,15 @@ munch_caller_restore(temp_temp_list *tl)
 
   sprintf(inst, "addl $%d, `s0\n", restore_cnt * frm_word_size);
   emit(assem_new_oper(inst,
-                      list_new_list (frm_sp(), NULL),
-                      list_new_list (frm_sp(), NULL),
+                      temp_new_temp_list (frm_sp(), NULL),
+                      temp_new_temp_list (frm_sp(), NULL),
                       NULL));
 
   temp_temp_list *caller_saves = temp_reverse_list(frm_caller_saves());
   for (; caller_saves; caller_saves = caller_saves->tail)
     emit(assem_new_oper("popl `d0\n",
-                        list_new_list (caller_saves->head, NULL),
-                        list_new_list (frm_sp(), NULL),
+                        temp_new_temp_list (caller_saves->head, NULL),
+                        temp_new_temp_list (frm_sp(), NULL),
                         NULL));
 }
 
@@ -818,9 +823,9 @@ munch_args (int            i,
 
   temp_temp *r = munch_exp (args->head);
   emit(assem_new_oper ("pushl `s0\n",
-                       list_new_list(frm_sp(), NULL),
-                       list_new_list(r, NULL), NULL));
+                       temp_new_temp_list (frm_sp(), NULL),
+                       temp_new_temp_list (r, NULL), NULL));
 
   // No need to reserve values before calling in x86
-  return list_new_list(r, old);
+  return temp_new_temp_list (r, old);
 }

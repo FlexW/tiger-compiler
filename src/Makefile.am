@@ -33,7 +33,9 @@ libtiger_la_SOURCES = \
 	flowgraph.c \
 	liveness.c \
 	color.c \
-	regalloc.c
+	regalloc.c \
+	prtree.c \
+	prabsyn.c
 
 EXTRA_DIST = \
 	include/errormsg.h \
@@ -58,7 +60,9 @@ EXTRA_DIST = \
 	include/flowgraph.h \
 	include/liveness.h \
 	include/color.h \
-	include/regalloc.h
+	include/regalloc.h \
+	include/prtree.h \
+	include/prabsyn.h
 
 bin_PROGRAMS = \
 	tc

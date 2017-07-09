@@ -10,7 +10,7 @@
 
 #include "include/util.h"
 
-void*
+void *
 new (int b_sizeof)
 {
   void *p = malloc (b_sizeof);
@@ -28,4 +28,14 @@ string_new (char *s)
   char *p = new (strlen(s)+1);
   strcpy(p,s);
   return p;
+}
+
+util_bool_list *
+util_new_bool_list (bool head,
+                    util_bool_list *tail)
+{
+  util_bool_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
 }

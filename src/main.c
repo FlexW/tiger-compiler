@@ -19,6 +19,7 @@
 #include "include/absyn.h"
 #include "include/debug.h"
 #include "include/regalloc.h"
+#include "include/prtree.h"
 
 extern int yyparse(void);
 
@@ -80,14 +81,18 @@ do_proc (FILE      *out,
   assem_instr_list *ilist;
 
  frm_temp_map = temp_new_map ();
- //printStmList(stdout, T_StmList(body, NULL));
+ //print_stm_list (stdout, tree_new_stm_list(body, NULL));
 
  stm_list = canon_linearize (body);
  stm_list = canon_trace_schedule (canon_basic_blocks (stm_list));
- /* printStmList(stdout, stmList);*/
- //print_stm_list (stdout, stm_list);
+
+ if (check_cmd_line_arg (PR_TREE))
+    {
+      print_stm_list (stdout, stm_list);
+      fprintf(stdout, "\n");
+    }
  ilist  = codegen (frame, stm_list); /* 9 */
- //assem_printInstrList (out, iList, Temp_layerMap(F_tempMap,Temp_name()));
+ // assem_print_instr_list (out, ilist, temp_layer_map(frm_temp_map, temp_name()));
 
  struct regalloc_result ra = regalloc_do (frame, ilist);  /* 10, 11 */
  ilist = ra.il;
@@ -204,7 +209,7 @@ main (int    argc,
   absyn_exp *root = parse (argv[1]);
   if (check_cmd_line_arg (PR_ABSYN))
     {
-      //prabsyn_exp (stdout, root, 4);
+      prabsyn_exp (stdout, root, 4);
       fprintf(stdout, "\n");
     }
 

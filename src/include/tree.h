@@ -6,13 +6,27 @@
 #ifndef _TREE_H_
 #define _TREE_H_
 
-#include "list.h"
+//#include "list.h"
 #include "temp.h"
 
-typedef struct _tree_stm tree_stm;
-typedef struct _tree_exp tree_exp;
-typedef        list      tree_exp_list;
-typedef        list      tree_stm_list;
+typedef struct _tree_stm      tree_stm;
+typedef struct _tree_exp      tree_exp;
+typedef struct _tree_exp_list tree_exp_list;
+typedef struct _tree_stm_list tree_stm_list;
+
+struct
+_tree_exp_list
+{
+  tree_exp *head;
+  tree_exp_list *tail;
+};
+
+struct
+_tree_stm_list
+{
+  tree_stm *head;
+  tree_stm_list *tail;
+};
 
 /* Binary operators */
 typedef enum
@@ -185,6 +199,12 @@ tree_rel_op tree_not_rel (tree_rel_op);
 
 /* a op b    ==    b commute(op) a       */
 tree_rel_op tree_commute (tree_rel_op);
+
+tree_stm_list * tree_new_stm_list (tree_stm *head,
+                                   tree_stm_list *tail);
+
+tree_exp_list * tree_new_exp_list (tree_exp *head,
+                                   tree_exp_list *tail);
 
 
 #endif /* _TREE_H_ */

@@ -9,16 +9,27 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "list.h"
+//#include "list.h"
 #include "table.h"
+#include "util.h"
 
 typedef struct _graph_graph graph_graph;  /* The "graph" type */
 typedef struct _graph_node  graph_node;    /* The "node" type */
 
-typedef list graph_node_list;
+typedef struct _graph_node_list graph_node_list;
 
 /* The type of "tables" mapping graph-nodes to information */
 typedef tab_table  graph_table;
+
+struct
+_graph_node_list
+{
+  graph_node      *head;
+  graph_node_list *tail;
+};
+
+graph_node_list * graph_new_node_list (graph_node      *head,
+                                       graph_node_list *tail);
 
 /* Make a new graph */
 graph_graph * graph_new_graph      (void);

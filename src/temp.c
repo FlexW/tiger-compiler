@@ -40,6 +40,28 @@ static temp_map * new_map       (tab_table *tab_ptr,
                                  temp_map  *under_ptr);
 
 
+
+
+temp_temp_list *
+temp_new_temp_list (temp_temp      *head,
+                    temp_temp_list *tail)
+{
+  temp_temp_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}
+
+temp_label_list *
+temp_new_label_list (temp_label     *head,
+                     temp_label_list *tail)
+{
+  temp_label_list *l = new (sizeof (*l));
+  l->head = head;
+  l->tail = tail;
+  return l;
+}
+
 /**
  * Returns the name of a label as string.
  *
@@ -196,7 +218,7 @@ temp_reverse_list (temp_temp_list *t)
 
   temp_temp_list *tl = NULL;
   for (; t; t = t->tail)
-    tl = list_new_list (t->head, tl);
+    tl = temp_new_temp_list (t->head, tl);
 
   return tl;
 }
@@ -288,7 +310,7 @@ temp_union (temp_temp_list *ta,
       if (temp_lookup (m, t) == NULL)
         {
           temp_bind_temp (m, t, "u");
-          tl = list_new_list (t, tl);
+          tl = temp_new_temp_list (t, tl);
         }
     }
   for (; tb; tb = tb->tail)
@@ -297,7 +319,7 @@ temp_union (temp_temp_list *ta,
       if (temp_lookup (m, t) == NULL)
         {
           temp_bind_temp (m, t, "u");
-          tl = list_new_list (t, tl);
+          tl = temp_new_temp_list (t, tl);
         }
     }
   return tl;
@@ -321,7 +343,7 @@ temp_intersect (temp_temp_list *ta,
       t = tb->head;
       if (temp_lookup (m, t) != NULL)
         {
-          tl = list_new_list (t, tl);
+          tl = temp_new_temp_list (t, tl);
         }
     }
   return tl;
@@ -345,7 +367,7 @@ temp_minus (temp_temp_list *ta,
       t = ta->head;
       if (temp_lookup (m, t) == NULL)
         {
-          tl = list_new_list (t, tl);
+          tl = temp_new_temp_list (t, tl);
         }
     }
   return tl;

@@ -7,7 +7,7 @@
 #include "include/errormsg.h"
 #include "include/symbol.h"
 #include "include/absyn.h"
-#include "include/list.h"
+//#include "include/list.h"
 
 int yylex (void); /* function prototype */
 
@@ -148,17 +148,17 @@ expsemicolonlist:
 
 |   exp
     {
-      $$ = list_new_list ($1, NULL);
+      $$ = absyn_new_exp_list ($1, NULL);
     }
 
 |   exp SEMICOLON expsemicolonlist
     {
-      $$ = list_new_list ($1, $3);
+      $$ = absyn_new_exp_list ($1, $3);
     }
 
 |   error SEMICOLON expsemicolonlist
     {
-      $$ = list_new_list (NULL, $3);
+      $$ = absyn_new_exp_list (NULL, $3);
     }
 ;
 
@@ -169,17 +169,17 @@ funcallargslist:
 
 |   exp
     {
-      $$ = list_new_list ($1, NULL);
+      $$ = absyn_new_exp_list ($1, NULL);
     }
 
 |   exp COMMA funcallargslist
     {
-      $$ = list_new_list ($1, $3);
+      $$ = absyn_new_exp_list ($1, $3);
     }
 
 |   error COMMA funcallargslist
     {
-      $$ = list_new_list (NULL, $3);
+      $$ = absyn_new_exp_list (NULL, $3);
     }
 ;
 
@@ -365,17 +365,17 @@ efieldlist:
 
 |   efield
     {
-      $$ = list_new_list ($1, NULL);
+      $$ = absyn_new_efield_list ($1, NULL);
     }
 
 |   efield COMMA efieldlist
     {
-      $$ = list_new_list ($1, $3);
+      $$ = absyn_new_efield_list ($1, $3);
     }
 
 |   error COMMA efieldlist
     {
-      $$ = list_new_list (NULL, $3);
+      $$ = absyn_new_efield_list (NULL, $3);
     }
 ;
 
@@ -462,17 +462,17 @@ let:
 declist:
     dec
     {
-      $$ = list_new_list ($1, NULL);
+      $$ = absyn_new_dec_list ($1, NULL);
     }
 
 |   dec declist
     {
-      $$ = list_new_list ($1, $2);
+      $$ = absyn_new_dec_list ($1, $2);
     }
 
 |   error declist
     {
-       $$ = list_new_list (NULL, $2);
+       $$ = absyn_new_dec_list (NULL, $2);
     }
 ;
 
@@ -492,24 +492,24 @@ dec:
 fundeclist:
     fundec
     {
-       $$ = list_new_list ($1, NULL);
+       $$ = absyn_new_fundec_list ($1, NULL);
     }
 
 |   fundec fundeclist
     {
-       $$ = list_new_list ($1, $2);
+       $$ = absyn_new_fundec_list ($1, $2);
     }
 ;
 
 typedeclist:
     typedec
     {
-       $$ = list_new_list ($1, NULL);
+      $$ = absyn_new_name_ty_list ($1, NULL);
     }
 
 |   typedec typedeclist
     {
-      $$ = list_new_list ($1, $2);
+      $$ = absyn_new_name_ty_list ($1, $2);
     }
 ;
 
@@ -551,17 +551,17 @@ fielddeclist:
 
 |   fielddec
     {
-      $$ = list_new_list ($1, NULL);
+      $$ = absyn_new_field_list ($1, NULL);
     }
 
 |   fielddec COMMA fielddeclist
     {
-      $$ = list_new_list ($1, $3);
+      $$ = absyn_new_field_list ($1, $3);
     }
 
 |   error COMMA fielddeclist
     {
-      $$ = list_new_list (NULL, $3);
+      $$ = absyn_new_field_list (NULL, $3);
     }
 ;
 

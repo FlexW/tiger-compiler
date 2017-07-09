@@ -31,8 +31,8 @@ live_graph
 };
 
 live_move_list *  live_new_move_list (graph_node     *src,
-	                                    graph_node     *dst,
-																		  live_move_list *tail);
+                                      graph_node     *dst,
+                                      live_move_list *tail);
 
 temp_temp *       live_gtemp         (graph_node *n);
 

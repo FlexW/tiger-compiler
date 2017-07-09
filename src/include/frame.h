@@ -9,21 +9,43 @@
 #include <stdbool.h>
 
 #include "frame.h"
-#include "list.h"
+//#include "list.h"
 #include "temp.h"
 #include "util.h"
 #include "tree.h"
 #include "assem.h"
 
-typedef struct _frm_frag   frm_frag;
-typedef        list        frm_frag_list;
-typedef struct _frm_frame  frm_frame;
-typedef struct _frm_access frm_access;
-typedef        list        frm_access_list;
+typedef struct _frm_frag        frm_frag;
+typedef struct _frm_frag_list   frm_frag_list;
+typedef struct _frm_frame       frm_frame;
+typedef struct _frm_access      frm_access;
+typedef struct _frm_access_list frm_access_list;
+typedef struct _frm_frame_list  frm_frame_list;
 
 extern const int frm_word_size;
 
 extern temp_map *frm_temp_map;
+
+struct
+_frm_frag_list
+{
+  frm_frag *head;
+  frm_frag_list *tail;
+};
+
+struct
+_frm_access_list
+{
+  frm_access *head;
+  frm_access_list *tail;
+};
+
+struct
+_frm_frame_list
+{
+  frm_frame *head;
+  frm_frame_list *tail;
+};
 
 struct
 _frm_frag
@@ -122,4 +144,14 @@ tree_exp *         frm_static_link_exp       (tree_exp *frame_ptr);
 
 tree_exp *         frm_exp_with_static_link (frm_access *acc,
                                              tree_exp   *static_link);
+
+frm_frag_list * frm_new_frag_list (frm_frag *head,
+                                   frm_frag_list *tail);
+
+frm_access_list * frm_new_access_list (frm_access *head,
+                                       frm_access_list *tail);
+
+frm_frame_list * frm_new_frame_list (frm_frame *head,
+                                     frm_frame_list *tail);
+
 #endif /* _FRAME_H_ */

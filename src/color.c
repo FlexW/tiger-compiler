@@ -90,7 +90,7 @@ clone_regs (temp_temp_list *regs)
   temp_temp_list *tl = NULL;
   for (; regs; regs = regs->tail)
     {
-      tl = list_new_list (regs->head, tl);
+      tl = temp_new_temp_list (regs->head, tl);
     }
   return tl;
 }
@@ -123,7 +123,7 @@ temp_list_to_node_list (temp_temp_list *tl)
   graph_node_list *nl = NULL;
   for (; tl; tl = tl->tail)
     {
-      nl = list_new_list (temp_to_node (tl->head), nl);
+      nl = graph_new_node_list (temp_to_node (tl->head), nl);
     }
   return graph_reverse_nodes (nl);
 }
@@ -143,7 +143,7 @@ node_list_to_temp_list (graph_node_list *nl)
   temp_temp_list *tl = NULL;
   for (; nl; nl = nl->tail)
     {
-      tl = list_new_list (node_to_temp (nl->head), tl);
+      tl = temp_new_temp_list (node_to_temp (nl->head), tl);
     }
   return temp_reverse_list(tl);
 }
@@ -266,7 +266,7 @@ adjacent (temp_temp *t)
   temp_temp_list  *adjs = NULL;
   for (; adjn; adjn = adjn->tail)
     {
-      adjs = list_new_list (node_to_temp (n), adjs);
+      adjs = temp_new_temp_list (node_to_temp (n), adjs);
     }
   adjs = minus_temp (adjs, union_temp (c.select_stack, c.coalesced_nodes));
   return adjs;
@@ -322,22 +322,22 @@ make_work_list ()
     {
       temp_temp *t = tl->head;
       graph_node *n = temp_to_node (t);
-      c.initial = minus_temp (c.initial, list_new_list (t, NULL));
+      c.initial = minus_temp (c.initial, temp_new_temp_list (t, NULL));
 
     if (graph_degree (n) >= c.k)
       {
         c.spill_work_list = union_temp (c.spill_work_list,
-                                        list_new_list (t, NULL));
+                                        temp_new_temp_list (t, NULL));
       }
     else if (move_related (t))
       {
         c.freeze_work_list = union_temp (c.freeze_work_list,
-                                         list_new_list (t, NULL));
+                                         temp_new_temp_list (t, NULL));
       }
     else
       {
         c.simplify_work_list = union_temp (c.simplify_work_list,
-                                           list_new_list (t, NULL));
+                                           temp_new_temp_list (t, NULL));
       }
     }
 }
@@ -371,9 +371,9 @@ enable_moves (temp_temp_list *tl)
           if (inst_in (m, c.active_moves))
             {
               c.active_moves = inst_minus (c.active_moves,
-                                           list_new_list (m, NULL));
+                                           assem_new_instr_list (m, NULL));
               c.worklist_moves = inst_union (c.worklist_moves,
-                                             list_new_list (m, NULL));
+                                             assem_new_instr_list (m, NULL));
             }
         }
     }
@@ -389,18 +389,18 @@ decrement_degree (graph_node *n)
 
   if (d == c.k)
     {
-      enable_moves (list_new_list (t, adjacent(t)));
+      enable_moves (temp_new_temp_list (t, adjacent(t)));
       c.spill_work_list = minus_temp (c.spill_work_list,
-                                      list_new_list (t, NULL));
+                                      temp_new_temp_list (t, NULL));
       if (move_related (t))
         {
           c.freeze_work_list = union_temp (c.freeze_work_list,
-                                           list_new_list (t, NULL));
+                                           temp_new_temp_list (t, NULL));
         }
       else
         {
           c.simplify_work_list = union_temp (c.simplify_work_list,
-                                             list_new_list (t, NULL));
+                                             temp_new_temp_list (t, NULL));
         }
     }
 }
@@ -414,9 +414,9 @@ add_work_list (temp_temp *t)
       && (degree < c.k))
     {
       c.freeze_work_list = minus_temp (c.freeze_work_list,
-                                       list_new_list (t, NULL));
+                                       temp_new_temp_list (t, NULL));
       c.simplify_work_list = union_temp (c.simplify_work_list,
-                                         list_new_list (t, NULL));
+                                         temp_new_temp_list (t, NULL));
     }
 }
 
@@ -485,7 +485,7 @@ simplify ()
   graph_node *n = temp_to_node (t);
   c.simplify_work_list = c.simplify_work_list->tail;
 
-  c.select_stack = list_new_list (t, c.select_stack);  // push
+  c.select_stack = temp_new_temp_list (t, c.select_stack);  // push
 
   graph_node_list *adjs = graph_adj(n);
   for (; adjs; adjs = adjs->tail)
@@ -505,16 +505,16 @@ combine (temp_temp *u,
   if (in_temp (v, c.freeze_work_list))
     {
       c.freeze_work_list = minus_temp (c.freeze_work_list,
-                                       list_new_list (v, NULL));
+                                       temp_new_temp_list (v, NULL));
     }
   else
     {
       c.spill_work_list = minus_temp (c.spill_work_list,
-                                      list_new_list (v, NULL));
+                                      temp_new_temp_list (v, NULL));
     }
 
   c.coalesced_nodes = union_temp (c.coalesced_nodes,
-                                  list_new_list (v, NULL));
+                                  temp_new_temp_list (v, NULL));
   graph_bind (c.alias, nv, (void*)nu);
 
   assem_instr_list *au = (assem_instr_list*)temp_look_ptr (c.move_list, u);
@@ -522,7 +522,7 @@ combine (temp_temp *u,
   au = inst_union (au, av);
   temp_enter_ptr (c.move_list, u, (void*)au);
 
-  enable_moves (list_new_list (v, NULL));
+  enable_moves (temp_new_temp_list (v, NULL));
 
   //Temp_temp_list tadjs = adjacent(v);
   //graph_node_list adjs = temp_list_to_node_list (tadjs);
@@ -541,9 +541,9 @@ combine (temp_temp *u,
   if (degree >= c.k && in_temp (u, c.freeze_work_list))
     {
       c.freeze_work_list = minus_temp (c.freeze_work_list,
-                                       list_new_list (u, NULL));
+                                       temp_new_temp_list (u, NULL));
       c.spill_work_list = union_temp (c.spill_work_list,
-                                      list_new_list (u, NULL));
+                                      temp_new_temp_list (u, NULL));
   }
 }
 
@@ -574,12 +574,13 @@ coalesce ()
   graph_node *nu = temp_to_node (u);
   graph_node *nv = temp_to_node (v);
 
-  c.worklist_moves = inst_minus (c.worklist_moves, list_new_list (m, NULL));
+  c.worklist_moves = inst_minus (c.worklist_moves, assem_new_instr_list (m,
+                                                                         NULL));
 
   if (u == v)
     {
       c.coalesced_moves = inst_union (c.coalesced_moves,
-                                      list_new_list (m, NULL));
+                                      assem_new_instr_list (m, NULL));
       add_work_list (u);
     }
   else if (temp_lookup (c.precolored, v)
@@ -587,7 +588,7 @@ coalesce ()
            || graph_goes_to (nv, nu))
     {
       c.constrained_moves = inst_union (c.constrained_moves,
-                                        list_new_list (m, NULL));
+                                        assem_new_instr_list (m, NULL));
       add_work_list (u);
       add_work_list (v);
     }
@@ -617,12 +618,12 @@ coalesce ()
 
     if (flag) {
       c.coalesced_moves = inst_union (c.coalesced_moves,
-                                      list_new_list (m, NULL));
+                                      assem_new_instr_list (m, NULL));
       combine(u, v);
       add_work_list (u);
     } else {
       c.active_moves = inst_union (c.active_moves,
-                                   list_new_list (m, NULL));
+                                   assem_new_instr_list (m, NULL));
     }
   }
 }
@@ -650,16 +651,18 @@ freeze_moves (temp_temp *u)
         }
       temp_temp *v = node_to_temp (nv);
 
-      c.active_moves = inst_minus (c.active_moves, list_new_list (m, NULL));
-      c.frozen_moves = inst_union (c.frozen_moves, list_new_list (m, NULL));
+      c.active_moves = inst_minus (c.active_moves, assem_new_instr_list (m,
+                                                                         NULL));
+      c.frozen_moves = inst_union (c.frozen_moves, assem_new_instr_list (m,
+                                                                         NULL));
 
       long degree = (long)graph_lookup (c.degree, nv);
       if (node_moves (v) == NULL && degree < c.k)
         {
           c.freeze_work_list = minus_temp (c.freeze_work_list,
-                                           list_new_list (v, NULL));
+                                           temp_new_temp_list (v, NULL));
           c.simplify_work_list = union_temp (c.simplify_work_list,
-                                             list_new_list (v, NULL));
+                                             temp_new_temp_list (v, NULL));
         }
     }
 }
@@ -673,9 +676,10 @@ freeze ()
     }
 
   temp_temp *u = c.freeze_work_list->head;
-  c.freeze_work_list = minus_temp (c.freeze_work_list, list_new_list (u, NULL));
+  c.freeze_work_list = minus_temp (c.freeze_work_list,
+                                   temp_new_temp_list (u, NULL));
   c.simplify_work_list = union_temp (c.simplify_work_list,
-                                     list_new_list (u, NULL));
+                                     temp_new_temp_list (u, NULL));
   freeze_moves (u);
 }
 
@@ -703,9 +707,10 @@ select_spill () {
           m = t;
         }
     }
-  c.spill_work_list = minus_temp (c.spill_work_list, list_new_list (m, NULL));
+  c.spill_work_list = minus_temp (c.spill_work_list,
+                                  temp_new_temp_list (m, NULL));
   c.simplify_work_list = union_temp (c.simplify_work_list,
-                                     list_new_list (m, NULL));
+                                     temp_new_temp_list (m, NULL));
   freeze_moves (m);
 }
 
@@ -790,7 +795,7 @@ col_color (graph_graph      *ig,
           graph_bind (c.degree, nl->head, (void*)999);
           continue;
         }
-      c.initial = list_new_list (node_to_temp (nl->head), c.initial);
+      c.initial = temp_new_temp_list (node_to_temp (nl->head), c.initial);
     }
 
   color_main ();
@@ -832,18 +837,18 @@ col_color (graph_graph      *ig,
             if (colorTemp)
               {
                 ok_colors = minus_temp (ok_colors,
-                                        list_new_list (colorTemp, NULL));
+                                        temp_new_temp_list (colorTemp, NULL));
               }
           }
       }
 
     if (ok_colors == NULL)
       {
-        c.spilled_nodes = list_new_list (t, c.spilled_nodes);
+        c.spilled_nodes = temp_new_temp_list (t, c.spilled_nodes);
       }
     else
       {
-        colored_nodes = list_new_list (t, colored_nodes);
+        colored_nodes = temp_new_temp_list (t, colored_nodes);
         temp_bind_temp (colors, t, color_to_str (ok_colors->head, precolored));
       }
     }
@@ -861,14 +866,14 @@ col_color (graph_graph      *ig,
   ret.colored = NULL;
   for (; colored_nodes; colored_nodes = colored_nodes->tail)
     {
-      ret.colored = list_new_list (colored_nodes->head, ret.colored);
+      ret.colored = temp_new_temp_list (colored_nodes->head, ret.colored);
     }
 
   ret.spills = NULL;
   for (; c.spilled_nodes; c.spilled_nodes = c.spilled_nodes->tail)
     {
       printf ("spilled: %s\n", name_temp (c.spilled_nodes->head));
-      ret.spills = list_new_list (c.spilled_nodes->head, ret.spills);
+      ret.spills = temp_new_temp_list (c.spilled_nodes->head, ret.spills);
     }
 
   ret.coalesced_moves = c.coalesced_moves;
@@ -902,7 +907,7 @@ col_color2 (graph_graph      *ig,
         {
           continue;
         }
-      temps = list_new_list (nl->head, temps);
+      temps = graph_new_node_list (nl->head, temps);
     }
 
   while (temps != NULL)
@@ -922,16 +927,17 @@ col_color2 (graph_graph      *ig,
               if (color_temp)
                 {
                   ok_colors = minus_temp (ok_colors,
-                                          list_new_list (color_temp, NULL));
+                                           temp_new_temp_list (color_temp,
+                                                               NULL));
                 }
             }
         }
 
       if (ok_colors == NULL)
         {
-          spilled_nodes = list_new_list (n, spilled_nodes);
+          spilled_nodes = graph_new_node_list (n, spilled_nodes);
         } else {
-      colored_nodes = list_new_list (n, colored_nodes);
+      colored_nodes = graph_new_node_list (n, colored_nodes);
       temp_bind_temp (colors,
                       node_to_temp (n),
                       color_to_str (ok_colors->head, precolored));
@@ -946,8 +952,8 @@ col_color2 (graph_graph      *ig,
   ret.colored = NULL;
   for (; colored_nodes; colored_nodes = colored_nodes->tail)
     {
-      ret.colored = list_new_list (node_to_temp (colored_nodes->head),
-                                   ret.colored);
+      ret.colored = temp_new_temp_list (node_to_temp (colored_nodes->head),
+                                        ret.colored);
     }
 
   ret.spills = NULL;
@@ -955,8 +961,8 @@ col_color2 (graph_graph      *ig,
     {
       printf("spilled: %s\n",
              name_temp (node_to_temp (spilled_nodes->head)));
-      ret.spills = list_new_list (node_to_temp (spilled_nodes->head),
-                                  ret.spills);
+      ret.spills = temp_new_temp_list (node_to_temp (spilled_nodes->head),
+                                       ret.spills);
     }
   ret.alias = graph_new_table ();
   ret.coalesced_moves = NULL;
