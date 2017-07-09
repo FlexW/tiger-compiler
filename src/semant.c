@@ -643,10 +643,10 @@ check_call_exp (tra_level *level_ptr,
                                             tenv_ptr,
                                             exp_ptr,
                                             break_done);
-
+  /*
   if (tra_list == NULL)
     return TRANS_ERROR;
-
+  */
   bool lib_fun = (sym_lookup (env_base_venv (), exp_ptr->u.call.func) != NULL);
   tra_exp *tra_exp = tra_call_exp (lib_fun,
                                    fundec->u.fun.level,
@@ -883,7 +883,8 @@ check_assign_exp (tra_level *level_ptr,
       return TRANS_ERROR
     }
 
-  return new_expty (tra_assign_exp (container->exp, alloc->exp), alloc->ty);
+  return new_expty (tra_assign_exp (container->exp, alloc->exp),
+                    typ_new_void ());
 }
 
 static expty *
@@ -1069,7 +1070,7 @@ check_for_exp (tra_level *level_ptr,
                               body->exp,
                               break_done);
 
-  return new_expty (exp, body->ty);
+  return new_expty (exp, typ_new_void ());
 }
 
 static expty*

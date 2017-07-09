@@ -226,14 +226,14 @@ main (int    argc,
   fprintf(out, ".text\n\n");
   for (frm_frag_list *fl = frag_list; fl != NULL; fl = fl->tail)
     {
-      frm_frag *frag = frag_list->head;
+      frm_frag *frag = fl->head;
       if (frag->kind == FRM_PROC_FRAG)
         do_proc (out, frag->u.proc.frame, frag->u.proc.body);
     }
   fprintf(out, ".data\n\n");
   for (frm_frag_list *fl = frag_list; fl != NULL; fl = fl->tail)
     {
-      frm_frag *frag = frag_list->head;
+      frm_frag *frag = fl->head;
       if (frag->kind == FRM_STRING_FRAG)
         do_str (out, frag->u.str.str, frag->u.str.label);
     }

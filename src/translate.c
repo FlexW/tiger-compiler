@@ -14,7 +14,7 @@ typedef struct _condit_exp condit_exp;
 typedef struct _patch_list patch_list;
 
 /* Private global list to save all function and string fragments */
-frm_frag_list *frag_list = NULL, *sfrag_list = NULL;
+static frm_frag_list *frag_list = NULL;
 
 struct
 _patch_list
@@ -683,7 +683,8 @@ tra_record_exp (tra_exp_list *tra_list)
   */
   /* Allocation */
   int field_count = 0;
-  for (; tra_list != NULL; tra_list = tra_list->tail)
+  tra_exp_list *tl = tra_list;
+  for (; tl != NULL; tl = tl->tail)
     field_count++;
 
   temp_temp *r = temp_new_temp ();
@@ -1229,10 +1230,7 @@ get_offset (tra_level *used_level_ptr,
 static void
 frag_list_add (frm_frag *frag)
 {
-  if (frag_list == NULL)
-    sfrag_list = frag_list = frm_new_frag_list (frag, NULL);
-  else
-    frag_list = frag_list->tail = frm_new_frag_list (frag, NULL);
+  frag_list = frm_new_frag_list (frag, frag_list);
 }
 
 /**
@@ -1243,7 +1241,7 @@ frag_list_add (frm_frag *frag)
 frm_frag_list *
 tra_get_frag_list (void)
 {
-  return sfrag_list;
+  return frag_list;
 }
 
 static condit_exp *
