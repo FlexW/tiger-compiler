@@ -347,6 +347,12 @@ tra_subscript_var (tra_exp* array_ptr,
   tree_exp *mem            = tree_new_mem (element);
 
   return trans_exp (mem);
+ /*
+   return trans_exp (tree_new_mem(
+          tree_new_bin_op(TREE_PLUS, conv_exp (array_ptr),
+            tree_new_bin_op(TREE_TIMES, conv_exp (index_ptr),
+                            tree_new_const(frm_word_size)))));
+   */
 }
 
 /**
@@ -633,7 +639,8 @@ tra_array_exp (tra_exp *size,
  * @return Intermediate code representation.
  */
 tra_exp *
-tra_record_exp (tra_exp_list *tra_list)
+tra_record_exp (tra_exp_list *tra_list,
+                int           field_count)
 {
   /*
     Call external function malloc, save pointer in register record.
@@ -681,12 +688,6 @@ tra_record_exp (tra_exp_list *tra_list)
                                      seq_start);
   return trans_exp (tree_new_eseq (init_seq, record));
   */
-  /* Allocation */
-  int field_count = 0;
-  tra_exp_list *tl = tra_list;
-  for (; tl != NULL; tl = tl->tail)
-    field_count++;
-
   temp_temp *r = temp_new_temp ();
   tree_stm * alloc = tree_new_move (tree_new_temp (r),
                   frm_external_call ("allocRecord",
@@ -1067,7 +1068,7 @@ conv_exp (tra_exp * exp_ptr)
       return exp_ptr->u.exp;
 
     case TRA_CONDITIONAL:
-      {
+      {/*
         temp_temp  *reg    = temp_new_temp ();
         temp_label *truee  = temp_new_label ();
         temp_label *falsee = temp_new_label ();
@@ -1085,10 +1086,10 @@ conv_exp (tra_exp * exp_ptr)
 
         tree_exp *list   = tree_new_eseq (res_true, NULL);
 
-        /*
+
           Create intermediate representation for moving a
           1 (true) or 0 (false) into a register.
-         */
+
         list->u.eseq.exp = tree_new_eseq (exp_ptr->u.conditional->stm, NULL);
         list = list->u.eseq.exp;
 
@@ -1101,6 +1102,19 @@ conv_exp (tra_exp * exp_ptr)
         list->u.eseq.exp = tree_new_eseq (l_true, tree_new_temp (reg));
 
         return list;
+        */
+        temp_temp *r = temp_new_temp();
+        temp_label *t = temp_new_label(), *f = temp_new_label();
+        do_patch (exp_ptr->u.conditional->trues, t);
+        do_patch (exp_ptr->u.conditional->falses, f);
+        return tree_new_eseq (tree_new_move (tree_new_temp (r),
+                                             tree_new_const (1)),
+                              tree_new_eseq (exp_ptr->u.conditional->stm,
+                                             tree_new_eseq (tree_new_label (f),
+                                                            tree_new_eseq (tree_new_move (tree_new_temp (r),
+                                                                                          tree_new_const (0)),
+                                                                           tree_new_eseq (tree_new_label (t),
+                                                                                          tree_new_temp (r))))));
       }
     case TRA_NO_RES:
       return tree_new_eseq (exp_ptr->u.no_res, tree_new_const (0));
@@ -1121,7 +1135,7 @@ conv_no_res_exp (tra_exp *exp_ptr)
       return tree_new_exp (exp_ptr->u.exp);
 
     case TRA_CONDITIONAL:
-      {
+      {/*
         temp_label *label = temp_new_label ();
         do_patch (exp_ptr->u.conditional->trues, label);
         do_patch (exp_ptr->u.conditional->falses, label);
@@ -1129,6 +1143,17 @@ conv_no_res_exp (tra_exp *exp_ptr)
         tree_stm *stm = tree_new_seq (exp_ptr->u.conditional->stm,
                                       tree_new_label (label));
         return stm;
+       */
+        temp_temp *r = temp_new_temp ();
+        temp_label *t = temp_new_label (), *f = temp_new_label();
+        do_patch (exp_ptr->u.conditional->trues, t);
+        do_patch (exp_ptr->u.conditional->falses, f);
+        return tree_new_seq (tree_new_move (tree_new_temp (r), tree_new_const (1)),
+              tree_new_seq (exp_ptr->u.conditional->stm,
+                tree_new_seq (tree_new_label (f),
+                  tree_new_seq (tree_new_move (tree_new_temp (r), tree_new_const (0)),
+                    tree_new_seq (tree_new_label (t),
+                            tree_new_exp (tree_new_temp (r)))))));
       }
 
     case TRA_NO_RES:
@@ -1150,6 +1175,7 @@ conv_conditional_exp (tra_exp *exp_ptr)
     {
     case TRA_EXP:
       {
+        /*
         tree_stm *stm      = tree_new_cjump (TREE_EQ,
                                              exp_ptr->u.exp,
                                              tree_new_const (0),
@@ -1159,6 +1185,12 @@ conv_conditional_exp (tra_exp *exp_ptr)
         patch_list *falses = new_patch_list (&(stm->u.cjump.falsee), NULL);
 
         return new_condit (stm, trues, falses);
+        */
+        tree_stm *s = tree_new_cjump (TREE_NEQ, conv_exp (exp_ptr), tree_new_const (0), NULL, NULL);
+        patch_list *trues = new_patch_list (&s->u.cjump.truee, NULL);
+        patch_list *falses = new_patch_list (&s->u.cjump.falsee, NULL);
+        tra_exp *cx = trans_conditional_exp (trues, falses, s);
+        return cx->u.conditional;
       }
 
     case TRA_CONDITIONAL:

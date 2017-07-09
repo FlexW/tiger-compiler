@@ -287,7 +287,7 @@ sem_trans_prog (absyn_exp *exp_ptr)
   sym_table *tenv  = env_base_tenv (); /* Get basic type enviroment */
   sym_table *venv  = env_base_venv (); /* Get basic variable enviroment */
   tra_level *outer = tra_outermost_level ();
-  esc_find_escaping_var (exp_ptr); /* look for escaping variables */
+  //esc_find_escaping_var (exp_ptr); /* look for escaping variables */
   /* Do sematic analyse */
   expty *prog = trans_exp (outer, venv, tenv, exp_ptr, NULL);
   tra_proc_entry_exit (outer, prog->exp, NULL);
@@ -384,7 +384,7 @@ check_field_var (tra_level *level_ptr,
     }
 
   /* Go trough each record entry and look for the matching one */
-  int offset = 1; /* Offset is needed to calculate exact memory position of
+  int offset = 0; /* Offset is needed to calculate exact memory position of
                      record field */
   typ_field_list *list = expty->ty->u.record;
   for (; list != NULL; list = list->tail)
@@ -735,15 +735,60 @@ check_record_exp (tra_level  *level_ptr,
       return TRANS_ERROR
     }
 
+  /*
   tra_exp_list *tra_list = check_record_init (level_ptr,
                                               venv_ptr,
                                               tenv_ptr,
                                               exp_ptr,
                                               break_done);
+
   if (tra_list == NULL)
     return TRANS_ERROR;
 
   return new_expty (tra_record_exp (tra_list), typ_actual_ty (typ));
+  */
+
+  /* Compare fields */
+      absyn_efield_list *el;
+      typ_field_list *fl;
+      tra_exp_list *tel = NULL;
+      expty *exp;
+      int field_count = 0;
+
+      for (el = exp_ptr->u.record.fields, fl = typ->u.record;
+           el
+             && fl; el = el->tail, fl = fl->tail)
+        {
+        field_count++;
+        if (strcmp(sym_name (el->head->name), sym_name (fl->head->name)) != 0)
+          {
+            errm_printf (exp_ptr->pos, "field name should be %s but not %s",
+                         sym_name (fl->head->name),
+                         sym_name (el->head->name));
+            continue;
+        }
+
+        exp = trans_exp (level_ptr,
+                         venv_ptr,
+                         tenv_ptr,
+                         el->head->exp,
+                         break_done);
+
+        if (!typ_cmpty (fl->head->ty, exp->ty))
+          errm_printf (el->head->exp->pos,
+                       "field type of %s mismatch",
+                       sym_name(fl->head->name));
+
+        tel = tra_new_exp_list (exp->exp, tel);
+        }
+      if (el || fl)
+        {
+          errm_printf (exp_ptr->pos,
+                       "fields of type %s mismatch",
+                       sym_name(exp_ptr->u.record.typ));
+        }
+
+      return new_expty (tra_record_exp (tel, field_count), typ);
 }
 
 /* See if initializer types are the same like declared types */
@@ -815,8 +860,8 @@ check_seq_exp (tra_level *level_ptr,
                absyn_exp *exp_ptr,
                temp_label *break_done)
 {
-  tra_exp_list   *list = NULL, *slist = NULL;
-  absyn_exp_list *exp_list            = exp_ptr->u.seq;
+  tra_exp_list   *list = NULL;
+  absyn_exp_list *exp_list = exp_ptr->u.seq;
 
   if (exp_list == NULL) /* empty sequence is valid */
     return new_expty (tra_int_exp (0), typ_new_void ());
@@ -847,12 +892,9 @@ check_seq_exp (tra_level *level_ptr,
           unset_loop_status (&loop_status);
         }
 
-      if (list == NULL)
-        slist = list = tra_new_exp_list (expty->exp, NULL);
-      else
-        list = list->tail = tra_new_exp_list (expty->exp, NULL);
+      list = tra_new_exp_list (expty->exp, list);
     }
-  return new_expty (tra_seq_exp (slist), expty->ty);
+  return new_expty (tra_seq_exp (list), expty->ty);
 }
 
 static expty *
@@ -1131,7 +1173,7 @@ check_let_exp (tra_level *level_ptr,
                absyn_exp *exp_ptr,
                temp_label *break_done)
 {
-  tra_exp_list   *list = NULL, *slist = NULL;
+  tra_exp_list   *list = NULL;
   absyn_dec_list *dec_list = exp_ptr->u.let.decs;
 
   sym_begin_scope (venv_ptr); /* Start new declaration scope */
@@ -1145,10 +1187,8 @@ check_let_exp (tra_level *level_ptr,
                                       tenv_ptr,
                                       dec,
                                       break_done);
-      if (list == NULL)
-        slist = list = tra_new_exp_list (tra_exp, NULL);
-      else
-        list = list->tail = tra_new_exp_list (tra_exp, NULL);
+      if (tra_exp != NULL)
+        list = tra_new_exp_list (tra_exp, list);
     }
   /* Go trough body */
   expty *body = trans_exp (level_ptr,
@@ -1160,7 +1200,7 @@ check_let_exp (tra_level *level_ptr,
   sym_end_scope(tenv_ptr); /* End declaration scope */
   sym_end_scope(venv_ptr);
 
-  return new_expty (tra_let_exp (slist, body->exp), body->ty);
+  return new_expty (tra_let_exp (list, body->exp), body->ty);
 }
 
 static expty*
@@ -1547,7 +1587,34 @@ static typ_ty*
 check_record_ty (sym_table *tenv_ptr,
                  absyn_ty  *ty_ptr)
 {
-  return typ_new_record (mk_formal_field_list (tenv_ptr, ty_ptr->u.record));
+  //return typ_new_record (mk_formal_field_list (tenv_ptr, ty_ptr->u.record));
+  absyn_field_list *l;
+  typ_field_list *tl = NULL, *last_tl = NULL;
+  typ_ty *ty;
+  for (l = ty_ptr->u.record; l; l = l->tail)
+    {
+      /* Find the type */
+      ty = sym_lookup (tenv_ptr, l->head->typ);
+      if (!ty)
+        {
+          errm_printf (l->head->pos, "undefined type %s",
+                       sym_name (l->head->typ));
+          ty = typ_new_int ();
+        }
+      /* Ensure correct order of field list (not the reversed order) */
+      if (tl == NULL)
+        {
+          tl = typ_new_field_list (typ_new_field (l->head->name, ty), NULL);
+          last_tl = tl;
+        }
+      else
+        {
+          last_tl->tail = typ_new_field_list (typ_new_field (l->head->name, ty),
+                                              NULL);
+          last_tl = last_tl->tail;
+        }
+    }
+  return typ_new_record (tl);
 }
 
 static typ_ty*
@@ -1576,7 +1643,7 @@ check_name_ty (sym_table *tenv_ptr,
 /*
   Check that each type in field_list is declared.
   Add it to new typ_field_list .
-*/
+
 static typ_field_list *
 mk_formal_field_list (sym_table        *tenv,
                       absyn_field_list *list)
@@ -1603,15 +1670,16 @@ mk_formal_field_list (sym_table        *tenv,
     }
   return styfield_list;
 }
-
+*/
 /*
   Check that each type in field_list is declared.
   Add it to new typ_ty_list .
 */
 static typ_ty_list *
 mk_formal_ty_list (sym_table        *tenv,
-                   absyn_field_list *list)
+                   absyn_field_list *params)
 {
+  /*
   typ_ty_list *ty_list = NULL, *sty_list = NULL;
   for (; list != NULL; list = list->tail)
     {
@@ -1624,12 +1692,39 @@ mk_formal_ty_list (sym_table        *tenv,
         ty_list = ty_list->tail = typ_new_ty_list (typ, NULL);
     }
   return sty_list;
+  */
+  absyn_field_list *l;
+  typ_ty_list *tys = NULL, *last_tys = NULL;
+  for (l = params; l; l = l->tail)
+    {
+      /* Insert at tail to avoid order reversed */
+      if (tys == NULL)
+        {
+          tys = typ_new_ty_list (typ_new_name (l->head->name,
+                                               typ_actual_ty (trans_ty (tenv,
+                                                                        absyn_new_name_ty(l->head->pos,
+                                                                                          l->head->typ)))),
+                                 NULL);
+          last_tys = tys;
+        }
+      else
+        {
+          last_tys->tail = typ_new_ty_list(typ_new_name (l->head->name,
+                                                         typ_actual_ty (trans_ty (tenv,
+                                                                                  absyn_new_name_ty (l->head->pos,
+                                                                                                     l->head->typ)))),
+                                           NULL);
+          last_tys = last_tys->tail;
+        }
+    }
+  return tys;
 }
 
 /* Creates a bool list from the escape fields of formals */
 static util_bool_list *
 mk_formal_escape_list (absyn_field_list *params)
 {
+  /*
   util_bool_list *bool_list = NULL, *sbool_list = NULL;
   for (; params != NULL; params = params->tail)
     {
@@ -1640,6 +1735,15 @@ mk_formal_escape_list (absyn_field_list *params)
         bool_list = bool_list->tail = util_new_bool_list (field->escape, NULL);
     }
   return sbool_list;
+  */
+  absyn_field_list *l;
+  util_bool_list *bool_list = NULL;
+  for (l = params; l; l = l->tail)
+    {
+      /* Escape by default */
+      bool_list = util_new_bool_list (true, bool_list);
+    }
+  return bool_list;
 }
 
 /*

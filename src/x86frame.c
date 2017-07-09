@@ -12,7 +12,7 @@
 #include "include/util.h"
 
 
-#define MAX_REG_ARG 6 /* Max arg that goes trough registers on func call */
+//#define MAX_REG_ARG 6 /* Max arg that goes trough registers on func call */
 
 const int frm_word_size = 4;
 
@@ -216,7 +216,7 @@ frm_new_frame (temp_label     *name_ptr,
   return frame;
 }
 
-/* Converts a bool list into a frm_access_list */
+/* Converts a bool list into a frm_access_list
 static frm_access_list *
 formals_esc_to_access (util_bool_list *bool_list)
 {
@@ -234,7 +234,7 @@ formals_esc_to_access (util_bool_list *bool_list)
     }
   return sformals;
 }
-
+*/
 /**
  * Allocates a local variable on the frame (true) or register (false).
  *
@@ -271,12 +271,12 @@ frm_alloc_local (frm_frame *frame_ptr,
     {
       access = in_reg (temp_new_temp ());
       /* Add element to frame struct */
-      frm_new_access_list (access, frame_ptr->locals);
+      frame_ptr->locals = frm_new_access_list (access, frame_ptr->locals);
     }
   return access;
 }
 
-/* Allocates a formal on stack or register */
+/* Allocates a formal on stack or register
 static frm_access *
 alloc_formal (int  num_of_arg,
               bool escape)
@@ -286,7 +286,7 @@ alloc_formal (int  num_of_arg,
 
   return in_reg (temp_new_temp ());
 }
-
+*/
 int
 frm_access_offset (frm_access *a)
 {

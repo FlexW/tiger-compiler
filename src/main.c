@@ -81,7 +81,7 @@ do_proc (FILE      *out,
   assem_instr_list *ilist;
 
  frm_temp_map = temp_new_map ();
- //print_stm_list (stdout, tree_new_stm_list(body, NULL));
+ print_stm_list (stdout, tree_new_stm_list(body, NULL));
 
  stm_list = canon_linearize (body);
  stm_list = canon_trace_schedule (canon_basic_blocks (stm_list));
@@ -92,7 +92,7 @@ do_proc (FILE      *out,
       fprintf(stdout, "\n");
     }
  ilist  = codegen (frame, stm_list); /* 9 */
- // assem_print_instr_list (out, ilist, temp_layer_map(frm_temp_map, temp_name()));
+ //assem_print_instr_list (out, ilist, temp_layer_map(frm_temp_map, temp_name()));
 
  struct regalloc_result ra = regalloc_do (frame, ilist);  /* 10, 11 */
  ilist = ra.il;
@@ -219,8 +219,8 @@ main (int    argc,
     return 1;
 
   /* Convert filename */
-  //sprintf (outfile, "%s.s", argv[1]);
-  //out = fopen(outfile, "w");
+  sprintf (outfile, "%s.S", argv[1]);
+  out = fopen(outfile, "w");
 
   fprintf(out, ".globl tigermain\n\n");
   fprintf(out, ".text\n\n");
@@ -237,6 +237,6 @@ main (int    argc,
       if (frag->kind == FRM_STRING_FRAG)
         do_str (out, frag->u.str.str, frag->u.str.label);
     }
-  //fclose (out);
+  fclose (out);
   return 0;
 }

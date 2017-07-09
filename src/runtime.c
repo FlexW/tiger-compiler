@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern int tigermain (int);
 
 int *
 initArray (int size,

@@ -106,9 +106,9 @@ reorder (exp_ref_list *ref_list)
   else if ((*(tree_exp**)ref_list->head)->kind == TREE_CALL)
     {
       temp_temp *t = temp_new_temp();
-      *(tree_exp**)ref_list->head =
+      *ref_list->head =
         tree_new_eseq (tree_new_move (tree_new_temp(t),
-                                      *(tree_exp**)ref_list->head),
+                                      *ref_list->head),
                        tree_new_temp(t));
       return reorder (ref_list);
     }

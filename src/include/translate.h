@@ -75,7 +75,8 @@ tra_exp *         tra_if_exp          (tra_exp*,
 tra_exp *         tra_array_exp       (tra_exp* size_ptr,
                                        tra_exp* init_ptr);
 
-tra_exp *         tra_record_exp      (tra_exp_list *list_ptr);
+tra_exp *         tra_record_exp      (tra_exp_list *list_ptr,
+                                       int           field_count);
 
 tra_exp *         tra_while_exp       (tra_exp    *test_ptr,
                                        tra_exp    *body_ptr,
