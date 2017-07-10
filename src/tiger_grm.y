@@ -439,11 +439,19 @@ for:
 
 
 let:
-    LET declist IN exp END
-    {$$ = absyn_new_let_exp (errm_tok_pos, $2, $4);}
+    LET declist IN expsemicolonlist END
+    {
+      $$ = absyn_new_let_exp (errm_tok_pos,
+                              $2,
+                              absyn_new_seq_exp(errm_tok_pos, $4));
+    }
 
-|   LET error IN exp END
-    {$$ = absyn_new_let_exp (errm_tok_pos, NULL, $4);}
+|   LET error IN expsemicolonlist END
+    {
+      $$ = absyn_new_let_exp (errm_tok_pos,
+                              NULL,
+                              absyn_new_seq_exp (errm_tok_pos, $4));
+    }
 
 |   LET declist IN error END
     {$$ = absyn_new_let_exp (errm_tok_pos, $2, NULL);}

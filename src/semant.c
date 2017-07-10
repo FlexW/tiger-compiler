@@ -287,7 +287,7 @@ sem_trans_prog (absyn_exp *exp_ptr)
   sym_table *tenv  = env_base_tenv (); /* Get basic type enviroment */
   sym_table *venv  = env_base_venv (); /* Get basic variable enviroment */
   tra_level *outer = tra_outermost_level ();
-  //esc_find_escaping_var (exp_ptr); /* look for escaping variables */
+  esc_find_escaping_var (exp_ptr); /* look for escaping variables */
   /* Do sematic analyse */
   expty *prog = trans_exp (outer, venv, tenv, exp_ptr, NULL);
   tra_proc_entry_exit (outer, prog->exp, NULL);
