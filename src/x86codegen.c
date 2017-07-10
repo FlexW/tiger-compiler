@@ -431,6 +431,9 @@ munch_exp(tree_exp *e)
     case TREE_NAME:
       return generate_name (e, inst, inst2);
 
+    case TREE_CALL:
+      return generate_call (e, inst, inst2);
+
     default:
       assert(0);
   }

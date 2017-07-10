@@ -63,7 +63,12 @@ parse (char *fname_ptr)
   if (check_cmd_line_arg(PR_PARSE))
     yydebug = 1;
 
-  if (yyparse() == 0) /* parsing worked */
+  int res = yyparse();
+
+  if (errm_any_errors)
+    exit (0);
+
+  if (res == 0) /* parsing worked */
     return absyn_root;
 
   fprintf(stderr, "Parsing didn't worked\n");

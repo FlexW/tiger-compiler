@@ -872,26 +872,11 @@ check_seq_exp (tra_level *level_ptr,
     {
       absyn_exp *exp = exp_list->head;
 
-      if (exp->kind == ABSYN_BREAK_EXP)
-        {
-          expty = trans_exp (level_ptr,
-                               venv_ptr,
-                               tenv_ptr,
-                               exp,
-                               break_done);
-        }
-      else
-        {
-          /* Nested breaks are not allowed */
-          set_loop_status (&loop_status, false);
-          expty = trans_exp (level_ptr,
-                               venv_ptr,
-                               tenv_ptr,
-                               exp,
-                               break_done);
-          unset_loop_status (&loop_status);
-        }
-
+      expty = trans_exp (level_ptr,
+                         venv_ptr,
+                         tenv_ptr,
+                         exp,
+                         break_done);
       list = tra_new_exp_list (expty->exp, list);
     }
   return new_expty (tra_seq_exp (list), expty->ty);
@@ -1191,6 +1176,9 @@ check_let_exp (tra_level *level_ptr,
         list = tra_new_exp_list (tra_exp, list);
     }
   /* Go trough body */
+  if (exp_ptr->u.let.body == NULL)
+    exp_ptr->u.let.body = absyn_new_int_exp (exp_ptr->pos, 0);
+
   expty *body = trans_exp (level_ptr,
                            venv_ptr,
                            tenv_ptr,
