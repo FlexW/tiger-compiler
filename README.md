@@ -159,7 +159,7 @@ of the same name (as a type) in a smaller scope.
 However, no two functions in a sequence of mutually recursive functions may have the same name; 
 and no two types in a sequence of mutually recursive types may have the same name.
 
-## Variables and Expressions
+### Variables and Expressions
 ### L-Values
 An l-value is a location whose value may be read or assigned. 
 Variables, procedure parameters, fields of records, and elements of arrays are all l-values.
@@ -350,3 +350,43 @@ The result (if any) of the last exp in the sequence is then the result of the en
 
 **Parentheses:**
 Parentheses around any expression enforce syntactic grouping, as in most programming languages.
+
+## Implementation
+The compiler consists of different modules. The different modules are:
+
+- Lexer
+- Parser
+- Semantic Analysis
+- Translation to Intermediate Code
+- Instruction selection
+- Control Flow Analysis
+- Register Allocation
+- Code Emission
+
+The compiler will then output a assembly file, which must be passed to a linker to link it with the runtime library.
+
+## Usage
+First compile the compiler. You need a Linux system for that. I have just tested under Ubuntu 17.04. You also need Bison
+and Flex.
+
+```
+cd ~
+git clone https://github.com/FlexW/tiger-compiler
+cd tiger-compiler
+mkdir build
+cd build
+../configure
+make
+```
+In `~/tiger-compiler/build/src/` you will now find a binary named `tc`. This is the compiler.
+Run a simple test `./src/tc ../../test/testcases/queens.tig`. If everything goes right, the compiler will produce a assembly file in the same directory as the source file is. In this case `queens.tig.S`.
+
+Now pass this file to a linker and link it with `runtime.c` in `~/tiger-compiler/src/`.
+For example (assuming you have gcc installed):
+```
+cd ~
+gcc gcc -Wl,--wrap,getchar -m32 tiger-compiler/test/testcases/queens.tig.S tiger/compiler/src/runtime.c -o queens
+```
+Now you will have a binary file named `queens`.
+Run it with:
+`./queens`
