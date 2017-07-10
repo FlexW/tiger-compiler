@@ -25,7 +25,6 @@ libtiger_la_SOURCES = \
 	types.c \
 	x86frame.c \
 	tree.c \
-	list.c \
 	canon.c \
 	assem.c \
 	x86codegen.c \
@@ -52,7 +51,6 @@ EXTRA_DIST = \
 	include/types.h \
 	include/frame.h \
 	include/tree.h \
-	include/list.h \
 	include/canon.h \
 	include/assem.h \
 	include/codegen.h \
