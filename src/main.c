@@ -86,7 +86,7 @@ do_proc (FILE      *out,
   assem_instr_list *ilist;
 
  frm_temp_map = temp_new_map ();
- print_stm_list (stdout, tree_new_stm_list(body, NULL));
+ //print_stm_list (stdout, tree_new_stm_list(body, NULL));
 
  stm_list = canon_linearize (body);
  stm_list = canon_trace_schedule (canon_basic_blocks (stm_list));
