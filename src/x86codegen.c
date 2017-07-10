@@ -1,6 +1,6 @@
 /**
  * @file x86codegen.c
- * Code generation for x64 assembly after Maximal Munch.
+ * Code generation for x86 assembly after Maximal Munch.
  */
 
 #include <assert.h>

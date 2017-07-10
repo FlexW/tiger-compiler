@@ -1,6 +1,6 @@
 /**
  * @file x64frame.c
- * Creates stack frame layout for the x64 architecture.
+ * Creates stack frame layout for the x86 architecture.
  */
 
 #include <assert.h>
