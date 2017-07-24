@@ -28,7 +28,8 @@ print_temp (void* t) {
   printf("node: %s\n", temp_lookup (m, (temp_temp*)t));
 }
 
-static void print_inst (void *info)
+static void
+print_inst (void *info)
 {
   assem_instr *inst = (assem_instr*)info;
   assem_print (stdout, inst, temp_name ());
@@ -100,18 +101,7 @@ node_to_temp (graph_node *n)
     return NULL;
   return live_gtemp (n);
 }
-/*
-static bool
-equal_temp (temp_temp_list *ta,
-            temp_temp_list *tb)
-{
-  return temp_equal (ta, tb);
-}
 
-static temp_temp_list * minus_temp(temp_temp_list ta, temp_temp_list tb) {
-  return Temp_minus(ta, tb);
-}
-*/
 static temp_temp_list *
 union_temp (temp_temp_list *ta,
             temp_temp_list *tb)
@@ -132,11 +122,7 @@ temp_in (temp_temp      *t,
 {
   return temp_in_list (t, tl);
 }
-/*
-static temp_temp_list L(Temp_temp h, temp_temp_list t) {
-  return Temp_TempList(h, t);
-}
-*/
+
 static bool inst_in (assem_instr      *i,
                      assem_instr_list *il)
 {
@@ -310,22 +296,5 @@ regalloc_do (frm_frame        *f,
   }
   ret.coloring = col.coloring;
   ret.il = il;
-
-  // temp_temp_list precolored = NULL;
-  // temp_temp_list initial = NULL;
-  // temp_temp_list simplifyWorklist = NULL;
-  // temp_temp_list freezeWorklist = NULL;
-  // temp_temp_list spillWorklist = NULL;
-  // temp_temp_list spilledNodes = NULL;
-  // temp_temp_list coalesced_nodes = NULL;   // Coalesce
-  // temp_temp_list coloredNodes = NULL;
-  // temp_temp_list selectStack = NULL;
-
-  // temp_temp_list worklistMoves = NULL; // Coalesce
-
-  // do {
-
-  // } while (simplifyWorklist != NULL || worklistMoves != NULL);
-
   return ret;
 }

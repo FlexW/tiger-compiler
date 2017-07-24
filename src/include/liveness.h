@@ -7,7 +7,6 @@
  #define _LIVENESS_H_
 
 #include "assem.h"
-#include "list.h"
 #include "graph.h"
 #include "temp.h"
 

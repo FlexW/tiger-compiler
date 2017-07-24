@@ -52,20 +52,10 @@ emit (assem_instr *instr)
     }
 }
 
-/*
-temp_temp_list L(Temp_temp h, Temp_tempList t) {
-  return Temp_TempList(h, t);
-}
-*/
-
 assem_instr_list *
 codegen (frm_frame     *f,
          tree_stm_list *stm_list)
 {
-  // Temp_temp temp = Temp_newtemp();
-  // Temp_enter(F_tempMap, temp, "tmp");
-  // return AS_InstrList(AS_Move("movl", Temp_TempList(temp, NULL), Temp_TempList(temp, NULL)), NULL);
-
   assem_instr_list *list;
   tree_stm_list    *sl;
 
@@ -576,20 +566,7 @@ generate_move (tree_stm *s,
            else
              {
                /* MOVE(TEMP(t),CALL(e,args)) */
-               assert(0);
-               // munchCallerSave();
-               // tree_exp * e = src->u.CALL.fun;
-               // tree_exp *List args = src->u.CALL.args;
-               // temp_temp * t = dst->u.TEMP;
-               // temp_temp * r = munch_exp (e);
-               // temp_temp *List l = munchArgs(0, args);
-               // temp_temp *List calldefs = F_callersaves();
-               // sprintf(inst, "call *`s0\n");
-               // emit(assem_new_oper (inst, L(F_RV(), calldefs), L(r, l), NULL));
-               // munchCallerRestore(l);
-               // sprintf(inst2, "movl `s0, `d0\n");
-               // emit(AS_Move(inst2, L(t, NULL), L(F_RV(), NULL)));
-
+                 assert(0);
              }
          }
        else
@@ -650,17 +627,7 @@ generate_exp (tree_stm *s,
         }
       else
         {
-          /* EXP(CALL(e,args)) */
           assert(0);
-          // munchCallerSave();
-          // T_exp e = call->u.CALL.fun;
-          // T_expList args = call->u.CALL.args;
-          // Temp_temp r = munchExp(e);
-          // Temp_tempList l = munchArgs(0, args);
-          // Temp_tempList calldefs = F_callersaves();
-          // sprintf(inst, "call *`s0\n");
-          // emit(AS_Oper(inst, calldefs, L(r, l), NULL));
-          // munchCallerRestore(l);
         }
     }
   else

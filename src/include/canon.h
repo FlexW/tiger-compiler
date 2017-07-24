@@ -7,7 +7,6 @@
 #ifndef _CANON_H_
 #define _CANON_H_
 
-#include "list.h"
 #include "temp.h"
 #include "tree.h"
 

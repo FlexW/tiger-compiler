@@ -1,4 +1,4 @@
 # Makefile.am
 
 SUBDIRS = \
-	src . test
+	src . 

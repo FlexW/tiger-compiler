@@ -8,7 +8,6 @@
 
 #include <stdbool.h>
 
-#include "list.h"
 #include "frame.h"
 #include "temp.h"
 #include "util.h"

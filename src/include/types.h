@@ -10,7 +10,6 @@
 
 #include <stdbool.h>
 
-#include "list.h"
 #include "symbol.h"
 
 

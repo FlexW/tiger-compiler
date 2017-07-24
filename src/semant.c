@@ -50,9 +50,6 @@ static bool_list*      new_bool_list         (bool       head,
 static expty*          new_expty             (tra_exp *exp_ptr,
                                               typ_ty *ty_ptr);
 
-static typ_field_list* mk_formal_field_list  (sym_table        *tenv_ptr,
-                                              absyn_field_list *list_ptr);
-
 static typ_ty_list*    mk_formal_ty_list     (sym_table        *tenv_ptr,
                                               absyn_field_list *list_ptr);
 
@@ -1628,59 +1625,14 @@ check_name_ty (sym_table *tenv_ptr,
   return typ;
 }
 
-/*
-  Check that each type in field_list is declared.
-  Add it to new typ_field_list .
-
-static typ_field_list *
-mk_formal_field_list (sym_table        *tenv,
-                      absyn_field_list *list)
-{
-  typ_field_list *tyfield_list = NULL, *styfield_list = NULL;
-  for (; list != NULL; list = list->tail)
-    {
-      absyn_field *field = list->head;
-      typ_ty      *typ   = sym_lookup (tenv, field->typ);
-
-      if (typ == NULL)
-        {
-          errm_printf (field->pos,
-                       "Type %s not declared",
-                       sym_name (field->typ));
-          typ = typ_new_int ();
-        }
-
-      typ_field *tyfield = typ_new_field (field->name, typ);
-      if (tyfield_list == NULL)
-        styfield_list = tyfield_list = typ_new_field_list (tyfield, NULL);
-      else
-        tyfield_list = tyfield_list->tail = typ_new_field_list (tyfield, NULL);
-    }
-  return styfield_list;
-}
-*/
-/*
-  Check that each type in field_list is declared.
-  Add it to new typ_ty_list .
-*/
+/**
+ * Check that each type in field_list is declared.
+ * Add it to new typ_ty_list .
+ */
 static typ_ty_list *
 mk_formal_ty_list (sym_table        *tenv,
                    absyn_field_list *params)
 {
-  /*
-  typ_ty_list *ty_list = NULL, *sty_list = NULL;
-  for (; list != NULL; list = list->tail)
-    {
-      absyn_field *field = list->head;
-      typ_ty      *typ   = sym_lookup (tenv, field->typ);
-
-      if (ty_list == NULL)
-        sty_list = ty_list = typ_new_ty_list (typ, NULL);
-      else
-        ty_list = ty_list->tail = typ_new_ty_list (typ, NULL);
-    }
-  return sty_list;
-  */
   absyn_field_list *l;
   typ_ty_list *tys = NULL, *last_tys = NULL;
   for (l = params; l; l = l->tail)
@@ -1708,22 +1660,10 @@ mk_formal_ty_list (sym_table        *tenv,
   return tys;
 }
 
-/* Creates a bool list from the escape fields of formals */
+/** Creates a bool list from the escape fields of formals */
 static util_bool_list *
 mk_formal_escape_list (absyn_field_list *params)
 {
-  /*
-  util_bool_list *bool_list = NULL, *sbool_list = NULL;
-  for (; params != NULL; params = params->tail)
-    {
-      absyn_field *field = params->head;
-      if (bool_list == NULL)
-        sbool_list = bool_list = util_new_bool_list (field->escape, NULL);
-      else
-        bool_list = bool_list->tail = util_new_bool_list (field->escape, NULL);
-    }
-  return sbool_list;
-  */
   absyn_field_list *l;
   util_bool_list *bool_list = NULL;
   for (l = params; l; l = l->tail)
@@ -1734,10 +1674,10 @@ mk_formal_escape_list (absyn_field_list *params)
   return bool_list;
 }
 
-/*
-  Checks if sym_ptr is declared till marked symbol.
-  Return true on declared. If not found false.
-*/
+/**
+ * Checks if sym_ptr is declared till marked symbol.
+ * Return true on declared. If not found false.
+ */
 static bool
 check_dec_till_mark (sym_table  *table_ptr,
                      sym_symbol *sym_ptr)
@@ -1748,7 +1688,7 @@ check_dec_till_mark (sym_table  *table_ptr,
   return true;
 }
 
-/*
+/**
   Functions to manipulate a bool list.
   Used for getting and setting status of for and while loop.
   Needed to make sure break statement is in the right position.

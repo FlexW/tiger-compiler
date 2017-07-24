@@ -11,9 +11,6 @@
 #include "include/errormsg.h"
 #include "include/util.h"
 
-
-//#define MAX_REG_ARG 6 /* Max arg that goes trough registers on func call */
-
 const int frm_word_size = 4;
 
 temp_map * frm_temp_map = NULL;
@@ -77,11 +74,6 @@ static frm_access *      in_reg                (temp_temp *reg_ptr);
 
 static int               calc_offset           (int num_of_arg);
 
-static frm_access *      alloc_formal          (int  num_of_arg,
-                                                bool escape);
-
-static frm_access_list * formals_esc_to_access (util_bool_list *formals_ptr);
-
 static void              bind_temp             (temp_temp *label,
                                                 char      *name);
 
@@ -114,40 +106,6 @@ frm_new_access_list (frm_access *head,
   l->tail = tail;
   return l;
 }
-
-/**
- * Returns the frame pointer register.
- *
- * @return Frame pointer register.
- *//*
-temp_temp *
-frm_frame_pointer (void)
-{
-  static temp_temp *frame_pointer = NULL;
-
-  if (frame_pointer == NULL)
-    {
-      frame_pointer = temp_new_temp ();
-      bind_temp (frame_pointer, "FP");
-    }
-  return frame_pointer;
-  }*/
-
-/**
- * Gets a list with all named temporaries.
- *
- * @returns Map.
- *//*
-temp_map *
-frm_get_temp_map (void)
-{
-  static temp_map *frm_temp_map = NULL;
-
-  if (frm_temp_map == NULL)
-    frm_temp_map = temp_new_map ();
-
-  return frm_temp_map;
-  }*/
 
 /**
  * Turns a frm_access into the intermediate tree representation.
@@ -216,25 +174,6 @@ frm_new_frame (temp_label     *name_ptr,
   return frame;
 }
 
-/* Converts a bool list into a frm_access_list
-static frm_access_list *
-formals_esc_to_access (util_bool_list *bool_list)
-{
-  frm_access_list *formals = NULL, *sformals = NULL;
-
-  for (int i = 0; bool_list != NULL; bool_list = bool_list->tail, i++)
-    {
-      bool        b      = bool_list->head;
-      frm_access *access = alloc_formal (i + 1, b);
-
-      if (formals == NULL)
-        sformals = formals = frm_new_access_list (access, NULL);
-      else
-        formals = formals->tail = frm_new_access_list (access, NULL);
-    }
-  return sformals;
-}
-*/
 /**
  * Allocates a local variable on the frame (true) or register (false).
  *
@@ -423,6 +362,7 @@ frm_proc_entry_exit1 (frm_frame *frame_ptr,
 
 static temp_temp_list *return_sink = NULL;
 
+/* TODO: Make this code readable */
 assem_instr_list *
 frm_proc_entry_exit2 (assem_instr_list *body)
 {
@@ -494,24 +434,6 @@ frm_new_proc_frag (tree_stm  *body_ptr,
 }
 
 /**
- * Returns a function return value location.
- *
- * @return Function return location.
- *//*
-temp_temp *
-frm_ret_val_location (void)
-{
-  static temp_temp *ret = NULL;
-
-  if (ret == NULL)
-    {
-      ret = temp_new_temp ();
-      bind_temp (ret, "RV");
-    }
-  return ret;
-}*/
-
-/**
  * Determines if a given access is allocated on the frame
  * or in a register.
  *
@@ -532,40 +454,7 @@ frm_is_access_in_reg (frm_access *access)
       assert (0);
     }
 }
-/*
-static temp_temp_list *
-caller_saves ()
-{
-   // assist-function of calldefs()
 
-    temp_temp *rcx = temp_new_temp (),
-      // *rbx = temp_new_temp (),
-              *rdx = temp_new_temp (),
-              *rdi = temp_new_temp (),
-              *rsi = temp_new_temp (),
-              *r8  = temp_new_temp (),
-              *r9  = temp_new_temp ();
-
-    //temp_bind_temp (frm_get_temp_map (), rbx, "rbx");
-    temp_bind_temp (frm_get_temp_map (), rcx, "rcx");
-    temp_bind_temp (frm_get_temp_map (), rdx, "rdx");
-    temp_bind_temp (frm_get_temp_map (), rdi, "rdi");
-    temp_bind_temp (frm_get_temp_map (), rsi, "rsi");
-    temp_bind_temp (frm_get_temp_map (), r8, "r8");
-    temp_bind_temp (frm_get_temp_map (), r9, "r9");
-
-    temp_temp_list * list = list_new_list (rsi, NULL);
-    list                  = list_new_list (rdi, list);
-    list                  = list_new_list (rdx, list);
-    list                  = list_new_list (rcx, list);
-    list                  = list_new_list (r8, list);
-    list                  = list_new_list (r9, list);
-    //list                  = list_new_list (rbx, list);
-    list                  = list_new_list (frm_ret_val_location (), list);
-
-    return list;;
-}
-*/
 /**
  * Gets a list of all registers that may be modified.
  *
