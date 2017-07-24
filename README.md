@@ -377,9 +377,10 @@ mkdir build
 cd build
 ../configure
 make
+sudo make install
+export LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib
 ```
-In `~/tiger-compiler/build/src/` you will now find a binary named `tc`. This is the compiler.
-Run a simple test `./src/tc ../../test/testcases/queens.tig`. If everything goes right, the compiler will produce a assembly file in the same directory as the source file is. In this case `queens.tig.S`.
+Run a simple test `tc ../test/testcases/queens.tig`. If everything goes right, the compiler will produce a assembly file in the same directory as the source file is. In this case `queens.tig.S`.
 
 Now pass this file to a linker and link it with `runtime.c` in `~/tiger-compiler/src/`.
 For example (assuming you have gcc installed):
