@@ -1,5 +1,5 @@
 # Tiger Compiler
-This is my implementation for the Tiger compiler form Andrew W. Appels book, Modern Compiler Implementation in C.
+This is my implementation for the Tiger compiler form Andrew W. Appels book, Modern Compiler Implementation in C. With this project I tried to learn how a compiler works.
 
 The Tiger language is a small language with nested functions, record values with implicit pointers, arrays, integer and string variables, and a few simple structured control constructs.
 
