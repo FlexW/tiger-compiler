@@ -386,7 +386,7 @@ Now pass this file to a linker and link it with `runtime.c` in `~/tiger-compiler
 For example (assuming you have gcc installed):
 ```
 cd ~
-gcc -Wl,--wrap,getchar -m32 tiger-compiler/test/testcases/queens.tig.S tiger/compiler/src/runtime.c -o queens
+gcc -Wl,--wrap,getchar -m32 tiger-compiler/test/testcases/queens.tig.S tiger-compiler/src/runtime.c -o queens
 ```
 Now you will have a binary file named `queens`.
 Run it with:
