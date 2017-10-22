@@ -366,7 +366,7 @@ The compiler consists of different modules. The different modules are:
 The compiler will then output a assembly file, which must be passed to a linker to link it with the runtime library.
 
 ## Usage
-First compile the compiler. You need a Linux system for that. I have just tested under Ubuntu 17.04. You also need Bison
+First compile the compiler. You need a GNU/Linux system for that. I have just tested under Ubuntu 17.04. You also need Bison
 and Flex.
 
 ```
